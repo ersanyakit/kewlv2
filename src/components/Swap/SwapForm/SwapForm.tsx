@@ -49,9 +49,6 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
     tokenFilter,
     favoriteOnly,
     filteredTokens,
-    fromAmount,
-    toAmount,
-    rate,
     tradeType,
     openTokenSelector,
     setOpenTokenSelector,
@@ -62,22 +59,30 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
     handleSwapTokens,
     setSelectingTokenIndex,
     setTradeType,
-    handleFromChange,
-    handleToChange
+
   } = useTokenContext();
-  const { getSimpleSwapTradeInfo } = useSwapContext();
+  const {
+    tradeInfo,
+    fromAmount,
+    toAmount,
+    baseReservePercent,
+    quoteReservePercent,
+    baseReserveAmount,
+    quoteReserveAmount,
+    handleFromChange,
+    handleToChange } = useSwapContext();
   const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
 
 
 
 
 
-  useEffect(()=>{
-    getSimpleSwapTradeInfo();
-    console.log("ersan baseToken",baseToken);
-    console.log("ersan quoteToken",quoteToken);
-    
-  },[baseToken,quoteToken]);
+  useEffect(() => {
+
+    console.log("ersan baseToken", baseToken);
+    console.log("ersan quoteToken", quoteToken);
+
+  }, [baseToken, quoteToken]);
 
   return (
     <motion.div
@@ -200,7 +205,7 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                   />
                   {toAmount && (
                     <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
-                      <span>≈ ${(parseFloat(toAmount) * parseFloat( quoteToken ? quoteToken?.price.replace('$', '') : '0')).toFixed(2)}</span>
+                      <span>≈ ${(parseFloat(toAmount) * parseFloat(quoteToken ? quoteToken?.price.replace('$', '') : '0')).toFixed(2)}</span>
                     </div>
                   )}
                 </div>
@@ -233,54 +238,42 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
               {/* Professional Combined Info Panel */}
               <div className={`${isDarkMode ? 'bg-gray-800/90 border-gray-700' : 'bg-white/90 border-gray-100'} backdrop-blur-md rounded-xl px-3 py-2 flex flex-col shadow-lg border mb-2 relative overflow-hidden group`}>
                 {/* Enhanced subtle background gradient with animation */}
-                
+
                 {/* Streamlined Header: Exchange Rate with Visual Focus */}
                 <div className="flex items-center justify-between relative">
                   <div className="flex items-center">
                     {/* Token pair with better visual and subtle animation */}
-                    <div className="relative flex items-center rounded-full overflow-hidden transition-transform duration-300 hover:scale-105">
-                      <div className="flex items-center rounded-full overflow-hidden p-0.5 bg-gradient-to-r from-[#ff1356]/20 to-[#3b82f6]/20">
-                        <div className={`p-0.5 z-10 rounded-full ${isDarkMode ? 'bg-gray-800/80' : 'bg-white/80'}`}>
-                    <TokenShape isDarkMode={isDarkMode} token={baseToken} size="sm" />
-                        </div>
-                        <div className={`absolute p-0.5 rounded-full left-4 z-20 ${isDarkMode ? 'bg-gray-800/80' : 'bg-white/80'} shadow-sm`}>
-                    <TokenShape isDarkMode={isDarkMode} token={quoteToken} size="sm" />
-                  </div>
-                </div>
-              </div>
+                    <div className="flex items-center flex-row gap-0">
+                      <TokenShape isDarkMode={isDarkMode} token={baseToken} size="sm" />
+                      <TokenShape isDarkMode={isDarkMode} token={quoteToken} size="sm" />
+                    </div>
 
-                    {/* Rate info with better typography and subtle highlight */}
-                    <div className="ml-5">
-                      <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                        Rate: <span className={`${isDarkMode ? 'text-gray-100' : 'text-gray-900'} font-semibold`}>{rate}</span>
+                    <div className="w-full px-2">
+                      <div className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
+                        1 {baseToken && baseToken.symbol} = {tradeInfo && tradeInfo.executionPrice.toSignificant(6)} {quoteToken && quoteToken.symbol}
                       </div>
                       <div className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
-                        1 {baseToken && baseToken.symbol} = {rate} {quoteToken && quoteToken.symbol}
-                        <span className="flex items-center ml-1 text-gray-400 bg-gray-100/50 dark:bg-gray-700/50 px-1 py-0.5 rounded-full">
-                          <RefreshCw className="w-2 h-2 mr-0.5 animate-pulse" />
-                          <span className="text-[8px]">Live</span>
-                        </span>
+                        1 {quoteToken && quoteToken.symbol} = {tradeInfo && tradeInfo.executionPrice.invert().toSignificant(6)} {baseToken && baseToken.symbol}
                       </div>
                     </div>
                   </div>
-                  
+
                   {/* Improved Details toggle button with enhanced visual feedback */}
-                  <button 
-                    className={`flex items-center justify-center p-1.5 rounded-lg transition-all ${
-                      isDarkMode 
-                        ? 'text-gray-300 hover:bg-gray-700/70 hover:text-gray-100 active:bg-gray-600/50' 
-                        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 active:bg-gray-200/50'
-                    } focus:outline-none focus:ring-1 focus:ring-[#ff1356]/30`}
+                  <button
+                    className={`flex items-center justify-center p-1.5 rounded-lg transition-all ${isDarkMode
+                      ? 'text-gray-300 hover:bg-gray-700/70 hover:text-gray-100 active:bg-gray-600/50'
+                      : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 active:bg-gray-200/50'
+                      } focus:outline-none focus:ring-1 focus:ring-[#ff1356]/30`}
                     aria-expanded="false"
                     aria-controls="detailsPanel"
                   >
                     <span className={`text-xs mr-1.5 font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Details</span>
-                    <label 
-                      htmlFor="details-toggle" 
+                    <label
+                      htmlFor="details-toggle"
                       className="cursor-pointer"
                     >
-                      <div 
-                        id="expandChevron" 
+                      <div
+                        id="expandChevron"
                         className="transition-transform duration-300 bg-gradient-to-r from-[#ff1356]/10 to-[#3b82f6]/10 p-1 rounded-full"
                       >
                         <ChevronDown className="w-3.5 h-3.5" />
@@ -290,53 +283,54 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                   {/* Hidden checkbox for CSS-only toggle */}
                   <input type="checkbox" id="details-toggle" className="hidden peer" />
                 </div>
-                
+
                 {/* Metrics band - Elegant unified display with improved hover effects */}
                 <div className="mt-2 bg-gradient-to-r from-[#ff1356]/5 via-transparent to-[#3b82f6]/5 rounded-lg p-1.5 flex flex-wrap items-center justify-between">
                   {/* Liquidity with mini chart and hover effect */}
                   <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md hover:bg-gray-100/30 dark:hover:bg-gray-700/30 transition-colors">
                     <div className="flex flex-col mr-1">
                       <span className={`text-[9px] font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Liquidity</span>
-                      <div className="flex items-center">
-                        <div className="h-1 w-5 rounded-l-full bg-gradient-to-r from-[#ff1356] to-[#ff4080]"></div>
-                        <div className="h-1 w-2 rounded-r-full bg-gradient-to-r from-[#3b82f6] to-[#60a5fa]"></div>
+
+                      <div className="flex h-1 w-full rounded-full overflow-hidden">
+                        <div
+                          className="w-full h-full"
+                          style={{
+                            background: baseReservePercent && quoteReservePercent
+                              ? `linear-gradient(to right, #ff4080 0%, #ff4080 ${baseReservePercent.toSignificant(2)}%, #60a5fa ${baseReservePercent.toSignificant(2)}%, #60a5fa 100%)`
+                              : "#e5e7eb" // fallback color
+                          }}
+                        />
                       </div>
                     </div>
-                    <span className={`text-[10px] font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>70/30</span>
+                    <span className={`text-[10px] font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>{baseReservePercent ? baseReservePercent.toSignificant(2) : " - "}% / {quoteReservePercent ? quoteReservePercent.toSignificant(2) : "-"}%</span>
                   </div>
-                  
+
                   {/* Slippage with better indicator */}
                   <div className="flex flex-col items-center py-0.5 px-1.5 rounded-md hover:bg-gray-100/30 dark:hover:bg-gray-700/30 transition-colors">
                     <span className={`text-[9px] font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Slippage</span>
-                    <span className={`text-[10px] font-medium ${
-                      slippageTolerance <= 0.5 ? 'text-green-500' : 
-                      slippageTolerance <= 1 ? 'text-blue-500' : 
-                      slippageTolerance <= 2 ? 'text-yellow-500' : 'text-red-500'
-                    }`}>{slippageTolerance}%</span>
-                    </div>
-                  
+                    <span className={`text-[10px] font-medium ${slippageTolerance <= 0.5 ? 'text-green-500' :
+                      slippageTolerance <= 1 ? 'text-blue-500' :
+                        slippageTolerance <= 2 ? 'text-yellow-500' : 'text-red-500'
+                      }`}>{slippageTolerance}%</span>
+                  </div>
+
                   {/* Price impact with improved indicator */}
                   <div className="flex flex-col items-center py-0.5 px-1.5 rounded-md hover:bg-gray-100/30 dark:hover:bg-gray-700/30 transition-colors">
                     <span className={`text-[9px] font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Price Impact</span>
-                    <span className={`text-[10px] font-medium ${
-                      1.2 <= 0.5 ? 'text-green-500' : 
-                      1.2 <= 1.5 ? 'text-yellow-500' : 
-                      1.2 <= 3 ? 'text-orange-500' : 'text-red-500'
-                    }`}>1.2%</span>
+                    <span className={`text-[10px] font-medium ${1.2 <= 0.5 ? 'text-green-500' :
+                      1.2 <= 1.5 ? 'text-yellow-500' :
+                        1.2 <= 3 ? 'text-orange-500' : 'text-red-500'
+                      }`}>1.2%</span>
                   </div>
-                  
-                  {/* 24h Volume with better indicator */}
-                  <div className="flex flex-col items-center py-0.5 px-1.5 rounded-md hover:bg-gray-100/30 dark:hover:bg-gray-700/30 transition-colors">
-                    <span className={`text-[9px] font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>24h Volume</span>
-                    <span className={`text-[10px] font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>$2.4M</span>
-                  </div>
+
+
                 </div>
 
                 {/* CSS-only collapsible panel - no JavaScript needed */}
-                <div 
+                <div
                   id="detailsPanel"
                   className="  peer-checked:h-auto peer-checked:max-h-[800px] peer-checked:opacity-100 peer-checked:visible peer-checked:mt-2 overflow-hidden transition-all duration-300"
-                  style={{transitionProperty: 'max-height, opacity, margin, visibility'}}
+                  style={{ transitionProperty: 'max-height, opacity, margin, visibility' }}
                 >
                   <div className={`pt-3 border-t ${isDarkMode ? 'border-gray-700/50' : 'border-gray-200/50'}`}>
                     {/* Improved Liquidity Distribution with amounts */}
@@ -360,29 +354,29 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                           </div>
                         </div>
                       </div>
-                      
+
                       {/* Enhanced progress bar with quantity indicators */}
                       <div className="relative group pb-1">
                         <div className="flex justify-between text-[9px] text-gray-500 mb-1 px-0.5">
                           <div className="flex items-center gap-1">
                             <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#ff1356] to-[#ff4080]"></div>
                             <span className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                              {baseToken && baseToken.symbol} <span className="text-[8px] font-mono">(1,234,567)</span>
+                              {baseToken && baseToken.symbol} <span className="text-[8px] font-mono">({baseReserveAmount ? baseReserveAmount.toSignificant(6) : " - "})</span>
                             </span>
                           </div>
                           <div className="flex items-center gap-1">
                             <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#60a5fa]"></div>
                             <span className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                              {quoteToken && quoteToken.symbol} <span className="text-[8px] font-mono">(400,000)</span>
+                              {quoteToken && quoteToken.symbol} <span className="text-[8px] font-mono">({quoteReserveAmount ? quoteReserveAmount.toSignificant(6) : " - "})</span>
                             </span>
                           </div>
                         </div>
 
                         <div className={`h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-gray-700/70' : 'bg-gray-200/70'} shadow-inner`}>
                           <div className="flex h-full">
-                            <div 
-                              className="bg-gradient-to-r from-[#ff1356] to-[#ff4080] relative group" 
-                              style={{ width: '70%' }}
+                            <div
+                              className="bg-gradient-to-r from-[#ff1356] to-[#ff4080] relative group"
+                              style={{ width: baseReservePercent ? `${baseReservePercent.toSignificant(2)}%` : "0%" }}
                             >
                               {/* Hover tooltip for base token reserves */}
                               <div className="absolute opacity-0 group-hover:opacity-100 -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-200">
@@ -391,9 +385,9 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                                 </div>
                               </div>
                             </div>
-                            <div 
-                              className="bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] relative group" 
-                              style={{ width: '30%' }}
+                            <div
+                              className="bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] relative group"
+                              style={{ width: quoteReservePercent ? `${quoteReservePercent.toSignificant(2)}%` : "0%" }}
                             >
                               {/* Hover tooltip for quote token reserves */}
                               <div className="absolute opacity-0 group-hover:opacity-100 -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-200">
@@ -407,16 +401,19 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
 
                         {/* Reserve indicator below */}
                         <div className="flex justify-between px-2 mt-1">
-                          <div className="text-[8px] text-gray-500 font-mono">
-                            <span className={`${isDarkMode ? 'text-pink-500/80' : 'text-pink-500'}`}>70%</span>
-                          </div>
-                          <div className="text-[8px] text-gray-500 font-mono">
-                            <span className={`${isDarkMode ? 'text-blue-500/80' : 'text-blue-500'}`}>30%</span>
-                          </div>
+                        <div
+                          className="w-full h-full"
+                          style={{
+                            background: baseReservePercent && quoteReservePercent
+                              ? `linear-gradient(to right, #ff4080 0%, #ff4080 ${baseReservePercent.toSignificant(2)}%, #60a5fa ${baseReservePercent.toSignificant(2)}%, #60a5fa 100%)`
+                              : "#e5e7eb" // fallback color
+                          }}
+                        />
+                         
                         </div>
                       </div>
                     </div>
-                    
+
                     <div className="mb-3">
                       <div className="flex justify-between items-center mb-1.5">
                         <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
@@ -424,18 +421,16 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                         </div>
                         <div className="flex items-center gap-2">
                           <div className="flex items-center">
-                            <div className={`w-2 h-2 rounded-full ${
-                              1.2 <= 0.5 ? 'bg-green-500' : 
-                              1.2 <= 1.5 ? 'bg-yellow-500' : 
-                              1.2 <= 3 ? 'bg-orange-500' : 
-                              'bg-red-500'
-                            } mr-1`}></div>
-                            <span className={`text-[10px] ${
-                              1.2 <= 0.5 ? 'text-green-500' : 
-                              1.2 <= 1.5 ? 'text-yellow-500' : 
-                              1.2 <= 3 ? 'text-orange-500' : 
-                              'text-red-500'
-                            } font-medium`}>
+                            <div className={`w-2 h-2 rounded-full ${1.2 <= 0.5 ? 'bg-green-500' :
+                              1.2 <= 1.5 ? 'bg-yellow-500' :
+                                1.2 <= 3 ? 'bg-orange-500' :
+                                  'bg-red-500'
+                              } mr-1`}></div>
+                            <span className={`text-[10px] ${1.2 <= 0.5 ? 'text-green-500' :
+                              1.2 <= 1.5 ? 'text-yellow-500' :
+                                1.2 <= 3 ? 'text-orange-500' :
+                                  'text-red-500'
+                              } font-medium`}>
                               Current: 1.2%
                             </span>
                           </div>
@@ -446,7 +441,7 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                             </span>
                           </div>
                         </div>
-                  </div>
+                      </div>
 
                       {/* Enhanced risk level labels */}
                       <div className="flex justify-between text-[9px] text-gray-500 mb-1 px-0.5">
@@ -480,8 +475,8 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                         <div className={`h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-gray-700/70' : 'bg-gray-200/70'} shadow-inner`}>
                           <div className="flex h-full">
                             {/* Green zone (0-1%) */}
-                            <div 
-                              className="bg-gradient-to-r from-green-600 to-green-400 relative group" 
+                            <div
+                              className="bg-gradient-to-r from-green-600 to-green-400 relative group"
                               style={{ width: '20%' }}
                             >
                               {/* Hover tooltip */}
@@ -492,8 +487,8 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                               </div>
                             </div>
                             {/* Yellow zone (1-2%) */}
-                            <div 
-                              className="bg-gradient-to-r from-yellow-500 to-yellow-400 relative group" 
+                            <div
+                              className="bg-gradient-to-r from-yellow-500 to-yellow-400 relative group"
                               style={{ width: '20%' }}
                             >
                               {/* Hover tooltip */}
@@ -504,8 +499,8 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                               </div>
                             </div>
                             {/* Orange zone (2-3%) */}
-                            <div 
-                              className="bg-gradient-to-r from-orange-500 to-orange-400 relative group" 
+                            <div
+                              className="bg-gradient-to-r from-orange-500 to-orange-400 relative group"
                               style={{ width: '20%' }}
                             >
                               {/* Hover tooltip */}
@@ -516,8 +511,8 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                               </div>
                             </div>
                             {/* Red zone (3%+) */}
-                            <div 
-                              className="bg-gradient-to-r from-red-500 to-red-600 relative group" 
+                            <div
+                              className="bg-gradient-to-r from-red-500 to-red-600 relative group"
                               style={{ width: '40%' }}
                             >
                               {/* Hover tooltip */}
@@ -528,13 +523,13 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                               </div>
                             </div>
                           </div>
-                          
+
                           {/* Current value indicator */}
                           <div className="absolute inset-y-0 flex items-center" style={{ left: '24%' }}>
                             <div className="relative">
                               <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-4 w-0.5 bg-white dark:bg-gray-800"></div>
                               <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white dark:bg-gray-800 border-2 border-yellow-500 shadow-sm"></div>
-                              
+
                               {/* Current value tooltip (always visible) */}
                               <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
                                 <div className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${isDarkMode ? 'bg-gray-800 text-yellow-400' : 'bg-white text-yellow-600'} shadow-sm border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
@@ -543,12 +538,12 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                               </div>
                             </div>
                           </div>
-                          
+
                           {/* Slippage tolerance indicator */}
                           <div className="absolute inset-y-0 flex items-center z-10" style={{ left: `${slippageTolerance * 20}%` }}>
                             <div className="relative">
                               <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-4 w-0.5 bg-orange-500"></div>
-                              
+
                               {/* Tolerance indicator tooltip */}
                               <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                                 <div className={`text-[8px] font-medium px-1 py-0.5 rounded ${isDarkMode ? 'bg-gray-800 text-orange-400' : 'bg-white text-orange-600'} shadow-sm border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
@@ -568,7 +563,7 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                           <div className="text-[8px] text-gray-500 font-mono">5%</div>
                         </div>
                       </div>
-                      
+
                       {/* Explanation text */}
                       <div className="text-[9px] text-gray-500 mt-2 leading-tight">
                         Price impact shows how your trade affects the market price. Lower values indicate minimal market disruption.
@@ -731,7 +726,7 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                                     token.balance
                                   )}
                                 </div>
-                                
+
                               </div>
                             </div>
                           );

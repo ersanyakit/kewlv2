@@ -38,9 +38,6 @@ interface TokenContextType {
   filteredTokens: Token[];
   tradeType: TradeType;
   openTokenSelector:boolean;
-  fromAmount: string;
-  toAmount: string;
-  rate: number;
   account: string;
   isDarkMode: boolean; // Tema durumu
   isLoading: boolean; // Token listesi yüklenme durumu
@@ -55,8 +52,6 @@ interface TokenContextType {
   selectToken: (token: Token) => void;
   handleSwapTokens: () => void;
   setTokenList: (tokenList: Token[]) => void;
-  handleFromChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  handleToChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   toggleDarkMode: () => void; // Tema değiştirme fonksiyonu
   reloadTokens: () => void;
 }
@@ -70,9 +65,6 @@ const defaultContext: TokenContextType = {
   tokenFilter: '',
   favoriteOnly: false,
   filteredTokens: [],
-  fromAmount: '',
-  toAmount: '',
-  rate: 0,
   account: '',
   isDarkMode: false,
   isLoading: false,
@@ -89,11 +81,9 @@ const defaultContext: TokenContextType = {
   setFavoriteOnly: () => {},
   selectToken: () => {},
   handleSwapTokens: () => {},
-  handleFromChange: () => {},
-  handleToChange: () => {},
   toggleDarkMode: () => {},
   setTokenList: () => {},
-  reloadTokens: () => {}
+  reloadTokens: () => {},
 };
 
 // Context'i oluştur
@@ -211,8 +201,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [favoriteOnly, setFavoriteOnly] = useState<boolean>(false);
   const [account, setAccount] = useState<string>('');
   // Input değerleri için state
-  const [fromAmount, setFromAmount] = useState<string>('');
-  const [toAmount, setToAmount] = useState<string>('');
+
   
   // Dark mode state
   const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
@@ -259,11 +248,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     });
   }, [tokens, tokenFilter, favoriteOnly]);
 
-  // Rate hesaplama - useMemo ile optimize edildi
-  const rate = useMemo(() => {
-    const baseRate = 0.00005869;
-    return parseFloat(fromAmount) > 1000 ? baseRate * 1.02 : baseRate;
-  }, [fromAmount]);
+ 
 
   // Token seçme fonksiyonu
   const selectToken = (token: Token) => {
@@ -280,32 +265,13 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const tempToken = baseToken;
     setBaseToken(quoteToken);
     setQuoteToken(tempToken);
-    
-    // Ayrıca input değerlerini de yer değiştir
-    const tempAmount = fromAmount;
-    setFromAmount(toAmount);
-    setToAmount(tempAmount);
   };
 
   const setTokenList = (tokenList: Token[]) => {
       setTokens(tokenList);
   }
 
-  // Input değişiklikleri için handler'lar
-  const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value.replace(/[^0-9.]/g, '');
-    setFromAmount(v);
-    const calc = parseFloat(v || '0') * rate;
-    setToAmount(isNaN(calc) ? '' : calc.toFixed(6));
-  };
-
-  const handleToChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const v = e.target.value.replace(/[^0-9.]/g, '');
-    setToAmount(v);
-    const calc = parseFloat(v || '0') / rate;
-    setFromAmount(isNaN(calc) ? '' : calc.toFixed(6));
-  };
-
+  
   const reloadTokens = () => {
     setTokens([]);
     loadTokens();
@@ -321,9 +287,6 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     openTokenSelector,
     favoriteOnly,
     filteredTokens,
-    fromAmount,
-    toAmount,
-    rate,
     isDarkMode,
     isLoading,
     tradeType,
@@ -339,10 +302,11 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setFavoriteOnly,
     selectToken,
     handleSwapTokens,
-    handleFromChange,
-    handleToChange,
+  
     toggleDarkMode,
-    setTokenList
+    setTokenList,
+    setTokens
+
   };
 
   return (
