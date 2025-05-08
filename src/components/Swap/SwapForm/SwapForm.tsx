@@ -222,140 +222,299 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
             </div>
 
             <div className="px-3 pb-2">
-              {/* Exchange Rate Pill */}
-              <div
-                className={`${isDarkMode ? 'bg-gray-700/70 border-gray-600' : 'bg-white/70 border-gray-100'} backdrop-blur-sm rounded-full px-3 py-1.5 flex justify-between items-center shadow-sm border mb-2`}
-              >
-                <div className="flex items-center space-x-2 text-xs">
+              {/* Professional Combined Info Panel */}
+              <div className={`${isDarkMode ? 'bg-gray-800/90 border-gray-700' : 'bg-white/90 border-gray-100'} backdrop-blur-md rounded-xl px-3 py-2 flex flex-col shadow-lg border mb-2 relative overflow-hidden group`}>
+                {/* Enhanced subtle background gradient with animation */}
+                
+                {/* Streamlined Header: Exchange Rate with Visual Focus */}
+                <div className="flex items-center justify-between relative">
                   <div className="flex items-center">
+                    {/* Token pair with better visual and subtle animation */}
+                    <div className="relative flex items-center rounded-full overflow-hidden transition-transform duration-300 hover:scale-105">
+                      <div className="flex items-center rounded-full overflow-hidden p-0.5 bg-gradient-to-r from-[#ff1356]/20 to-[#3b82f6]/20">
+                        <div className={`p-0.5 z-10 rounded-full ${isDarkMode ? 'bg-gray-800/80' : 'bg-white/80'}`}>
                     <TokenShape isDarkMode={isDarkMode} token={baseToken} size="sm" />
-                    <span className="mx-1">→</span>
+                        </div>
+                        <div className={`absolute p-0.5 rounded-full left-4 z-20 ${isDarkMode ? 'bg-gray-800/80' : 'bg-white/80'} shadow-sm`}>
                     <TokenShape isDarkMode={isDarkMode} token={quoteToken} size="sm" />
                   </div>
-                  <div className={`${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                    1 {baseToken && baseToken.symbol} = {rate} {quoteToken && quoteToken.symbol}
-                  </div>
-                </div>
-                <div className="flex items-center text-gray-400">
-                  <RefreshCw className="w-3 h-3 mr-1" />
-                  <span className="text-[10px]">Gerçek Zamanlı</span>
                 </div>
               </div>
 
-              {/* Exchange & Advanced Settings Grid */}
-              <div className="grid grid-cols-2 gap-2">
-                {/* Left column: Exchange Details in 2x2 grid */}
-                <div className="grid grid-cols-2 gap-1.5 text-xs">
-                  <div className={`${isDarkMode ? 'bg-gray-700/50 border-gray-600' : 'bg-white/50 border-gray-100'} rounded-lg p-1.5 border`}>
-                    <div className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>İşlem Ücreti</div>
-                    <div className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} flex items-center`}>
-                      <DollarSign className="w-3 h-3 text-[#ff1356] mr-0.5" />
-                      $2.84
+                    {/* Rate info with better typography and subtle highlight */}
+                    <div className="ml-5">
+                      <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                        Rate: <span className={`${isDarkMode ? 'text-gray-100' : 'text-gray-900'} font-semibold`}>{rate}</span>
+                      </div>
+                      <div className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
+                        1 {baseToken && baseToken.symbol} = {rate} {quoteToken && quoteToken.symbol}
+                        <span className="flex items-center ml-1 text-gray-400 bg-gray-100/50 dark:bg-gray-700/50 px-1 py-0.5 rounded-full">
+                          <RefreshCw className="w-2 h-2 mr-0.5 animate-pulse" />
+                          <span className="text-[8px]">Live</span>
+                        </span>
+                      </div>
                     </div>
                   </div>
-                  <div className={`${isDarkMode ? 'bg-gray-700/50 border-gray-600' : 'bg-white/50 border-gray-100'} rounded-lg p-1.5 border`}>
-                    <div className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Tahmini Süre</div>
-                    <div className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} flex items-center`}>
-                      <Clock className="w-3 h-3 text-[#ff1356] mr-0.5" />
-                      ~45 saniye
+                  
+                  {/* Improved Details toggle button with enhanced visual feedback */}
+                  <button 
+                    className={`flex items-center justify-center p-1.5 rounded-lg transition-all ${
+                      isDarkMode 
+                        ? 'text-gray-300 hover:bg-gray-700/70 hover:text-gray-100 active:bg-gray-600/50' 
+                        : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 active:bg-gray-200/50'
+                    } focus:outline-none focus:ring-1 focus:ring-[#ff1356]/30`}
+                    aria-expanded="false"
+                    aria-controls="detailsPanel"
+                  >
+                    <span className={`text-xs mr-1.5 font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Details</span>
+                    <label 
+                      htmlFor="details-toggle" 
+                      className="cursor-pointer"
+                    >
+                      <div 
+                        id="expandChevron" 
+                        className="transition-transform duration-300 bg-gradient-to-r from-[#ff1356]/10 to-[#3b82f6]/10 p-1 rounded-full"
+                      >
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      </div>
+                    </label>
+                  </button>
+                  {/* Hidden checkbox for CSS-only toggle */}
+                  <input type="checkbox" id="details-toggle" className="hidden peer" />
+                </div>
+                
+                {/* Metrics band - Elegant unified display with improved hover effects */}
+                <div className="mt-2 bg-gradient-to-r from-[#ff1356]/5 via-transparent to-[#3b82f6]/5 rounded-lg p-1.5 flex flex-wrap items-center justify-between">
+                  {/* Liquidity with mini chart and hover effect */}
+                  <div className="flex items-center gap-0.5 px-1.5 py-0.5 rounded-md hover:bg-gray-100/30 dark:hover:bg-gray-700/30 transition-colors">
+                    <div className="flex flex-col mr-1">
+                      <span className={`text-[9px] font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Liquidity</span>
+                      <div className="flex items-center">
+                        <div className="h-1 w-5 rounded-l-full bg-gradient-to-r from-[#ff1356] to-[#ff4080]"></div>
+                        <div className="h-1 w-2 rounded-r-full bg-gradient-to-r from-[#3b82f6] to-[#60a5fa]"></div>
+                      </div>
                     </div>
+                    <span className={`text-[10px] font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>70/30</span>
                   </div>
-                  <div className={`${isDarkMode ? 'bg-gray-700/50 border-gray-600' : 'bg-white/50 border-gray-100'} rounded-lg p-1.5 border`}>
-                    <div className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>24s Değişim</div>
-                    <div className={`font-medium flex items-center ${quoteToken && quoteToken.trend === 'up' ? 'text-green-500' :
-                      quoteToken && quoteToken.trend === 'down' ? 'text-red-500' :
-                        isDarkMode ? 'text-gray-200' : 'text-gray-800'
-                      }`}>
-                      {quoteToken && quoteToken.trend === 'up' ? <TrendingUp className="w-3 h-3 mr-0.5" /> :
-                        quoteToken && quoteToken.trend === 'down' ? <TrendingUp className="w-3 h-3 mr-0.5 rotate-180" /> :
-                          <BarChart3 className="w-3 h-3 mr-0.5" />}
-                      {quoteToken && quoteToken.change}
+                  
+                  {/* Slippage with better indicator */}
+                  <div className="flex flex-col items-center py-0.5 px-1.5 rounded-md hover:bg-gray-100/30 dark:hover:bg-gray-700/30 transition-colors">
+                    <span className={`text-[9px] font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Slippage</span>
+                    <span className={`text-[10px] font-medium ${
+                      slippageTolerance <= 0.5 ? 'text-green-500' : 
+                      slippageTolerance <= 1 ? 'text-blue-500' : 
+                      slippageTolerance <= 2 ? 'text-yellow-500' : 'text-red-500'
+                    }`}>{slippageTolerance}%</span>
                     </div>
+                  
+                  {/* Price impact with improved indicator */}
+                  <div className="flex flex-col items-center py-0.5 px-1.5 rounded-md hover:bg-gray-100/30 dark:hover:bg-gray-700/30 transition-colors">
+                    <span className={`text-[9px] font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Price Impact</span>
+                    <span className={`text-[10px] font-medium ${
+                      1.2 <= 0.5 ? 'text-green-500' : 
+                      1.2 <= 1.5 ? 'text-blue-500' : 
+                      1.2 <= 3 ? 'text-yellow-500' : 'text-red-500'
+                    }`}>1.2%</span>
                   </div>
-                  <div className={`${isDarkMode ? 'bg-gray-700/50 border-gray-600' : 'bg-white/50 border-gray-100'} rounded-lg p-1.5 border`}>
-                    <div className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>İşlem Limiti</div>
-                    <div className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} flex items-center`}>
-                      <AlertCircle className="w-3 h-3 text-[#ff1356] mr-0.5" />
-                      Min: 0.001
-                    </div>
+                  
+                  {/* 24h Volume with better indicator */}
+                  <div className="flex flex-col items-center py-0.5 px-1.5 rounded-md hover:bg-gray-100/30 dark:hover:bg-gray-700/30 transition-colors">
+                    <span className={`text-[9px] font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>24h Volume</span>
+                    <span className={`text-[10px] font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>$2.4M</span>
                   </div>
                 </div>
 
-                {/* Right column: Advanced Settings */}
-                <div className={`${isDarkMode ? 'bg-gray-700/70 border-gray-600' : 'bg-gray-50 border-gray-100'} rounded-lg p-2 border flex flex-col justify-between`}>
-                  <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} mb-1`}>Kayma Toleransı</div>
-                  <div className="flex flex-wrap gap-1">
-                    <button
-                      className={`text-[10px] py-0.5 px-2 rounded-md border ${slippageTolerance === 0.5
-                        ? isDarkMode
-                          ? 'bg-pink-900/30 border-pink-800 text-pink-300'
-                          : 'bg-pink-100 border-pink-200 text-[#ff1356]'
-                        : isDarkMode
-                          ? 'bg-gray-600 border-gray-500 text-gray-300'
-                          : 'bg-white border-gray-200 text-gray-700'
-                        }`}
-                      onClick={() => setSlippageTolerance(0.5)}
-                    >
-                      0.5%
-                    </button>
-                    <button
-                      className={`text-[10px] py-0.5 px-2 rounded-md border ${slippageTolerance === 1
-                        ? isDarkMode
-                          ? 'bg-pink-900/30 border-pink-800 text-pink-300'
-                          : 'bg-pink-100 border-pink-200 text-[#ff1356]'
-                        : isDarkMode
-                          ? 'bg-gray-600 border-gray-500 text-gray-300'
-                          : 'bg-white border-gray-200 text-gray-700'
-                        }`}
-                      onClick={() => setSlippageTolerance(1)}
-                    >
-                      1%
-                    </button>
-                    <button
-                      className={`text-[10px] py-0.5 px-2 rounded-md border ${slippageTolerance === 2
-                        ? isDarkMode
-                          ? 'bg-pink-900/30 border-pink-800 text-pink-300'
-                          : 'bg-pink-100 border-pink-200 text-[#ff1356]'
-                        : isDarkMode
-                          ? 'bg-gray-600 border-gray-500 text-gray-300'
-                          : 'bg-white border-gray-200 text-gray-700'
-                        }`}
-                      onClick={() => setSlippageTolerance(2)}
-                    >
-                      2%
-                    </button>
-                  </div>
+                {/* CSS-only collapsible panel - no JavaScript needed */}
+                <div 
+                  id="detailsPanel"
+                  className="  peer-checked:h-auto peer-checked:max-h-[800px] peer-checked:opacity-100 peer-checked:visible peer-checked:mt-2 overflow-hidden transition-all duration-300"
+                  style={{transitionProperty: 'max-height, opacity, margin, visibility'}}
+                >
+                  <div className={`pt-3 border-t ${isDarkMode ? 'border-gray-700/50' : 'border-gray-200/50'}`}>
+                    {/* Improved Liquidity Distribution with amounts */}
+                    <div className="mb-3">
+                      <div className="flex justify-between items-center mb-1.5">
+                        <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
+                          Liquidity Distribution
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#ff1356] to-[#ff4080] mr-1"></div>
+                            <span className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                              {baseToken && baseToken.symbol}: 70%
+                            </span>
+                          </div>
+                          <div className="flex items-center">
+                            <div className="w-2 h-2 rounded-full bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] mr-1"></div>
+                            <span className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                              {quoteToken && quoteToken.symbol}: 30%
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Enhanced progress bar with quantity indicators */}
+                      <div className="relative group pb-1">
+                        <div className={`h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-gray-700/70' : 'bg-gray-200/70'} shadow-inner`}>
+                          <div className="flex h-full">
+                            <div 
+                              className="bg-gradient-to-r from-[#ff1356] to-[#ff4080] relative" 
+                              style={{ width: '70%' }}
+                            >
+                              {/* Base token amount indicator */}
+                              <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                                <div className={`text-[9px] font-medium px-1 py-0.5 rounded ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-700'} shadow-sm border ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
+                                  1,234,567 {baseToken && baseToken.symbol}
+                                </div>
+                              </div>
+                            </div>
+                            <div 
+                              className="bg-gradient-to-r from-[#3b82f6] to-[#60a5fa] relative" 
+                              style={{ width: '30%' }}
+                            >
+                              {/* Quote token amount indicator */}
+                              <div className="absolute -top-5 left-1/2 transform -translate-x-1/2 whitespace-nowrap">
+                                <div className={`text-[9px] font-medium px-1 py-0.5 rounded ${isDarkMode ? 'bg-gray-700 text-white' : 'bg-white text-gray-700'} shadow-sm border ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
+                                  400,000 {quoteToken && quoteToken.symbol}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Price Impact - Professional Trading Terminal Design */}
+                    <div className="mb-3">
+                      <div className="flex justify-between items-center mb-2.5">
+                        <div className={`text-xs font-semibold tracking-wide ${isDarkMode ? 'text-gray-200' : 'text-gray-700'} flex items-center`}>
+                          <div className="inline-block w-1 h-5 bg-gradient-to-b from-green-500 via-yellow-500 to-red-500 rounded-full mr-1.5"></div>
+                          PRICE IMPACT
+                        </div>
+                        <div className="flex items-center">
+                          <div className={`text-xs py-0.5 px-2 rounded-md font-medium mr-2 ${
+                            1.2 <= 0.5 ? 'bg-green-500/15 text-green-500 border border-green-500/30' : 
+                            1.2 <= 1.5 ? 'bg-yellow-500/15 text-yellow-500 border border-yellow-500/30' : 
+                            1.2 <= 3 ? 'bg-orange-500/15 text-orange-500 border border-orange-500/30' : 
+                            'bg-red-500/15 text-red-500 border border-red-500/30'
+                          }`}>1.2%</div>
+                          <div className={`text-[10px] font-medium text-gray-500 flex items-center`}>
+                            <span className="mr-1">TOLERANCE:</span>
+                            <span className="px-1.5 py-0.5 bg-gray-100 dark:bg-gray-700 rounded border border-orange-500/20 text-orange-500">{slippageTolerance}%</span>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Financial Terminal-Style Visualization */}
+                      <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-800/70 border-gray-700/50' : 'bg-gray-50/90 border-gray-200/70'} border shadow-sm hover:shadow-md transition-shadow duration-300`}>
+                        {/* Precise meter track with tick marks */}
+                        <div className="relative mb-4 group">
+                          {/* Base track with tick marks - reduced height */}
+                          <div className={`h-2 rounded-md ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'} relative overflow-hidden shadow-inner`}>
+                            {/* Professional color segments with smooth borders - fixed gaps between colors */}
+                            <div className="absolute inset-y-0 left-0 right-[80%] bg-gradient-to-r from-green-500 to-green-400 rounded-l-md"></div>
+                            <div className="absolute inset-y-0 left-[19.5%] right-[60%] bg-gradient-to-r from-green-400 to-yellow-500"></div>
+                            <div className="absolute inset-y-0 left-[39.5%] right-[40%] bg-gradient-to-r from-yellow-500 to-orange-500"></div>
+                            <div className="absolute inset-y-0 left-[59.5%] right-0 bg-gradient-to-r from-orange-500 to-red-600 rounded-r-md"></div>
+                            
+                            {/* Precise tick marks - adjusted height */}
+                            <div className="absolute inset-0 flex justify-between px-[0%]">
+                              <div className="h-[45%] w-[1px] bg-white/40 dark:bg-gray-900/40 self-end"></div>
+                              <div className="h-[45%] w-[1px] bg-white/40 dark:bg-gray-900/40 self-end"></div>
+                              <div className="h-[45%] w-[1px] bg-white/40 dark:bg-gray-900/40 self-end"></div>
+                              <div className="h-[45%] w-[1px] bg-white/40 dark:bg-gray-900/40 self-end"></div>
+                              <div className="h-[45%] w-[1px] bg-white/40 dark:bg-gray-900/40 self-end"></div>
+                              <div className="h-[45%] w-[1px] bg-white/40 dark:bg-gray-900/40 self-end"></div>
+                            </div>
+                            
+                            {/* Professional current value marker - improved with animation and arrow indicator */}
+                            <div className="absolute inset-y-0 z-20" style={{ left: '24%' }}>
+                              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-5 w-0.5 bg-white dark:bg-gray-900"></div>
+                              
+                              {/* Added arrow pointing down */}
+                              <div className="absolute -top-0.5 left-1/2 -translate-x-1/2 transform rotate-180">
+                                <div className={`w-0 h-0 border-l-[5px] border-r-[5px] border-b-[6px] border-l-transparent border-r-transparent ${
+                                  1.2 <= 0.5 ? 'border-b-green-600' : 
+                                  1.2 <= 1.5 ? 'border-b-yellow-600' : 
+                                  1.2 <= 3 ? 'border-b-orange-600' : 
+                                  'border-b-red-600'
+                                }`}></div>
+                              </div>
+                              
+                              {/* Current value marker with improved visibility */}
+                              <div className={`absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white dark:bg-gray-900 border-2 ${
+                                1.2 <= 0.5 ? 'border-green-500' : 
+                                1.2 <= 1.5 ? 'border-yellow-500' : 
+                                1.2 <= 3 ? 'border-orange-500' : 
+                                'border-red-500'
+                              } shadow-md group-hover:scale-110 transition-transform duration-200`}></div>
+                              
+                              <div className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                                <div className={`px-1.5 py-0.5 text-[10px] font-semibold rounded ${isDarkMode ? 'bg-gray-700 text-yellow-400' : 'bg-white text-yellow-600'} border border-yellow-500/30 shadow-sm`}>
+                                  Current: 1.2%
+                                </div>
+                              </div>
+                            </div>
+                            
+                            {/* Professional slippage indicator - adjusted size */}
+                            <div className="absolute inset-y-0 z-10" style={{ left: `${slippageTolerance * 20}%` }}>
+                              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-5 w-[1.5px] bg-orange-500"></div>
+                              <div className="absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap">
+                                <div className={`px-1.5 py-0.5 text-[9px] font-semibold rounded ${isDarkMode ? 'bg-gray-700 text-orange-400' : 'bg-white text-orange-600'} border border-orange-500/30 shadow-sm`}>
+                                  Tolerance: {slippageTolerance}%
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Financial terminal-style labels */}
+                        <div className="flex justify-between text-[9px] text-gray-500 font-mono mb-3 px-0">
+                          <div className="flex flex-col items-center">
+                            <div className="h-1 w-[1px] bg-gray-400 mb-1"></div>
+                            <div>0.0%</div>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="h-1 w-[1px] bg-gray-400 mb-1"></div>
+                            <div>1.0%</div>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="h-1 w-[1px] bg-gray-400 mb-1"></div>
+                            <div>2.0%</div>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="h-1 w-[1px] bg-gray-400 mb-1"></div>
+                            <div>3.0%</div>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="h-1 w-[1px] bg-gray-400 mb-1"></div>
+                            <div>4.0%</div>
+                          </div>
+                          <div className="flex flex-col items-center">
+                            <div className="h-1 w-[1px] bg-gray-400 mb-1"></div>
+                            <div>5.0%</div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
 
-                  <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} mt-1 mb-1`}>İşlem Yapısı</div>
-                  <div className="flex space-x-1">
-                    <button
-                      className={`text-[10px] py-0.5 px-2 rounded-md border ${swapDirection === 'horizontal'
-                        ? isDarkMode
-                          ? 'bg-pink-900/30 border-pink-800 text-pink-300'
-                          : 'bg-pink-100 border-pink-200 text-[#ff1356]'
-                        : isDarkMode
-                          ? 'bg-gray-600 border-gray-500 text-gray-300'
-                          : 'bg-white border-gray-200 text-gray-700'
-                        } flex items-center`}
-                      onClick={() => setSwapDirection('horizontal')}
-                    >
-                      <RotateCcw className="w-2.5 h-2.5 mr-0.5" />
-                      Standart
-                    </button>
-                    <button
-                      className={`text-[10px] py-0.5 px-2 rounded-md border ${swapDirection === 'optimized'
-                        ? isDarkMode
-                          ? 'bg-pink-900/30 border-pink-800 text-pink-300'
-                          : 'bg-pink-100 border-pink-200 text-[#ff1356]'
-                        : isDarkMode
-                          ? 'bg-gray-600 border-gray-500 text-gray-300'
-                          : 'bg-white border-gray-200 text-gray-700'
-                        } flex items-center`}
-                      onClick={() => setSwapDirection('optimized')}
-                    >
-                      <Zap className="w-2.5 h-2.5 mr-0.5" />
-                      Optimum
-                    </button>
+                    {/* Additional transaction details - Enhanced layout with interactive elements */}
+                    <div className="grid grid-cols-2 gap-2 mt-2">
+                      <div className={`rounded-lg p-2 ${isDarkMode ? 'bg-gray-700/30 hover:bg-gray-700/50' : 'bg-gray-100/70 hover:bg-gray-100'} transition-colors duration-200 border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} cursor-pointer`}>
+                        <div className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-0.5`}>Transaction Type</div>
+                        <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} flex items-center`}>
+                          <Shield className="w-3 h-3 text-[#ff1356] mr-1" />
+                          Verified Swap
+                        </div>
+                      </div>
+                      <div className={`rounded-lg p-2 ${isDarkMode ? 'bg-gray-700/30 hover:bg-gray-700/50' : 'bg-gray-100/70 hover:bg-gray-100'} transition-colors duration-200 border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} cursor-pointer`}>
+                        <div className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-0.5`}>Liquidity Factor</div>
+                        <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} flex items-center`}>
+                          <TrendingUp className="w-3 h-3 text-green-500 mr-1" />
+                          3.1x <span className="ml-1 text-green-500">(High)</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

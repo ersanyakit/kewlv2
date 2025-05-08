@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import TokenShape from '../UI/TokenShape';
 import { Token } from '../../context/TokenContext';
+import { getContractByName } from '../../constants/contracts/contracts';
+import { TContractType } from '../../constants/contracts/addresses';
+import { useAppKitNetwork } from '@reown/appkit/react';
+import { publicClient } from '../../context/Web3ProviderContext';
 
 
 type Transaction = {
@@ -25,6 +29,50 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
   tokens, 
   isDarkMode 
 }) => {
+  const { chainId } = useAppKitNetwork()
+
+  let dexContract = getContractByName(TContractType.DEX, Number(chainId));
+
+
+
+
+  const readLogs = async () => {
+
+
+
+    let apiURL = `https://cdn.routescan.io/api/evm/all/transactions?count=true&fromAddresses=${dexContract.caller.address }&includedChainIds=${chainId}&limit=5&sort=desc&toAddresses=${dexContract.caller.address}`
+
+    const response = await fetch(apiURL)
+    const data = await response.json()
+
+    console.log(data)
+
+    if(data.items.length > 0){
+
+      data.items.forEach(async (item:any) => {
+        const receipt = await publicClient.getTransactionReceipt({ hash: item.txHash });
+        console.log(receipt)
+      })
+     
+    
+
+    }
+
+
+ 
+
+ 
+ 
+
+
+  }
+  useEffect(()=>{
+    readLogs()
+  },[chainId])
+  
+
+
+
   return (
     <motion.div 
       className={`${
