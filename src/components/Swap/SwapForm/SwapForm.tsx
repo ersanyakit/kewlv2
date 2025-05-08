@@ -320,7 +320,7 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                     <span className={`text-[10px] font-medium ${1.2 <= 0.5 ? 'text-green-500' :
                       1.2 <= 1.5 ? 'text-yellow-500' :
                         1.2 <= 3 ? 'text-orange-500' : 'text-red-500'
-                      }`}>1.2%</span>
+                      }`}>{tradeInfo && tradeInfo.priceImpact.toSignificant(2)}%</span>
                   </div>
 
 
