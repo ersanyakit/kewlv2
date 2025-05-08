@@ -1,0 +1,3538 @@
+{
+    "_format": "hh-sol-artifact-1",
+    "contractName": "KEWLDEX",
+    "sourceName": "hardhat-diamond-abi/HardhatDiamondABI.sol",
+    "abi": [
+      {
+        "inputs": [],
+        "name": "Ownable__NotOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotTransitiveOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "ReentrancyGuard__ReentrantCall",
+        "type": "error"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "contract IPAIR",
+                "name": "buy",
+                "type": "address"
+              },
+              {
+                "internalType": "contract IPAIR",
+                "name": "sell",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "inputToken",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "outputToken",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct Arbitrage.ArbitrageParam",
+            "name": "params",
+            "type": "tuple"
+          }
+        ],
+        "name": "arbitrage",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "contract IPAIR",
+                "name": "buy",
+                "type": "address"
+              },
+              {
+                "internalType": "contract IPAIR",
+                "name": "sell",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "inputToken",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "outputToken",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct Arbitrage.ArbitrageParam[]",
+            "name": "params",
+            "type": "tuple[]"
+          }
+        ],
+        "name": "arbitrageAll",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reserveIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reserveOut",
+            "type": "uint256"
+          }
+        ],
+        "name": "fetchAmountOut",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountOut",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "tokenA",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenB",
+            "type": "address"
+          }
+        ],
+        "name": "IdenticalAddresses",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotTransitiveOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "PairAlreadyExists",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "ReentrancyGuard__ReentrantCall",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          }
+        ],
+        "name": "ZeroAddress",
+        "type": "error"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "token0",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "token1",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "pair",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "index",
+            "type": "uint256"
+          }
+        ],
+        "name": "PairCreated",
+        "type": "event"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "index",
+            "type": "uint256"
+          }
+        ],
+        "name": "allPairs",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "allPairsLength",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "tokenA",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenB",
+            "type": "address"
+          }
+        ],
+        "name": "createPair",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "feeTo",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getAllPairs",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "valid",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "index",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserveBase",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserveQuote",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "pair",
+                "type": "address"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint256",
+                    "name": "decimals",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  }
+                ],
+                "internalType": "struct TToken",
+                "name": "base",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint256",
+                    "name": "decimals",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  }
+                ],
+                "internalType": "struct TToken",
+                "name": "quote",
+                "type": "tuple"
+              }
+            ],
+            "internalType": "struct TPair[]",
+            "name": "",
+            "type": "tuple[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "tokenA",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenB",
+            "type": "address"
+          }
+        ],
+        "name": "getPair",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "tokenA",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenB",
+            "type": "address"
+          }
+        ],
+        "name": "getPairInfo",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "valid",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "index",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserveBase",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserveQuote",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "pair",
+                "type": "address"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint256",
+                    "name": "decimals",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  }
+                ],
+                "internalType": "struct TToken",
+                "name": "base",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint256",
+                    "name": "decimals",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  }
+                ],
+                "internalType": "struct TToken",
+                "name": "quote",
+                "type": "tuple"
+              }
+            ],
+            "internalType": "struct TPair",
+            "name": "pairInfo",
+            "type": "tuple"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_feeTo",
+            "type": "address"
+          }
+        ],
+        "name": "setFeeTo",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_weth9",
+            "type": "address"
+          }
+        ],
+        "name": "setWETH9Address",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "tokenA",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenB",
+            "type": "address"
+          }
+        ],
+        "name": "IdenticalAddresses",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotTransitiveOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "PairAlreadyExists",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "ReentrancyGuard__ReentrantCall",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          }
+        ],
+        "name": "ZeroAddress",
+        "type": "error"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "token0",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "token1",
+            "type": "address"
+          }
+        ],
+        "name": "PairCreated",
+        "type": "event"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "tokenA",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenB",
+            "type": "address"
+          }
+        ],
+        "name": "createPair",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "feeTo",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getAllPairs",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "valid",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "index",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserveBase",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserveQuote",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "pair",
+                "type": "address"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint256",
+                    "name": "decimals",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  }
+                ],
+                "internalType": "struct TToken",
+                "name": "base",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint256",
+                    "name": "decimals",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  }
+                ],
+                "internalType": "struct TToken",
+                "name": "quote",
+                "type": "tuple"
+              }
+            ],
+            "internalType": "struct TPair[]",
+            "name": "",
+            "type": "tuple[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "tokenA",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenB",
+            "type": "address"
+          }
+        ],
+        "name": "getPairInfo",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "valid",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "index",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserveBase",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserveQuote",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "pair",
+                "type": "address"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint256",
+                    "name": "decimals",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  }
+                ],
+                "internalType": "struct TToken",
+                "name": "base",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint256",
+                    "name": "decimals",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  }
+                ],
+                "internalType": "struct TToken",
+                "name": "quote",
+                "type": "tuple"
+              }
+            ],
+            "internalType": "struct TPair",
+            "name": "pairInfo",
+            "type": "tuple"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_feeTo",
+            "type": "address"
+          }
+        ],
+        "name": "setFeeTo",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_weth9",
+            "type": "address"
+          }
+        ],
+        "name": "setWETH9Address",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "MulticallAggregateFailed",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          }
+        ],
+        "name": "NoContract",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotTransitiveOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "ReentrancyGuard__ReentrantCall",
+        "type": "error"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "target",
+                "type": "address"
+              },
+              {
+                "internalType": "bytes",
+                "name": "callData",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Call[]",
+            "name": "calls",
+            "type": "tuple[]"
+          }
+        ],
+        "name": "aggregate",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes[]",
+            "name": "returnData",
+            "type": "bytes[]"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "target",
+                "type": "address"
+              },
+              {
+                "internalType": "bytes",
+                "name": "callData",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Call[]",
+            "name": "calls",
+            "type": "tuple[]"
+          }
+        ],
+        "name": "blockAndAggregate",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "blockHash",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "success",
+                "type": "bool"
+              },
+              {
+                "internalType": "bytes",
+                "name": "returnData",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Result[]",
+            "name": "returnData",
+            "type": "tuple[]"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          }
+        ],
+        "name": "getBlockHash",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "blockHash",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getBlockNumber",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getCurrentBlockCoinbase",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "coinbase",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getCurrentBlockDifficulty",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "difficulty",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getCurrentBlockGasLimit",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "gaslimit",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getCurrentBlockTimestamp",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "timestamp",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "addr",
+            "type": "address"
+          }
+        ],
+        "name": "getEthBalance",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "balance",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "getLastBlockHash",
+        "outputs": [
+          {
+            "internalType": "bytes32",
+            "name": "blockHash",
+            "type": "bytes32"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bool",
+            "name": "requireSuccess",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "target",
+                "type": "address"
+              },
+              {
+                "internalType": "bytes",
+                "name": "callData",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Call[]",
+            "name": "calls",
+            "type": "tuple[]"
+          }
+        ],
+        "name": "tryAggregate",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "success",
+                "type": "bool"
+              },
+              {
+                "internalType": "bytes",
+                "name": "returnData",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Result[]",
+            "name": "returnData",
+            "type": "tuple[]"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "bool",
+            "name": "requireSuccess",
+            "type": "bool"
+          },
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "target",
+                "type": "address"
+              },
+              {
+                "internalType": "bytes",
+                "name": "callData",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Call[]",
+            "name": "calls",
+            "type": "tuple[]"
+          }
+        ],
+        "name": "tryBlockAndAggregate",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "blockNumber",
+            "type": "uint256"
+          },
+          {
+            "internalType": "bytes32",
+            "name": "blockHash",
+            "type": "bytes32"
+          },
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "success",
+                "type": "bool"
+              },
+              {
+                "internalType": "bytes",
+                "name": "returnData",
+                "type": "bytes"
+              }
+            ],
+            "internalType": "struct Result[]",
+            "name": "returnData",
+            "type": "tuple[]"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotTransitiveOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "ReentrancyGuard__ReentrantCall",
+        "type": "error"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "buy",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "sell",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "inputToken",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "outputToken",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct OldArbitrage.ArbitrageParam",
+            "name": "params",
+            "type": "tuple"
+          }
+        ],
+        "name": "arbitrage",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "buy",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "sell",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "inputToken",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "outputToken",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct OldArbitrage.ArbitrageParam[]",
+            "name": "params",
+            "type": "tuple[]"
+          }
+        ],
+        "name": "arbitrageAll",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reserveIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reserveOut",
+            "type": "uint256"
+          }
+        ],
+        "name": "fetchAmountOut",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountOut",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "InvalidAction",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "InvalidReserves",
+        "type": "error"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "amountIn",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountOut",
+                "type": "uint256"
+              },
+              {
+                "internalType": "contract IWETH",
+                "name": "weth9",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "input",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "receiver",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct Reflection.SwapConfig",
+            "name": "config",
+            "type": "tuple"
+          },
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "side",
+                "type": "bool"
+              },
+              {
+                "internalType": "contract IPAIR",
+                "name": "pair",
+                "type": "address"
+              },
+              {
+                "internalType": "contract IERC20",
+                "name": "input",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct Reflection.LiqudityPool[]",
+            "name": "pools",
+            "type": "tuple[]"
+          }
+        ],
+        "name": "reflect",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotTransitiveOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "ReentrancyGuard__ReentrantCall",
+        "type": "error"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "tokenA",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenB",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountADesired",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountBDesired",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountAMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountBMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "addLiquidity",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountA",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountB",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidity",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountTokenDesired",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountTokenMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountETHMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "addLiquidityETH",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountToken",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountETH",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidity",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountOut",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reserveIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reserveOut",
+            "type": "uint256"
+          }
+        ],
+        "name": "getAmountIn",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountIn",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reserveIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reserveOut",
+            "type": "uint256"
+          }
+        ],
+        "name": "getAmountOut",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountOut",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountOut",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "path",
+            "type": "address[]"
+          }
+        ],
+        "name": "getAmountsIn",
+        "outputs": [
+          {
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "path",
+            "type": "address[]"
+          }
+        ],
+        "name": "getAmountsOut",
+        "outputs": [
+          {
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address[]",
+            "name": "tokens",
+            "type": "address[]"
+          },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          }
+        ],
+        "name": "getTradeStatsForMultipleTokens",
+        "outputs": [
+          {
+            "internalType": "uint256[]",
+            "name": "totalTrades",
+            "type": "uint256[]"
+          },
+          {
+            "internalType": "uint256[]",
+            "name": "individualTrades",
+            "type": "uint256[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "user",
+            "type": "address"
+          }
+        ],
+        "name": "getTradeStatsForToken",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "totalTrades",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "individualTrades",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          }
+        ],
+        "name": "isWrapped",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          },
+          {
+            "internalType": "bool",
+            "name": "",
+            "type": "bool"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "tokenA",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenB",
+            "type": "address"
+          }
+        ],
+        "name": "pairFor",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "valid",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "index",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserveBase",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserveQuote",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "pair",
+                "type": "address"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint256",
+                    "name": "decimals",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  }
+                ],
+                "internalType": "struct TToken",
+                "name": "base",
+                "type": "tuple"
+              },
+              {
+                "components": [
+                  {
+                    "internalType": "uint256",
+                    "name": "decimals",
+                    "type": "uint256"
+                  },
+                  {
+                    "internalType": "address",
+                    "name": "token",
+                    "type": "address"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "name",
+                    "type": "string"
+                  },
+                  {
+                    "internalType": "string",
+                    "name": "symbol",
+                    "type": "string"
+                  }
+                ],
+                "internalType": "struct TToken",
+                "name": "quote",
+                "type": "tuple"
+              }
+            ],
+            "internalType": "struct TPair",
+            "name": "",
+            "type": "tuple"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "tokenA",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "tokenB",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidity",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountAMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountBMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "removeLiquidity",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountA",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountB",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "token",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "liquidity",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountTokenMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountETHMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "removeLiquidityETH",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountToken",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountETH",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountOut",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "path",
+            "type": "address[]"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "swapETHForExactTokens",
+        "outputs": [
+          {
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
+          }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountOutMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "path",
+            "type": "address[]"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "swapExactETHForTokens",
+        "outputs": [
+          {
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
+          }
+        ],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountOutMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "path",
+            "type": "address[]"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "swapExactETHForTokensSupportingFeeOnTransferTokens",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountOutMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "path",
+            "type": "address[]"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "swapExactTokensForETH",
+        "outputs": [
+          {
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountOutMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "path",
+            "type": "address[]"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "swapExactTokensForETHSupportingFeeOnTransferTokens",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountOutMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "path",
+            "type": "address[]"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "swapExactTokensForTokens",
+        "outputs": [
+          {
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountOutMin",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "path",
+            "type": "address[]"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "swapExactTokensForTokensSupportingFeeOnTransferTokens",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountOut",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountInMax",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "path",
+            "type": "address[]"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "swapTokensForExactETH",
+        "outputs": [
+          {
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountOut",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amountInMax",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address[]",
+            "name": "path",
+            "type": "address[]"
+          },
+          {
+            "internalType": "address",
+            "name": "to",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "deadline",
+            "type": "uint256"
+          }
+        ],
+        "name": "swapTokensForExactTokens",
+        "outputs": [
+          {
+            "internalType": "uint256[]",
+            "name": "amounts",
+            "type": "uint256[]"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "InvalidAmount",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotTransitiveOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "ReentrancyGuard__ReentrantCall",
+        "type": "error"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reserveIn",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "reserveOut",
+            "type": "uint256"
+          }
+        ],
+        "name": "fetchAmount",
+        "outputs": [
+          {
+            "internalType": "uint256",
+            "name": "amountOut",
+            "type": "uint256"
+          }
+        ],
+        "stateMutability": "pure",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "flag",
+                "type": "bool"
+              },
+              {
+                "internalType": "address",
+                "name": "router",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "pair",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "input",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "weth",
+                "type": "address"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount",
+                "type": "uint256"
+              }
+            ],
+            "internalType": "struct Trade.PairInput",
+            "name": "params",
+            "type": "tuple"
+          }
+        ],
+        "name": "fetchPair",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "valid",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "flag",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserve0",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserve1",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount0Out",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount1Out",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "token0Decimals",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "token1Decimals",
+                "type": "uint256"
+              },
+              {
+                "internalType": "contract IERC20",
+                "name": "token0",
+                "type": "address"
+              },
+              {
+                "internalType": "contract IERC20",
+                "name": "token1",
+                "type": "address"
+              },
+              {
+                "internalType": "contract IPAIR",
+                "name": "pair",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "router",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "weth",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct Trade.PairInfo",
+            "name": "pairInfo",
+            "type": "tuple"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "router",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "weth",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "flag",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "stable",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct Trade.Router[]",
+            "name": "routers",
+            "type": "tuple[]"
+          },
+          {
+            "internalType": "address",
+            "name": "wrapper",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IERC20",
+            "name": "base",
+            "type": "address"
+          },
+          {
+            "internalType": "contract IERC20",
+            "name": "quote",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "fetchPairs",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "valid",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "flag",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserve0",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserve1",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount0Out",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount1Out",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "token0Decimals",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "token1Decimals",
+                "type": "uint256"
+              },
+              {
+                "internalType": "contract IERC20",
+                "name": "token0",
+                "type": "address"
+              },
+              {
+                "internalType": "contract IERC20",
+                "name": "token1",
+                "type": "address"
+              },
+              {
+                "internalType": "contract IPAIR",
+                "name": "pair",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "router",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "weth",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct Trade.PairInfo[]",
+            "name": "pairInfo",
+            "type": "tuple[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address[]",
+            "name": "pairlist",
+            "type": "address[]"
+          }
+        ],
+        "name": "getReservesByPairAddresses",
+        "outputs": [
+          {
+            "components": [
+              {
+                "internalType": "bool",
+                "name": "valid",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "flag",
+                "type": "bool"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserve0",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "reserve1",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount0Out",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amount1Out",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "token0Decimals",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "token1Decimals",
+                "type": "uint256"
+              },
+              {
+                "internalType": "contract IERC20",
+                "name": "token0",
+                "type": "address"
+              },
+              {
+                "internalType": "contract IERC20",
+                "name": "token1",
+                "type": "address"
+              },
+              {
+                "internalType": "contract IPAIR",
+                "name": "pair",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "router",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "weth",
+                "type": "address"
+              }
+            ],
+            "internalType": "struct Trade.PairInfo[]",
+            "name": "pairs",
+            "type": "tuple[]"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address[]",
+            "name": "weth9",
+            "type": "address[]"
+          }
+        ],
+        "name": "setWrappedAssets",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "amountIn",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountOut",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "weth9",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "wrapper",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "pair",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "input",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "flag",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct Trade.SwapParam",
+            "name": "params",
+            "type": "tuple"
+          }
+        ],
+        "name": "swap",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "uint256",
+                "name": "amountIn",
+                "type": "uint256"
+              },
+              {
+                "internalType": "uint256",
+                "name": "amountOut",
+                "type": "uint256"
+              },
+              {
+                "internalType": "address",
+                "name": "weth9",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "wrapper",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "pair",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "input",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "flag",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct Trade.SwapParam[]",
+            "name": "params",
+            "type": "tuple[]"
+          }
+        ],
+        "name": "swapAll",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "components": [
+              {
+                "internalType": "address",
+                "name": "router",
+                "type": "address"
+              },
+              {
+                "internalType": "address",
+                "name": "weth",
+                "type": "address"
+              },
+              {
+                "internalType": "bool",
+                "name": "flag",
+                "type": "bool"
+              },
+              {
+                "internalType": "bool",
+                "name": "stable",
+                "type": "bool"
+              }
+            ],
+            "internalType": "struct Trade.Router",
+            "name": "router",
+            "type": "tuple"
+          },
+          {
+            "internalType": "address",
+            "name": "base",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "quote",
+            "type": "address"
+          }
+        ],
+        "name": "testPair",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "InvalidAction",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "Ownable__NotTransitiveOwner",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "ReentrancyGuard__ReentrantCall",
+        "type": "error"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "previousOwner",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "newOwner",
+            "type": "address"
+          }
+        ],
+        "name": "OwnershipTransferred",
+        "type": "event"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_tokenAddr",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "_amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "_to",
+            "type": "address"
+          }
+        ],
+        "name": "withdrawCustomERC",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "receiver",
+            "type": "address"
+          }
+        ],
+        "name": "withdrawCustomETHAmount",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "_tokenAddr",
+            "type": "address"
+          }
+        ],
+        "name": "withdrawERC",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "withdrawETH",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "AlreadyExists",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "TransferFromFailed",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "WrappedTokenDoesNotExist",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "WrappedTokenExists",
+        "type": "error"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "underlyingToken",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "wrappedToken",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "newUnderlyingToken",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "newWrappedToken",
+            "type": "address"
+          }
+        ],
+        "name": "MappingChanged",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "wrappedToken",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "unwrappedAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "Unwrap",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "underlyingToken",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "wrappedToken",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "wrappedAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "Wrap",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "underlyingToken",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "wrappedToken",
+            "type": "address"
+          }
+        ],
+        "name": "WrappedTokenCreated",
+        "type": "event"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "underlyingToken",
+            "type": "address"
+          }
+        ],
+        "name": "createWrappedToken",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "underlying",
+            "type": "address"
+          }
+        ],
+        "name": "getUnderlyingToWrapped",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "name": "underlyingToWrapped",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "wrappedToken",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "unwrap",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "underlyingToken",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "wrap",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "wrappedToken",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "name": "wrappedToUnderlying",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "underlyingToken",
+            "type": "address"
+          }
+        ],
+        "name": "wrappedTokenFor",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "wrappedToken",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [],
+        "name": "AlreadyExists",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "WrappedTokenDoesNotExist",
+        "type": "error"
+      },
+      {
+        "inputs": [],
+        "name": "WrappedTokenExists",
+        "type": "error"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "underlyingToken",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "wrappedToken",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "newUnderlyingToken",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "newWrappedToken",
+            "type": "address"
+          }
+        ],
+        "name": "MappingChanged",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "wrappedToken",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "unwrappedAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "Unwrap",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "underlyingToken",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          },
+          {
+            "indexed": false,
+            "internalType": "address",
+            "name": "wrappedToken",
+            "type": "address"
+          },
+          {
+            "indexed": false,
+            "internalType": "uint256",
+            "name": "wrappedAmount",
+            "type": "uint256"
+          }
+        ],
+        "name": "Wrap",
+        "type": "event"
+      },
+      {
+        "anonymous": false,
+        "inputs": [
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "underlyingToken",
+            "type": "address"
+          },
+          {
+            "indexed": true,
+            "internalType": "address",
+            "name": "wrappedToken",
+            "type": "address"
+          }
+        ],
+        "name": "WrappedTokenCreated",
+        "type": "event"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "underlyingToken",
+            "type": "address"
+          }
+        ],
+        "name": "createWrappedToken",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "underlyingToken",
+            "type": "address"
+          }
+        ],
+        "name": "getUnderlyingToWrapped",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "wrappedToken",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "unwrap",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "account",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "underlyingToken",
+            "type": "address"
+          },
+          {
+            "internalType": "uint256",
+            "name": "amount",
+            "type": "uint256"
+          }
+        ],
+        "name": "wrap",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "wrappedToken",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "nonpayable",
+        "type": "function"
+      },
+      {
+        "inputs": [
+          {
+            "internalType": "address",
+            "name": "underlyingToken",
+            "type": "address"
+          }
+        ],
+        "name": "wrappedTokenFor",
+        "outputs": [
+          {
+            "internalType": "address",
+            "name": "",
+            "type": "address"
+          }
+        ],
+        "stateMutability": "view",
+        "type": "function"
+      }
+    ],
+    "deployedBytecode": "",
+    "bytecode": "",
+    "linkReferences": {},
+    "deployedLinkReferences": {}
+  }
+  
