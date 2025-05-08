@@ -67,7 +67,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
 
   }
   useEffect(()=>{
-    readLogs()
+    //readLogs()
   },[chainId])
   
 
