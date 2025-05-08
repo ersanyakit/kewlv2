@@ -2,9 +2,11 @@ import JSBI from 'jsbi'
 import { BIPS_BASE } from './misc'
 import { CurrencyAmount, Fraction, Percent } from '../fractions'
 import { Currency } from '../currency'
-export const ALLOWED_PRICE_IMPACT_LOW: Percent = new Percent(JSBI.BigInt(100), BIPS_BASE) // 1%
-export const ALLOWED_PRICE_IMPACT_MEDIUM: Percent = new Percent(JSBI.BigInt(300), BIPS_BASE) // 3%
-export const ALLOWED_PRICE_IMPACT_HIGH: Percent = new Percent(JSBI.BigInt(500), BIPS_BASE) // 5%
+
+// used for warning states
+export const ALLOWED_PRICE_IMPACT_LOW: Percent = new Percent(1, 100) // 1%
+export const ALLOWED_PRICE_IMPACT_MEDIUM: Percent = new Percent(3, 100) // 3%
+export const ALLOWED_PRICE_IMPACT_HIGH: Percent = new Percent(5, 100) // 5%
 // if the price slippage exceeds this number, force the user to type 'confirm' to execute
 export const PRICE_IMPACT_WITHOUT_FEE_CONFIRM_MIN: Percent = new Percent(JSBI.BigInt(1000), BIPS_BASE) // 10%
 // for non expert mode disable swaps above this

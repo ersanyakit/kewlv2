@@ -23,6 +23,7 @@ import TokenShape from '../../UI/TokenShape';
 import { TradeType } from '../../../constants/entities/utils/misc';
 import { useAppKitNetwork } from '@reown/appkit/react';
 import { useSwapContext } from '../../../context/SwapContext';
+import { warningSeverity } from '../../../constants/entities/utils/calculateSlippageAmount';
 
 // Token type
 interface SwapFormProps {
@@ -69,6 +70,9 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
     quoteReservePercent,
     baseReserveAmount,
     quoteReserveAmount,
+    priceImpactWarningSeverity,
+    toggleDetails,
+    setToggleDetails,
     handleFromChange,
     handleToChange } = useSwapContext();
   const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
@@ -260,28 +264,23 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
 
                   {/* Improved Details toggle button with enhanced visual feedback */}
                   <button
-                    className={`flex items-center justify-center p-1.5 rounded-lg transition-all ${isDarkMode
+                  onClick={() => setToggleDetails(!toggleDetails)}
+                    className={`flex items-center justify-center p-1.5 rounded-full transition-all ${isDarkMode
                       ? 'text-gray-300 hover:bg-gray-700/70 hover:text-gray-100 active:bg-gray-600/50'
                       : 'text-gray-500 hover:bg-gray-100 hover:text-gray-700 active:bg-gray-200/50'
-                      } focus:outline-none focus:ring-1 focus:ring-[#ff1356]/30`}
+                      } focus:outline-none`}
                     aria-expanded="false"
                     aria-controls="detailsPanel"
                   >
-                    <span className={`text-xs mr-1.5 font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Details</span>
-                    <label
-                      htmlFor="details-toggle"
-                      className="cursor-pointer"
-                    >
+                     
                       <div
                         id="expandChevron"
                         className="transition-transform duration-300 bg-gradient-to-r from-[#ff1356]/10 to-[#3b82f6]/10 p-1 rounded-full"
                       >
                         <ChevronDown className="w-3.5 h-3.5" />
                       </div>
-                    </label>
+                
                   </button>
-                  {/* Hidden checkbox for CSS-only toggle */}
-                  <input type="checkbox" id="details-toggle" className="hidden peer" />
                 </div>
 
                 {/* Metrics band - Elegant unified display with improved hover effects */}
@@ -317,23 +316,26 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                   {/* Price impact with improved indicator */}
                   <div className="flex flex-col items-center py-0.5 px-1.5 rounded-md hover:bg-gray-100/30 dark:hover:bg-gray-700/30 transition-colors">
                     <span className={`text-[9px] font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Price Impact</span>
-                    <span className={`text-[10px] font-medium ${1.2 <= 0.5 ? 'text-green-500' :
-                      1.2 <= 1.5 ? 'text-yellow-500' :
-                        1.2 <= 3 ? 'text-orange-500' : 'text-red-500'
-                      }`}>{tradeInfo && tradeInfo.priceImpact.toSignificant(2)}%</span>
+                    <span className={`text-[10px] font-medium ${
+                      tradeInfo && tradeInfo.priceImpact ? 
+                        (priceImpactWarningSeverity === 0 ? 'text-green-500' :
+                         priceImpactWarningSeverity === 1 ? 'text-yellow-500' :
+                         priceImpactWarningSeverity === 2 ? 'text-orange-500' :
+                         priceImpactWarningSeverity === 3 ? 'text-red-500' : 'text-red-700') : 'text-gray-400'
+                    }`}>{tradeInfo && tradeInfo.priceImpact ? tradeInfo.priceImpact.toSignificant(2) : "-"}%</span>
                   </div>
 
 
                 </div>
 
                 {/* CSS-only collapsible panel - no JavaScript needed */}
+                {toggleDetails && (
                 <div
                   id="detailsPanel"
                   className="  peer-checked:h-auto peer-checked:max-h-[800px] peer-checked:opacity-100 peer-checked:visible peer-checked:mt-2 overflow-hidden transition-all duration-300"
                   style={{ transitionProperty: 'max-height, opacity, margin, visibility' }}
                 >
-                  <div className={`pt-3 border-t ${isDarkMode ? 'border-gray-700/50' : 'border-gray-200/50'}`}>
-                    {/* Improved Liquidity Distribution with amounts */}
+                  <div className={`pt-3  ${isDarkMode ? 'border-gray-700/50' : 'border-gray-200/50'}`}>
                     <div className="mb-3">
                       <div className="flex justify-between items-center mb-1.5">
                         <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
@@ -415,162 +417,122 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                     </div>
 
                     <div className="mb-3">
-                      <div className="flex justify-between items-center mb-1.5">
+                      <div className="flex justify-between items-center mb-2">
                         <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
                           Price Impact
                         </div>
                         <div className="flex items-center gap-2">
-                          <div className="flex items-center">
-                            <div className={`w-2 h-2 rounded-full ${1.2 <= 0.5 ? 'bg-green-500' :
-                              1.2 <= 1.5 ? 'bg-yellow-500' :
-                                1.2 <= 3 ? 'bg-orange-500' :
-                                  'bg-red-500'
-                              } mr-1`}></div>
-                            <span className={`text-[10px] ${1.2 <= 0.5 ? 'text-green-500' :
-                              1.2 <= 1.5 ? 'text-yellow-500' :
-                                1.2 <= 3 ? 'text-orange-500' :
-                                  'text-red-500'
-                              } font-medium`}>
-                              Current: 1.2%
-                            </span>
-                          </div>
-                          <div className="flex items-center">
-                            <div className="w-2 h-2 rounded-full bg-orange-500 mr-1"></div>
-                            <span className={`text-[10px] text-orange-500`}>
-                              Tolerance: {slippageTolerance}%
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Enhanced risk level labels */}
-                      <div className="flex justify-between text-[9px] text-gray-500 mb-1 px-0.5">
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full bg-green-500"></div>
-                          <span className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                            Safe <span className="text-[8px] font-mono">(0-1%)</span>
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full bg-yellow-500"></div>
-                          <span className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                            Medium <span className="text-[8px] font-mono">(1-2%)</span>
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full bg-orange-500"></div>
-                          <span className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                            High <span className="text-[8px] font-mono">(2-3%)</span>
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <div className="w-2 h-2 rounded-full bg-red-500"></div>
-                          <span className={`font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                            Risky <span className="text-[8px] font-mono">(3%+)</span>
+                          <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${
+                            tradeInfo && tradeInfo.priceImpact ? 
+                              (priceImpactWarningSeverity === 0 ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-400' :
+                               priceImpactWarningSeverity === 1 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400' :
+                               priceImpactWarningSeverity === 2 ? 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400' :
+                               priceImpactWarningSeverity === 3 ? 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400' : 
+                               'bg-red-200 text-red-800 dark:bg-red-900/60 dark:text-red-300') : 
+                               'bg-gray-100 text-gray-500 dark:bg-gray-800 dark:text-gray-400'
+                          }`}>
+                            {tradeInfo && tradeInfo.priceImpact ? tradeInfo.priceImpact.toSignificant(2) : "-"}%
                           </span>
                         </div>
                       </div>
 
-                      <div className="relative group pb-1">
-                        <div className={`h-2 rounded-full overflow-hidden ${isDarkMode ? 'bg-gray-700/70' : 'bg-gray-200/70'} shadow-inner`}>
-                          <div className="flex h-full">
-                            {/* Green zone (0-1%) */}
-                            <div
-                              className="bg-gradient-to-r from-green-600 to-green-400 relative group"
-                              style={{ width: '20%' }}
-                            >
-                              {/* Hover tooltip */}
-                              <div className="absolute opacity-0 group-hover:opacity-100 -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-200">
-                                <div className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${isDarkMode ? 'bg-gray-800 text-green-400' : 'bg-white text-green-600'} shadow-md border ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
-                                  0-1% (Safe)
-                                </div>
-                              </div>
-                            </div>
-                            {/* Yellow zone (1-2%) */}
-                            <div
-                              className="bg-gradient-to-r from-yellow-500 to-yellow-400 relative group"
-                              style={{ width: '20%' }}
-                            >
-                              {/* Hover tooltip */}
-                              <div className="absolute opacity-0 group-hover:opacity-100 -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-200">
-                                <div className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${isDarkMode ? 'bg-gray-800 text-yellow-400' : 'bg-white text-yellow-600'} shadow-md border ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
-                                  1-2% (Medium)
-                                </div>
-                              </div>
-                            </div>
-                            {/* Orange zone (2-3%) */}
-                            <div
-                              className="bg-gradient-to-r from-orange-500 to-orange-400 relative group"
-                              style={{ width: '20%' }}
-                            >
-                              {/* Hover tooltip */}
-                              <div className="absolute opacity-0 group-hover:opacity-100 -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-200">
-                                <div className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${isDarkMode ? 'bg-gray-800 text-orange-400' : 'bg-white text-orange-600'} shadow-md border ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
-                                  2-3% (High)
-                                </div>
-                              </div>
-                            </div>
-                            {/* Red zone (3%+) */}
-                            <div
-                              className="bg-gradient-to-r from-red-500 to-red-600 relative group"
-                              style={{ width: '40%' }}
-                            >
-                              {/* Hover tooltip */}
-                              <div className="absolute opacity-0 group-hover:opacity-100 -top-6 left-1/2 transform -translate-x-1/2 whitespace-nowrap transition-opacity duration-200">
-                                <div className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${isDarkMode ? 'bg-gray-800 text-red-400' : 'bg-white text-red-600'} shadow-md border ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}>
-                                  3%+ (Risky)
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Current value indicator */}
-                          <div className="absolute inset-y-0 flex items-center" style={{ left: '24%' }}>
-                            <div className="relative">
-                              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-4 w-0.5 bg-white dark:bg-gray-800"></div>
-                              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white dark:bg-gray-800 border-2 border-yellow-500 shadow-sm"></div>
-
-                              {/* Current value tooltip (always visible) */}
-                              <div className="absolute -top-6 left-1/2 -translate-x-1/2 whitespace-nowrap">
-                                <div className={`text-[9px] font-medium px-1.5 py-0.5 rounded ${isDarkMode ? 'bg-gray-800 text-yellow-400' : 'bg-white text-yellow-600'} shadow-sm border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} opacity-0 group-hover:opacity-100 transition-opacity duration-200`}>
-                                  Current: 1.2%
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Slippage tolerance indicator */}
-                          <div className="absolute inset-y-0 flex items-center z-10" style={{ left: `${slippageTolerance * 20}%` }}>
-                            <div className="relative">
-                              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 h-4 w-0.5 bg-orange-500"></div>
-
-                              {/* Tolerance indicator tooltip */}
-                              <div className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-200">
-                                <div className={`text-[8px] font-medium px-1 py-0.5 rounded ${isDarkMode ? 'bg-gray-800 text-orange-400' : 'bg-white text-orange-600'} shadow-sm border ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
-                                  {slippageTolerance}%
-                                </div>
-                              </div>
-                            </div>
-                          </div>
+                      {/* Professional gradient bar with enhanced indicator */}
+                      <div className="relative mb-2">
+                        {/* Main gradient bar */}
+                        <div className={`h-3 rounded-full overflow-hidden ${isDarkMode ? 'bg-gray-700/70' : 'bg-gray-200/70'} shadow-inner`}>
+                          <div 
+                            className="h-full w-full" 
+                            style={{
+                              background: 'linear-gradient(to right, #10b981 0%, #10b981 20%, #f59e0b 20%, #f59e0b 40%, #f97316 40%, #f97316 60%, #ef4444 60%, #ef4444 80%, #dc2626 80%, #dc2626 100%)'
+                            }}
+                          ></div>
                         </div>
-
-                        {/* Percentage markers */}
-                        <div className="flex justify-between px-0 mt-1">
-                          <div className="text-[8px] text-gray-500 font-mono">0%</div>
-                          <div className="text-[8px] text-gray-500 font-mono">1%</div>
-                          <div className="text-[8px] text-gray-500 font-mono">2%</div>
-                          <div className="text-[8px] text-gray-500 font-mono">3%</div>
-                          <div className="text-[8px] text-gray-500 font-mono">5%</div>
-                        </div>
+                        
+                        {/* Enhanced current price impact indicator */}
+                        {tradeInfo && tradeInfo.priceImpact && (
+                          <div 
+                            className="absolute top-0 bottom-0 flex items-center justify-center pointer-events-none" 
+                            style={{ 
+                              left: `${Math.min(Math.max(parseFloat(tradeInfo.priceImpact.toSignificant(2)) * 20, 1), 100)}%` 
+                            }}
+                          >
+                            {/* Indicator triangle */}
+                            <div className="absolute -bottom-1 -translate-x-1/2 w-0 h-0 
+                                           border-l-[6px] border-l-transparent 
+                                           border-r-[6px] border-r-transparent 
+                                           border-t-[6px] shadow-md"
+                              style={{
+                                borderTopColor: priceImpactWarningSeverity === 0 ? '#10b981' :
+                                              priceImpactWarningSeverity === 1 ? '#f59e0b' :
+                                              priceImpactWarningSeverity === 2 ? '#f97316' : 
+                                              priceImpactWarningSeverity === 3 ? '#ef4444' : '#dc2626'
+                              }}
+                            ></div>
+                            
+                            {/* Marker dot with pulse effect */}
+                            <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 flex items-center justify-center">
+                              <div className={`w-4 h-4 rounded-full shadow-md border-2 ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}
+                                style={{
+                                  borderColor: priceImpactWarningSeverity === 0 ? '#10b981' :
+                                              priceImpactWarningSeverity === 1 ? '#f59e0b' :
+                                              priceImpactWarningSeverity === 2 ? '#f97316' : 
+                                              priceImpactWarningSeverity === 3 ? '#ef4444' : '#dc2626'
+                                }}
+                              ></div>
+                              
+                              {/* Subtle pulse animation for higher impact levels */}
+                              {priceImpactWarningSeverity >= 2 && (
+                                <div className="absolute w-6 h-6 rounded-full animate-ping opacity-30"
+                                  style={{
+                                    backgroundColor: priceImpactWarningSeverity === 2 ? '#f97316' : 
+                                                    priceImpactWarningSeverity === 3 ? '#ef4444' : '#dc2626'
+                                  }}
+                                ></div>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                        
+                      
+                      
+                      </div>
+                      
+                      {/* Percentage markers */}
+                      <div className="flex justify-between text-[9px] text-gray-500 mb-2 px-0.5">
+                        <span>0%</span>
+                        <span>1%</span>
+                        <span>2%</span>
+                        <span>3%</span>
+                        <span>5%+</span>
                       </div>
 
-                      {/* Explanation text */}
-                      <div className="text-[9px] text-gray-500 mt-2 leading-tight">
-                        Price impact shows how your trade affects the market price. Lower values indicate minimal market disruption.
+                      {/* Professional legend with severity descriptions */}
+                      <div className="grid grid-cols-5 gap-1 text-[9px]">
+                        <div className="flex flex-col items-center">
+                          <div className="w-3 h-3 rounded-full bg-green-500 mb-1"></div>
+                          <div className={`${isDarkMode ? 'text-green-400' : 'text-green-600'} text-center`}>Safe</div>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <div className="w-3 h-3 rounded-full bg-yellow-500 mb-1"></div>
+                          <div className={`${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'} text-center`}>Medium</div>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <div className="w-3 h-3 rounded-full bg-orange-500 mb-1"></div>
+                          <div className={`${isDarkMode ? 'text-orange-400' : 'text-orange-600'} text-center`}>High</div>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <div className="w-3 h-3 rounded-full bg-red-500 mb-1"></div>
+                          <div className={`${isDarkMode ? 'text-red-400' : 'text-red-600'} text-center`}>Risky</div>
+                        </div>
+                        <div className="flex flex-col items-center">
+                          <div className="w-3 h-3 rounded-full bg-red-700 mb-1"></div>
+                          <div className={`${isDarkMode ? 'text-red-500' : 'text-red-700'} text-center`}>Very High</div>
+                        </div>
                       </div>
                     </div>
                   </div>
                 </div>
+                )}
               </div>
             </div>
 

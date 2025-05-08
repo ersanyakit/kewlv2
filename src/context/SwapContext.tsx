@@ -7,6 +7,7 @@ import { ethers, ZeroAddress } from 'ethers';
 import { getContractByName } from '../constants/contracts/contracts';
 import { TContractType } from '../constants/contracts/addresses';
 import JSBI from 'jsbi';
+import { warningSeverity } from '../constants/entities/utils/calculateSlippageAmount';
 
 // Context için tip tanımı
 interface SwapContextProps {
@@ -19,6 +20,7 @@ interface SwapContextProps {
   quoteReservePercent: Percent;
   baseReserveAmount:CurrencyAmount<Token> | null;
   quoteReserveAmount:CurrencyAmount<Token> | null;
+  priceImpactWarningSeverity: number;
   setFromAmount: (amount: string) => void;
   setToAmount: (amount: string) => void;
   handleFromChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -36,6 +38,7 @@ const defaultContext: SwapContextProps = {
   quoteReservePercent: new Percent(0, 0), 
   baseReserveAmount:null,
   quoteReserveAmount:null,
+  priceImpactWarningSeverity:0,
   setFromAmount: () => {},
   setToAmount: () => {},
   handleFromChange: () => {},
@@ -74,7 +77,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [quoteReservePercent, setQuoteReservePercent] = useState<Percent>(new Percent(0, 0));
   const [baseReserveAmount, setBaseReserveAmount] = useState<CurrencyAmount<Token> | null>(null);
   const [quoteReserveAmount, setQuoteReserveAmount] = useState<CurrencyAmount<Token> | null>(null);
-
+  const [priceImpactWarningSeverity, setPriceImpactWarningSeverity] = useState<number>(0);
   // Input değişiklikleri için handler'lar
   const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const regex = /^[0-9]*\.?[0-9]*$/;
@@ -216,6 +219,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         setFromAmount(_tradeInfo.inputAmount.toSignificant());
     }
 
+    setPriceImpactWarningSeverity(warningSeverity(_tradeInfo.priceImpact));
     setTradeInfo(_tradeInfo);
 
   
@@ -236,6 +240,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     console.log("executionPriceEx", _tradeInfo.executionPrice.invert().toSignificant());
 
   }
+
+ 
 
   useEffect(()=>{
     fetchPairInfo();
@@ -262,6 +268,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     quoteReservePercent,  
     baseReserveAmount,
     quoteReserveAmount,
+    priceImpactWarningSeverity,
     // Diğer değerler...
   };
 
