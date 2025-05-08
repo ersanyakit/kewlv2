@@ -238,6 +238,8 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
               </div>
             </div>
 
+            {tradeInfo && (
+
             <div className="px-3 pb-2">
               {/* Professional Combined Info Panel */}
               <div className={`${isDarkMode ? 'bg-gray-800/90 border-gray-700' : 'bg-white/90 border-gray-100'} backdrop-blur-md rounded-xl px-3 py-2 flex flex-col shadow-lg border mb-2 relative overflow-hidden group`}>
@@ -313,16 +315,66 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                       }`}>{slippageTolerance}%</span>
                   </div>
 
-                  {/* Price impact with improved indicator */}
-                  <div className="flex flex-col items-center py-0.5 px-1.5 rounded-md hover:bg-gray-100/30 dark:hover:bg-gray-700/30 transition-colors">
+                  {/* Price impact with enhanced risk visualization */}
+                  <div className="flex flex-col items-center py-0.5 px-1.5 rounded-md hover:bg-gray-100/30 dark:hover:bg-gray-700/30 transition-colors relative">
                     <span className={`text-[9px] font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Price Impact</span>
-                    <span className={`text-[10px] font-medium ${
-                      tradeInfo && tradeInfo.priceImpact ? 
-                        (priceImpactWarningSeverity === 0 ? 'text-green-500' :
-                         priceImpactWarningSeverity === 1 ? 'text-yellow-500' :
-                         priceImpactWarningSeverity === 2 ? 'text-orange-500' :
-                         priceImpactWarningSeverity === 3 ? 'text-red-500' : 'text-red-700') : 'text-gray-400'
-                    }`}>{tradeInfo && tradeInfo.priceImpact ? tradeInfo.priceImpact.toSignificant(2) : "-"}%</span>
+                    
+                    {/* Risk-based visual impact indicator */}
+                    <div className={`flex items-center gap-1 py-0.5 px-2 rounded-full transition-all ${
+                      !tradeInfo || !tradeInfo.priceImpact ? 'bg-gray-200/50 dark:bg-gray-700/50' :
+                      priceImpactWarningSeverity === 0 ? 'bg-green-100/70 dark:bg-green-900/40' :
+                      priceImpactWarningSeverity === 1 ? 'bg-yellow-100/70 dark:bg-yellow-900/40' :
+                      priceImpactWarningSeverity === 2 ? 'bg-orange-100/70 dark:bg-orange-900/40' :
+                      priceImpactWarningSeverity === 3 ? 'bg-red-100/70 dark:bg-red-900/40' : 
+                      'bg-red-200/70 dark:bg-red-900/60'
+                    }`}>
+                      {/* Risk level indicator shape */}
+                      {tradeInfo && tradeInfo.priceImpact && (
+                        <>
+                          {/* Scalable risk indicator shape - becomes more prominent with higher risk */}
+                          <div className={`
+                            ${priceImpactWarningSeverity === 0 ? 'w-1.5 h-1.5' : 
+                              priceImpactWarningSeverity === 1 ? 'w-2 h-2' :
+                              priceImpactWarningSeverity === 2 ? 'w-2 h-2' : 'w-2.5 h-2.5'}
+                            ${priceImpactWarningSeverity === 0 ? 'rounded-full' : 
+                              priceImpactWarningSeverity === 1 ? 'rounded-full' :
+                              priceImpactWarningSeverity === 2 ? 'rounded' : 'rounded-sm'}
+                            ${priceImpactWarningSeverity === 0 ? 'bg-green-500' : 
+                              priceImpactWarningSeverity === 1 ? 'bg-yellow-500' :
+                              priceImpactWarningSeverity === 2 ? 'bg-orange-500' :
+                              priceImpactWarningSeverity === 3 ? 'bg-red-500' : 'bg-red-700'}
+                            ${priceImpactWarningSeverity >= 3 ? 'animate-pulse' : ''}
+                            transition-all
+                          `}></div>
+                          
+                          {/* Pulsing ring for high risk levels */}
+                          {priceImpactWarningSeverity >= 3 && (
+                            <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -ml-1 w-6 h-6 rounded-full bg-red-500/20 animate-ping"></div>
+                          )}
+                        </>
+                      )}
+                      
+                      {/* Percentage text */}
+                      <span className={`text-[10px] font-medium ${
+                        !tradeInfo || !tradeInfo.priceImpact ? 'text-gray-400 dark:text-gray-500' :
+                        priceImpactWarningSeverity === 0 ? 'text-green-700 dark:text-green-400' :
+                        priceImpactWarningSeverity === 1 ? 'text-yellow-700 dark:text-yellow-400' :
+                        priceImpactWarningSeverity === 2 ? 'text-orange-700 dark:text-orange-400' :
+                        priceImpactWarningSeverity === 3 ? 'text-red-700 dark:text-red-400' : 
+                        'text-red-800 dark:text-red-300 font-semibold'
+                      }`}>
+                        {tradeInfo && tradeInfo.priceImpact ? tradeInfo.priceImpact.toSignificant(2) : "-"}%
+                        
+                        {/* Adding risk label for medium and higher risks */}
+                        {tradeInfo && tradeInfo.priceImpact && priceImpactWarningSeverity >= 1 && (
+                          <span className="ml-0.5 text-[8px] italic opacity-80">
+                            ({priceImpactWarningSeverity === 1 ? 'medium' : 
+                               priceImpactWarningSeverity === 2 ? 'high' : 
+                               priceImpactWarningSeverity === 3 ? 'risky' : 'very high'})
+                          </span>
+                        )}
+                      </span>
+                    </div>
                   </div>
 
 
@@ -535,6 +587,7 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                 )}
               </div>
             </div>
+            )}
 
 
             <div className="px-3 pb-3">
@@ -556,10 +609,7 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                 <Zap className="w-4 h-4" />
               </motion.button>
 
-              <div className="flex items-center justify-center mt-1.5">
-                <Shield className="w-3 h-3 text-[#ff1356] mr-1" />
-                <div className={`text-[10px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>KEWL Swap güvenlik protokolleri ile korunmaktadır</div>
-              </div>
+           
             </div>
           </>)}
 
