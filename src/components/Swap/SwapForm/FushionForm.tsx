@@ -306,7 +306,7 @@ const FushionForm: React.FC = () => {
             onClick={() => setToggleDetails(!toggleDetails)} 
             className={`text-xs flex items-center px-2 py-0.5 rounded-full transition-colors ${
                 isDarkMode 
-                    ? toggleDetails ? 'bg-[#ff1356]/20 text-[#ff3978]' : 'hover:bg-gray-700/70 text-gray-300 hover:text-[#ff3978]' 
+                    ? toggleDetails ? 'bg-[#ff1356]/20 text-[#ff4080]' : 'hover:bg-gray-700/70 text-gray-300 hover:text-[#ff4080]' 
                     : toggleDetails ? 'bg-[#ff1356]/10 text-[#ff1356]' : 'hover:bg-gray-100 text-gray-500 hover:text-[#ff1356]'
             }`}
         >
@@ -326,10 +326,10 @@ const FushionForm: React.FC = () => {
         <motion.div 
             key={dex.id}
             className={`rounded-xl ${isDarkMode 
-                ? isSelected ? 'bg-[#ff1356]/15 border border-[#ff1356]/30' : 'bg-gray-700/50 border border-gray-600/30' 
+                ? isSelected ? 'bg-[#ff1356]/15 border border-[#ff4080]/30' : 'bg-gray-700/50 border border-gray-600/30' 
                 : isSelected ? 'bg-[#ff1356]/5 border border-[#ff1356]/20' : 'bg-white/70 border border-gray-200/70'
             } transition-all duration-200 ${isSelected ? 'shadow-sm' : ''}`}
-            whileHover={{ scale: 1.005, boxShadow: isSelected ? "0 4px 12px rgba(0, 0, 0, 0.05)" : "0 2px 8px rgba(0, 0, 0, 0.03)" }}
+            whileHover={{ scale: 1.005, boxShadow: isSelected ? "0 4px 12px rgba(255, 19, 86, 0.07)" : "0 2px 8px rgba(0, 0, 0, 0.03)" }}
             whileTap={{ scale: 0.995 }}
             onClick={() => toggleDexSelection(dex.id)}
         >
@@ -337,7 +337,7 @@ const FushionForm: React.FC = () => {
                 <div className="flex items-center space-x-2.5">
                     <div className={`p-2 rounded-lg ${
                         isSelected 
-                            ? isDarkMode ? 'bg-[#ff1356]/20 ring-1 ring-[#ff1356]/30' : 'bg-white ring-1 ring-[#ff1356]/20' 
+                            ? isDarkMode ? 'bg-[#ff1356]/20 ring-1 ring-[#ff4080]/30' : 'bg-white ring-1 ring-[#ff1356]/20' 
                             : isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
                     }`}>
                         <img 
@@ -360,20 +360,20 @@ const FushionForm: React.FC = () => {
                                     isPriceBest 
                                         ? isDarkMode ? 'text-green-400' : 'text-green-600'
                                         : isPriceWorst
-                                            ? isDarkMode ? 'text-[#ff3978]' : 'text-[#ff1356]'
+                                            ? isDarkMode ? 'text-[#ff4080]' : 'text-[#ff1356]'
                                             : isDarkMode ? 'text-amber-400' : 'text-amber-600'
                                 }`}>
                                     ${dex.price || '---'}
                                 </span>
                             </div>
                             
-                            {/* Enhanced Status Badge */}
+                            {/* Status Badge with updated colors */}
                             <span className={`text-xs px-1.5 py-0.5 rounded-full ${
                                 isPriceBest 
                                     ? isDarkMode ? 'bg-green-900/50 text-green-300 ring-1 ring-green-700/50' 
                                                : 'bg-green-100 text-green-700 ring-1 ring-green-300/50'
                                     : isPriceWorst
-                                        ? isDarkMode ? 'bg-[#ff1356]/20 text-[#ff3978] ring-1 ring-[#ff1356]/30' 
+                                        ? isDarkMode ? 'bg-[#ff1356]/20 text-[#ff4080] ring-1 ring-[#ff4080]/30' 
                                                    : 'bg-[#ff1356]/10 text-[#ff1356] ring-1 ring-[#ff1356]/20'
                                         : isDarkMode ? 'bg-amber-900/40 text-amber-300 ring-1 ring-amber-700/40' 
                                                    : 'bg-amber-100 text-amber-700 ring-1 ring-amber-300/40'
@@ -385,13 +385,11 @@ const FushionForm: React.FC = () => {
                 </div>
                 
                 <div className="flex items-center">
-                    {/* Improved Multi-selection Checkbox with theme colors */}
+                    {/* Updated checkbox with correct brand gradient */}
                     <motion.div 
-                        className={`relative w-5 h-5 rounded-md flex items-center justify-center cursor-pointer shadow-sm overflow-hidden 
+                        className={`relative w-5 h-5 rounded-full flex items-center justify-center cursor-pointer shadow-sm overflow-hidden 
                         ${isSelected 
-                            ? isDarkMode 
-                                ? 'bg-gradient-to-br from-[#ff1356] to-[#ff3978]' 
-                                : 'bg-gradient-to-br from-[#ff1356] to-[#ff3978]'
+                            ? 'bg-gradient-to-br from-[#ff1356] to-[#ff4080]'
                             : isDarkMode 
                                 ? 'bg-gray-700/80 hover:bg-gray-600/80 border border-gray-600/80' 
                                 : 'bg-white hover:bg-gray-50 border border-gray-200'
@@ -405,12 +403,12 @@ const FushionForm: React.FC = () => {
                         style={{
                             boxShadow: isSelected 
                                 ? isDarkMode 
-                                    ? '0 0 0 2px rgba(255, 19, 86, 0.3)' 
+                                    ? '0 0 0 2px rgba(255, 64, 128, 0.3)' 
                                     : '0 0 0 2px rgba(255, 19, 86, 0.2)'
                                 : 'none'
                         }}
                     >
-                        {/* Enhanced glow effect for selected state */}
+                        {/* Enhanced glow effect with brand colors */}
                         {isSelected && (
                             <motion.div 
                                 className="absolute inset-0 bg-white opacity-20"
@@ -438,7 +436,7 @@ const FushionForm: React.FC = () => {
                 </div>
             </div>
             
-            {/* Optimized Detail View with Enhanced UI */}
+            {/* Ultra-streamlined detail view with correct branding */}
             <AnimatePresence>
                 {toggleDetails && (
                     <motion.div 
@@ -448,38 +446,36 @@ const FushionForm: React.FC = () => {
                         transition={{ duration: 0.2 }}
                         className="overflow-hidden"
                     >
-                        <div className={`p-3 mx-3 mb-3 rounded-xl ${
+                        <div className={`p-2.5 mx-3 mb-3 rounded-lg ${
                             isSelected 
-                                ? isDarkMode ? 'bg-[#ff1356]/10 border-b border-[#ff1356]/20' 
-                                           : 'bg-white border-b border-[#ff1356]/10' 
+                                ? isDarkMode ? 'bg-gradient-to-br from-[#ff1356]/10 to-[#ff4080]/10 border-b border-[#ff4080]/20' 
+                                           : 'bg-gradient-to-br from-[#ff1356]/5 to-[#ff4080]/5 border-b border-[#ff1356]/10' 
                                 : isDarkMode ? 'bg-gray-800/80 border-b border-gray-700/30' 
                                            : 'bg-white border-b border-gray-200/50'
                         }`}>
-                            {/* Exchange Rate & Price Impact Summary */}
-                            <div className="flex items-center justify-between mb-3">
-                                <div className={`px-2 py-1 rounded ${
+                            {/* Top row - exchange rate and impact in a single row */}
+                            <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                                <div className={`flex items-center gap-1.5 py-1 px-1.5 rounded ${
                                     isSelected
                                         ? isDarkMode ? 'bg-[#ff1356]/15' : 'bg-[#ff1356]/5'
                                         : isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50/80'
                                 }`}>
-                                    <div className="flex items-center gap-1.5">
-                                        <TokenShape isDarkMode={isDarkMode} token={baseToken} size="xs" />
-                                        <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
-                                            1 {baseToken?.symbol}
-                                        </span>
-                                        <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>=</span>
-                                        <span className={`text-xs font-medium ${
-                                            isSelected
-                                                ? isDarkMode ? 'text-[#ff3978]' : 'text-[#ff1356]'
-                                                : isDarkMode ? 'text-gray-200' : 'text-gray-800'
-                                        }`}>
-                                            {(parseFloat(dex.priceBase)/parseFloat(dex.priceQuote)).toFixed(4)}
-                                        </span>
-                                        <TokenShape isDarkMode={isDarkMode} token={quoteToken} size="xs" />
-                                    </div>
+                                    <TokenShape isDarkMode={isDarkMode} token={baseToken} size="xs" />
+                                    <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                        1 {baseToken?.symbol}
+                                    </span>
+                                    <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>=</span>
+                                    <span className={`text-xs font-medium ${
+                                        isSelected
+                                            ? isDarkMode ? 'text-[#ff4080]' : 'text-[#ff1356]'
+                                            : isDarkMode ? 'text-gray-200' : 'text-gray-800'
+                                    }`}>
+                                        {(parseFloat(dex.priceBase)/parseFloat(dex.priceQuote)).toFixed(4)}
+                                    </span>
+                                    <TokenShape isDarkMode={isDarkMode} token={quoteToken} size="xs" />
                                 </div>
                                 
-                                <div className={`px-2 py-1 rounded ${
+                                <div className={`inline-flex items-center py-1 px-1.5 rounded ${
                                     isPriceBest 
                                         ? isDarkMode ? 'bg-green-900/30' : 'bg-green-50'
                                         : isPriceWorst
@@ -490,77 +486,61 @@ const FushionForm: React.FC = () => {
                                         isPriceBest 
                                             ? isDarkMode ? 'text-green-400' : 'text-green-600'
                                             : isPriceWorst
-                                                ? isDarkMode ? 'text-[#ff3978]' : 'text-[#ff1356]'
+                                                ? isDarkMode ? 'text-[#ff4080]' : 'text-[#ff1356]'
                                                 : isDarkMode ? 'text-amber-400' : 'text-amber-600'
                                     }`}>
-                                        Impact: {((priceValue - 0.01245) / 0.01245 * 100).toFixed(2)}%
+                                        {((priceValue - 0.01245) / 0.01245 * 100).toFixed(2)}% impact
                                     </span>
                                 </div>
                             </div>
                             
-                            {/* Key Metrics */}
-                            <div className="grid grid-cols-2 gap-3 mb-3">
-                                <div className="flex flex-col gap-1.5">
-                                    {/* Token Prices */}
-                                    <div className={`text-xs font-medium ${
-                                        isSelected ? isDarkMode ? 'text-[#ff3978]' : 'text-[#ff1356]' : isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                                    }`}>Token Prices</div>
-                                    
-                                    <div className="flex items-center justify-between">
+                            {/* Combined compact info section */}
+                            <div className="flex items-center justify-between mb-3 gap-3">
+                                <div className="flex items-center gap-2">
+                                    <div className={`flex-shrink-0 w-1.5 h-8 rounded-full ${
+                                        isSelected ? 'bg-gradient-to-b from-blue-500 to-blue-600' : 'bg-blue-500'
+                                    }`}></div>
+                                    <div>
                                         <div className="flex items-center gap-1">
                                             <TokenShape isDarkMode={isDarkMode} token={baseToken} size="xs" />
                                             <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{baseToken?.symbol}</span>
                                         </div>
-                                        <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>${dex.priceBase}</span>
-                                    </div>
-                                    
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-1">
-                                            <TokenShape isDarkMode={isDarkMode} token={quoteToken} size="xs" />
-                                            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{quoteToken?.symbol}</span>
-                                        </div>
-                                        <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>${dex.priceQuote}</span>
+                                        <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>${dex.priceBase}</div>
+                                        <div className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{dex.baseReserve} ({dex.baseReservePercent}%)</div>
                                     </div>
                                 </div>
                                 
-                                <div className="flex flex-col gap-1.5">
-                                    {/* Liquidity Info */}
-                                    <div className={`text-xs font-medium ${
-                                        isSelected ? isDarkMode ? 'text-[#ff3978]' : 'text-[#ff1356]' : isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                                    }`}>Liquidity: ${dex.liquidity}</div>
-                                    
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-1">
-                                            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
-                                            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{baseToken?.symbol}</span>
-                                        </div>
-                                        <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{dex.baseReserve}</span>
-                                    </div>
-                                    
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-1">
-                                            <div className="w-2 h-2 rounded-full bg-[#ff2c6a]"></div>
+                                <div className={`text-xs font-medium ${
+                                    isSelected ? isDarkMode ? 'text-[#ff4080]' : 'text-[#ff1356]' : isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                                }`}>
+                                    Liquidity:<br/>${dex.liquidity}
+                                </div>
+                                
+                                <div className="flex items-center gap-2">
+                                    <div>
+                                        <div className="flex items-center gap-1 justify-end">
                                             <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{quoteToken?.symbol}</span>
+                                            <TokenShape isDarkMode={isDarkMode} token={quoteToken} size="xs" />
                                         </div>
-                                        <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{dex.quoteReserve}</span>
+                                        <div className={`text-xs font-medium text-right ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>${dex.priceQuote}</div>
+                                        <div className={`text-[10px] text-right ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{dex.quoteReserve} ({100 - dex.baseReservePercent}%)</div>
                                     </div>
+                                    <div className={`flex-shrink-0 w-1.5 h-8 rounded-full ${
+                                        isSelected ? 'bg-gradient-to-b from-[#ff1356] to-[#ff4080]' : 'bg-[#ff2c6a]'
+                                    }`}></div>
                                 </div>
                             </div>
                             
                             {/* Optimized Reserve Bar */}
                             <div className="relative">
-                                <div className="flex justify-between items-center mb-1">
-                                    <span className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{dex.baseReservePercent}%</span>
-                                    <span className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{100 - dex.baseReservePercent}%</span>
-                                </div>
-                                <div className="relative h-2 rounded-full overflow-hidden 
+                                <div className="relative h-1.5 rounded-full overflow-hidden 
                                     bg-gray-200/70 dark:bg-gray-700/50">
                                     <div 
-                                        className={`absolute top-0 left-0 h-full rounded-full
-                                            ${isSelected 
-                                                ? "bg-gradient-to-r from-blue-500 via-[#ff2c6a] to-[#ff3978]" 
+                                        className={`absolute top-0 left-0 h-full rounded-full ${
+                                            isSelected 
+                                                ? "bg-gradient-to-r from-blue-500 via-[#ff2c6a] to-[#ff4080]" 
                                                 : "bg-gradient-to-r from-blue-500 to-[#ff1356]"
-                                            }`}
+                                        }`}
                                         style={{ width: `${dex.baseReservePercent}%` }}
                                     >
                                         {isSelected && (
