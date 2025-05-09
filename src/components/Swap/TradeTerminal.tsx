@@ -55,10 +55,10 @@ type Token = {
 import TokenList from './TokenList';
 import TransactionHistory from './TransactionHistory';
 import SwapTabs from './SwapTabs';
-import SwapForm from './SwapForm/SwapForm';
 import { useTokenContext } from '../../context/TokenContext';
 import PoolsView from './Pools/PoolsView';
 import ETFView from './ETF/ETFView';
+import SwapLayout from './SwapForm/SwapLayout';
 
 export default function TradeTerminal() {
   // Token context'inden verileri alıyoruz
@@ -114,14 +114,8 @@ export default function TradeTerminal() {
           />
 
           {activeView === 'swap' && (
-            <SwapForm
-              isDarkMode={isDarkMode}
-              slippageTolerance={slippageTolerance}
-              setSlippageTolerance={setSlippageTolerance}
-              swapDirection={swapDirection}
-              setSwapDirection={setSwapDirection}
-             
-            />
+            <SwapLayout/>
+         
           )}
           {activeView === 'pools' && (
             <PoolsView isDarkMode={isDarkMode} />

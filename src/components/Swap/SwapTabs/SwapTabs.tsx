@@ -37,17 +37,6 @@ const SwapTabs: React.FC<SwapTabsProps> = ({
           Swap
         </button>
         <button 
-          className={`text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'pools' 
-            ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white shadow-lg' 
-            : isDarkMode 
-              ? 'text-gray-300 hover:bg-gray-700/50' 
-              : 'text-gray-600 hover:bg-white/50'}`}
-          onClick={() => setActiveView('pools')}
-        >
-          <PieChart className="w-4 h-4 mr-1.5" />
-          Pools
-        </button>
-        <button 
           className={`text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'etf' 
             ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white shadow-lg' 
             : isDarkMode 
@@ -58,6 +47,18 @@ const SwapTabs: React.FC<SwapTabsProps> = ({
           <Clock className="w-4 h-4 mr-1.5" />
           ETF
         </button>
+        <button 
+          className={`text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'pools' 
+            ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white shadow-lg' 
+            : isDarkMode 
+              ? 'text-gray-300 hover:bg-gray-700/50' 
+              : 'text-gray-600 hover:bg-white/50'}`}
+          onClick={() => setActiveView('pools')}
+        >
+          <PieChart className="w-4 h-4 mr-1.5" />
+          Pools
+        </button>
+       
       </div>
     </motion.div>
   );

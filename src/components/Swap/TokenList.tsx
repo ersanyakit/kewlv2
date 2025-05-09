@@ -180,41 +180,41 @@ const TokenList: React.FC<TokenListProps> = ({ isDarkMode }) => {
         </div>
       </div>
       <div className='w-full flex flex flex-row items-center justify-center gap-2'>
-        <div className={` p-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'
+        <div className={`w-full p-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'
           } transition-colors duration-300`}>
           <h4 className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'
             } mb-2 transition-colors duration-300`}>Token Information</h4>
           <div className={`${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'
-            } rounded-xl p-3 transition-colors duration-300`}>
+            } rounded-xl transition-colors duration-300`}>
             <div className="grid grid-cols-2 gap-2 text-xs">
-              <div>
+            <div>
                 <div className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  } transition-colors duration-300`}>Trading Volume (24h)</div>
+                  } transition-colors duration-300`}>Name</div>
                 <div className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'
-                  } transition-colors duration-300`}>{baseToken && baseToken.volume24h}</div>
+                  } transition-colors duration-300`}>{baseToken && baseToken.name}</div>
               </div>
               <div>
                 <div className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  } transition-colors duration-300`}>Market Cap</div>
+                  } transition-colors duration-300`}>Symbol</div>
                 <div className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'
-                  } transition-colors duration-300`}>{baseToken && baseToken.marketCap}</div>
+                  } transition-colors duration-300`}>{baseToken && baseToken.symbol}</div>
               </div>
               <div>
                 <div className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  } transition-colors duration-300`}>Category</div>
+                  } transition-colors duration-300`}>Decimals</div>
                 <div className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'
-                  } transition-colors duration-300`}>{baseToken && baseToken.category}</div>
+                  } transition-colors duration-300`}>{baseToken && baseToken.decimals}</div>
               </div>
               <div>
                 <div className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'
-                  } transition-colors duration-300`}>Status</div>
+                  } transition-colors duration-300`}>Contract</div>
                 <div className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'
-                  } flex items-center transition-colors duration-300`}>
-                  {baseToken && baseToken.verified ?
-                    <><CheckCircle className="w-3 h-3 text-[#ff1356] mr-1" /> Verified</> :
-                    'Not Verified'}
-                </div>
+                  } transition-colors duration-300`}>
+                      {baseToken && `${baseToken.address.slice(0, 6)}...${baseToken.address.slice(-4)}`}
+                  </div>
               </div>
+             
+              
             </div>
           </div>
         </div>

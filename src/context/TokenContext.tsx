@@ -30,6 +30,8 @@ export type Token = {
 interface TokenContextType {
   tokens: Token[];
   enableTaxesContract: boolean;
+  slippageTolerance: number;
+  setSlippageTolerance: (tolerance: number) => void;
   setTokens: (tokens: Token[]) => void;
   baseToken: Token | null;
   quoteToken: Token | null;
@@ -59,6 +61,7 @@ interface TokenContextType {
 
 // Default context değeri
 const defaultContext: TokenContextType = {
+  slippageTolerance: 0.5,
   tokens: [],
   baseToken:  null,
   quoteToken: null,
@@ -72,6 +75,7 @@ const defaultContext: TokenContextType = {
   isLoading: false,
   tradeType: TradeType.EXACT_INPUT,
   openTokenSelector:false,
+  setSlippageTolerance: () => {},
   setTokens: () => {},
   setAccount: () => {},
   setTradeType: () => {},
@@ -203,6 +207,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [favoriteOnly, setFavoriteOnly] = useState<boolean>(false);
   const [account, setAccount] = useState<string>('');
   const [enableTaxesContract, setEnableTaxesContract] = useState<boolean>(false);
+  const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
   // Input değerleri için state
 
   
@@ -295,6 +300,8 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     tradeType,
     account,
     enableTaxesContract,
+    slippageTolerance,
+    setSlippageTolerance,
     reloadTokens,
     setAccount,
     setOpenTokenSelector,

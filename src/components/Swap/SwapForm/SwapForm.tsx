@@ -25,25 +25,14 @@ import { useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
 import { useSwapContext } from '../../../context/SwapContext';
 import { warningSeverity } from '../../../constants/entities/utils/calculateSlippageAmount';
 
-// Token type
-interface SwapFormProps {
-  isDarkMode: boolean;
-  slippageTolerance: number;
-  setSlippageTolerance: (tolerance: number) => void;
-  swapDirection: string;
-  setSwapDirection: (direction: string) => void;
-}
+ 
 
 // memo ile render performansını optimize etme
-const SwapForm: React.FC<SwapFormProps> = memo(({
-  isDarkMode,
-  slippageTolerance,
-  setSlippageTolerance,
-  swapDirection,
-  setSwapDirection,
-}) => {
+const SwapForm: React.FC  = () => {
   // Token context'inden verileri al
   const {
+    isDarkMode,
+    slippageTolerance,
     baseToken,
     quoteToken,
     selectingTokenIndex,
@@ -95,21 +84,7 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
   }, [baseToken, quoteToken]);
 
   return (
-    <motion.div
-      className={`relative ${isDarkMode
-        ? 'bg-gray-800/30 border-gray-700/30'
-        : 'bg-white/40 border-white/20'
-        } backdrop-blur-sm p-0.5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden transition-all duration-300`}
-      initial={{ y: 20, opacity: 0 }}
-      animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 0.3 }}
-    >
-      {/* Background gradient based on selected tokens */}
-
-
-
-      <div className={`relative ${isDarkMode ? 'bg-gray-800/80' : 'bg-white/80'} backdrop-blur-md rounded-3xl overflow-hidden`}>
-        {/* Content Container */}
+  
         <div className="flex flex-col">
 
           {!openTokenSelector && (<>
@@ -775,10 +750,9 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
 
 
         </div>
-      </div>
-    </motion.div>
+  
   );
-});
+};
 
 SwapForm.displayName = 'SwapForm';
 
