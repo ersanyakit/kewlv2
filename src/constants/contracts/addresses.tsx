@@ -1,7 +1,7 @@
 import DEX_ABI from "./abis/KEWLDEX.json";
 import ERC20_ABI from "./abis/ERC20.json";
 import { Address } from "@reown/appkit-adapter-ethers";
-import { PublicClient } from "viem";
+import { PublicClient, WalletClient } from "viem";
  
 export enum TContractType {
     DEX,
@@ -16,7 +16,9 @@ export enum TContractType {
     address: Address;
     abi:object[];
     client: PublicClient;
+    wallet:WalletClient;
     caller: any;
+    signer: any;
   }
 
   export type MultiContractConfig = {

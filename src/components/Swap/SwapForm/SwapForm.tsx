@@ -21,7 +21,7 @@ import {
 import { useTokenContext } from '../../../context/TokenContext';
 import TokenShape from '../../UI/TokenShape';
 import { TradeType } from '../../../constants/entities/utils/misc';
-import { useAppKitNetwork } from '@reown/appkit/react';
+import { useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
 import { useSwapContext } from '../../../context/SwapContext';
 import { warningSeverity } from '../../../constants/entities/utils/calculateSlippageAmount';
 
@@ -62,7 +62,9 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
     setTradeType,
 
   } = useTokenContext();
+
   const {
+    canSwap,
     tradeInfo,
     fromAmount,
     toAmount,
@@ -74,8 +76,10 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
     toggleDetails,
     setToggleDetails,
     handleFromChange,
+    handleSwap,
     handleToChange } = useSwapContext();
   const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
+  const { walletProvider } = useAppKitProvider('eip155');
 
 
 
@@ -111,21 +115,35 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
             <div className="p-3 relative">
               <div className="flex justify-between items-start mb-1">
                 <div>
-                  <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} mb-0.5`}>Gönderilen</div>
-                  <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Bakiye: {baseToken && baseToken.balance} {baseToken && baseToken.symbol}</div>
+                  <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} mb-0.5`}>You Pay</div>
+                  <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Balance: {baseToken && baseToken.balance} {baseToken && baseToken.symbol}</div>
                 </div>
 
                 <div className="flex items-center">
-                  <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mr-1`}>
-                    <span className={baseToken && baseToken.trend === 'up' ? 'text-green-500' : baseToken && baseToken.trend === 'down' ? 'text-red-500' : ''}>
-                      {baseToken && baseToken.change}
-                    </span>
-                  </div>
+               
                   <button
                     className={`text-xs ${isDarkMode ? 'bg-pink-900/30 text-pink-300 hover:bg-pink-800/40' : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100'} px-2 py-0.5 rounded-lg transition-colors`}
                     onClick={() => handleFromChange({ target: { value: baseToken && baseToken.balance.replace(',', '') } } as React.ChangeEvent<HTMLInputElement>)}
                   >
-                    Max
+                    25%
+                  </button>
+                  <button
+                    className={`text-xs ${isDarkMode ? 'bg-pink-900/30 text-pink-300 hover:bg-pink-800/40' : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100'} px-2 py-0.5 rounded-lg transition-colors`}
+                    onClick={() => handleFromChange({ target: { value: baseToken && baseToken.balance.replace(',', '') } } as React.ChangeEvent<HTMLInputElement>)}
+                  >
+                    50%
+                  </button>
+                  <button
+                    className={`text-xs ${isDarkMode ? 'bg-pink-900/30 text-pink-300 hover:bg-pink-800/40' : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100'} px-2 py-0.5 rounded-lg transition-colors`}
+                    onClick={() => handleFromChange({ target: { value: baseToken && baseToken.balance.replace(',', '') } } as React.ChangeEvent<HTMLInputElement>)}
+                  >
+                    75%
+                  </button>
+                  <button
+                    className={`text-xs ${isDarkMode ? 'bg-pink-900/30 text-pink-300 hover:bg-pink-800/40' : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100'} px-2 py-0.5 rounded-lg transition-colors`}
+                    onClick={() => handleFromChange({ target: { value: baseToken && baseToken.balance.replace(',', '') } } as React.ChangeEvent<HTMLInputElement>)}
+                  >
+                    MAX
                   </button>
                 </div>
               </div>
@@ -187,8 +205,8 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
             <div className="p-3 pt-1 relative">
               <div className="flex justify-between items-start mb-1">
                 <div>
-                  <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} mb-0.5`}>Alınan</div>
-                  <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Bakiye: {quoteToken && quoteToken.balance} {quoteToken && quoteToken.symbol}</div>
+                  <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} mb-0.5`}>You Receive                  </div>
+                  <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Balance: {quoteToken && quoteToken.balance} {quoteToken && quoteToken.symbol}</div>
                 </div>
 
                 <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
@@ -592,10 +610,13 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
 
             <div className="px-3 pb-3">
               <motion.button
+
+                onClick={() => handleSwap(walletProvider)}
+                
                 className="w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                disabled={!fromAmount || parseFloat(fromAmount) === 0}
+                disabled={!canSwap}
                 style={{
                   background: `linear-gradient(135deg, #ff1356, #ff4080)`
                 }}
@@ -605,7 +626,7 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                   <div className="h-full w-1/3 bg-white/40 blur-xl transform -skew-x-30 -translate-x-full animate-shimmer"></div>
                 </div>
 
-                <span>İşlemi Başlat</span>
+                <span>Swap {canSwap ? "Now" : "Later"}</span>
                 <Zap className="w-4 h-4" />
               </motion.button>
 

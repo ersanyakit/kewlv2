@@ -1,11 +1,12 @@
-import { createPublicClient, Chain, http, getContract, encodeFunctionData } from "viem";
+import { createPublicClient, Chain, http, getContract, encodeFunctionData, createWalletClient, custom } from "viem";
 import { getChainById } from "../../context/Web3ProviderContext";
 import { ContractList, TContractType, TCustomContract } from "./addresses";
 import { Token as TToken } from "../../context/TokenContext";
 import { AbiCoder, BrowserProvider, ethers, getAddress, ZeroAddress } from "ethers";
 import { CurrencyAmount, Token } from "../entities";
+import 'viem/window'
 
-export const getContractByName = (contractType: TContractType, chainId: string | number): TCustomContract => {
+export const getContractByName = async (contractType: TContractType, chainId: string | number,walletProvider?:any): Promise<TCustomContract> => {
     const contractGroup = ContractList[contractType];
     if (!contractGroup) {
         throw new Error(`Unknown contract type: ${contractType}`);
@@ -33,18 +34,36 @@ export const getContractByName = (contractType: TContractType, chainId: string |
         },
     });
 
+    const wallet = createWalletClient({
+        chain: chain as Chain,
+        transport: custom(window.ethereum!),
+    });
+
+
+    const [address] = await wallet.requestAddresses()
+    console.log("ersan address",address)
+
+
+    let signer;
+    if (walletProvider) {
+      signer = await GetSigner(walletProvider);
+    } else {
+      signer = undefined;
+    }
     let contract: TCustomContract = {
         abi: contractGroup.abi,
         address: contractGroup.contracts[chainId].address,
         client: client,
-        caller: caller
+        wallet: wallet,
+        caller: caller,
+        signer: signer
     }
     return contract;
 }
 
 
-export async function GetSigner(wallet: any) {
-    const provider = new BrowserProvider(wallet);
+export async function GetSigner(walletProvider: any) {
+    const provider = new BrowserProvider(walletProvider);
     return await provider.getSigner();
 }
 
@@ -56,7 +75,7 @@ export const fetchBalances = async (chainId: string | number,account: string | u
         return;
     }
     
-    let dexContract = getContractByName(TContractType.DEX, chainId);
+    let dexContract = await getContractByName(TContractType.DEX, chainId,walletProvider);
      
     let abiERC = ['function balanceOf(address user)','function getEthBalance(address user)'];
     let abiInterfaceParam = new ethers.Interface(abiERC);
