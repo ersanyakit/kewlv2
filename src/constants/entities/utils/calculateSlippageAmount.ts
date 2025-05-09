@@ -29,3 +29,21 @@ export function warningSeverity(priceImpact: Percent | undefined): 0 | 1 | 2 | 3
   if (!priceImpact?.lessThan(ALLOWED_PRICE_IMPACT_LOW)) return 1
   return 0
 }
+
+
+export function warningSeverityText(severity: number): string {
+  switch (severity) {
+    case 0:
+      return 'Safe';
+    case 1:
+      return 'Medium';
+    case 2:
+      return 'High';
+    case 3:
+      return 'Risky';
+    case 4:
+      return 'Very High';
+    default:
+      return 'Very High';
+  }
+}

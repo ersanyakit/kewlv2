@@ -1,6 +1,6 @@
 import React, { memo, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useTokenContext } from '../../../context/TokenContext';
+import { SWAP_MODE, useTokenContext } from '../../../context/TokenContext';
 import { MinusCircle, PieChart, PlusCircle, Replace, ReplaceAll } from 'lucide-react';
 import FushionForm from './FushionForm';
 import SwapForm from './SwapForm';
@@ -8,7 +8,7 @@ import SwapForm from './SwapForm';
 
 // memo ile render performansını optimize etme
 const SwapLayout: React.FC = () => {
-    const { isDarkMode } = useTokenContext();
+    const { isDarkMode,swapMode,setSwapMode } = useTokenContext();
     const [activeTab, setActiveTab] = useState<'swap' | 'fushion'>('fushion');
 
 
@@ -37,7 +37,10 @@ const SwapLayout: React.FC = () => {
                                     ? 'text-gray-300 hover:bg-gray-700/50'
                                     : 'text-gray-600 hover:bg-gray-100/70'
                             }`}
-                        onClick={() => setActiveTab('fushion')}
+                        onClick={() =>{
+                            setSwapMode(SWAP_MODE.AGGREGATOR)
+                            setActiveTab('fushion')}
+                        }
                     >
                         <ReplaceAll className="w-4 h-4 mr-1.5" />
                         Aggragetor
@@ -49,7 +52,9 @@ const SwapLayout: React.FC = () => {
                                     ? 'text-gray-300 hover:bg-gray-700/50'
                                     : 'text-gray-600 hover:bg-gray-100/70'
                             }`}
-                        onClick={() => setActiveTab('swap')}
+                        onClick={() => {
+                            setSwapMode(SWAP_MODE.SIMPLESWAP)
+                            setActiveTab('swap')}}
                     >
                         <Replace className="w-4 h-4 mr-1.5" />
                         Swap

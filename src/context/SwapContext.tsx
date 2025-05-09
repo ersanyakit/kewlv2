@@ -1,17 +1,18 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { CurrencyAmount, Pair, Percent, Route, Token, Trade, WETH9 } from '../constants/entities';
-import { DEFAULT_DEADLINE_FROM_NOW, INITIAL_ALLOWED_SLIPPAGE, MINIMUM_LIQUIDITY, TradeType } from '../constants/entities/utils/misc';
-import { useTokenContext } from './TokenContext';
+import { CHILIZWRAPPER, CurrencyAmount, Pair, Percent, Route, Token, Trade, WETH9 } from '../constants/entities';
+import { DEFAULT_DEADLINE_FROM_NOW, ETHER_ADDRESS, INITIAL_ALLOWED_SLIPPAGE, MINIMUM_LIQUIDITY, TradeType } from '../constants/entities/utils/misc';
+import { SWAP_MODE, useTokenContext } from './TokenContext';
 import { useAppKitNetwork } from '@reown/appkit/react';
 import { ethers, parseEther, ZeroAddress } from 'ethers';
 import { fetchBalances, getContractByName } from '../constants/contracts/contracts';
 import { TContractType } from '../constants/contracts/addresses';
 import JSBI from 'jsbi';
-import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_MEDIUM, warningSeverity } from '../constants/entities/utils/calculateSlippageAmount';
+import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_MEDIUM, warningSeverity, warningSeverityText } from '../constants/entities/utils/calculateSlippageAmount';
 import moment from 'moment';
 import { toHex } from '../constants/entities/utils/computePriceImpact';
 import { erc20Abi, getContract } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
+import { getExchangeByRouterAndWETH, getRoutersByChainId } from '../constants/contracts/exchanges';
 
 // Context için tip tanımı
 interface SwapContextProps {
@@ -26,9 +27,14 @@ interface SwapContextProps {
   tradeInfo: Trade<Token, Token, TradeType> | null;
   baseReservePercent: Percent;
   quoteReservePercent: Percent;
+  totalReservePercent: Percent;
   baseReserveAmount: CurrencyAmount<Token> | null;
   quoteReserveAmount: CurrencyAmount<Token> | null;
   priceImpactWarningSeverity: number;
+  handleAggregatorSwap: (walletProvider: any) => void;
+
+  aggregatorPairs: TCustomPair[];
+  setAggregatorPairs: (pairs: TCustomPair[]) => void;
   setFromAmount: (amount: string) => void;
   setToAmount: (amount: string) => void;
   setLoading: (loading: boolean) => void;
@@ -49,10 +55,14 @@ const defaultContext: SwapContextProps = {
   toggleDetails: false,
   baseReservePercent: new Percent(0, 0),
   quoteReservePercent: new Percent(0, 0),
+  totalReservePercent: new Percent(0, 0),
   baseReserveAmount: null,
   quoteReserveAmount: null,
   priceImpactWarningSeverity: 0,
   loading: false,
+  aggregatorPairs: [],
+  handleAggregatorSwap: () => { },
+  setAggregatorPairs: () => { },
   setLoading: () => { },
   setFromAmount: () => { },
   setToAmount: () => { },
@@ -106,6 +116,65 @@ export interface SwapSuccess {
   explorerUrl?: string;
 }
 
+export interface SwapParam {
+  amountIn: bigint;
+  amountOut: bigint;
+  weth9: string; // Address type represented as a string
+  wrapper: string;
+  pair: string;
+  input: string;
+  flag:boolean;
+}
+
+export interface Router {
+  router: string; // Address type
+  weth: string;   // Address type
+}
+
+export interface PairInfo {
+  valid: boolean;
+  flag:boolean;
+  reserve0: bigint;
+  reserve1: bigint;
+  amount0Out: bigint;
+  amount1Out: bigint;
+  token0Decimals: bigint;
+  token1Decimals: bigint;
+  token0: string; // Address type or a reference to an IERC20 interface
+  token1: string; // Address type or a reference to an IERC20 interface
+  pair: string;   // Address type or a reference to an IPAIR interface
+  router: string; // Address type
+  weth: string;   // Address type
+}
+
+export interface PairInput {
+  flag:boolean;
+  router: string; // Address type
+  pair: string;   // Address type
+  input: string;  // Address type
+  weth: string;   // Address type
+  amount: bigint;
+}
+
+
+export interface TCustomPair  {
+  pair: PairInfo; // Pair bilgileri
+  isSelected: boolean; // Seçim durumu
+  trade:any;
+  baseLiqudity:any;
+  quoteLiquidity:any
+  exchangeInfo:any;
+  outputAmount:string;
+  baseReservePercent:Percent;
+  quoteReservePercent:Percent;
+  totalReservePercent:Percent;
+  warningSeverity:number;
+  warningSeverityText:string;
+};
+export interface TradeItemProps  {
+  pair: TCustomPair,
+};
+
 export type SwapResult = SwapSuccess | SwapError;
 // Custom hook
 export const useSwapContext = () => useContext(SwapContext);
@@ -125,7 +194,9 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     enableTaxesContract,
     setTradeType,
     tokens,
-    setTokens
+    setTokens,
+    swapMode,
+    riskTolerance,
   } = useTokenContext();
   const { chainId } = useAppKitNetwork();
 
@@ -135,6 +206,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [toggleDetails, setToggleDetails] = useState<boolean>(false);
   const [baseReservePercent, setBaseReservePercent] = useState<Percent>(new Percent(0, 0));
   const [quoteReservePercent, setQuoteReservePercent] = useState<Percent>(new Percent(0, 0));
+  const [totalReservePercent, setTotalReservePercent] = useState<Percent>(new Percent(0, 0));
   const [baseReserveAmount, setBaseReserveAmount] = useState<CurrencyAmount<Token> | null>(null);
   const [quoteReserveAmount, setQuoteReserveAmount] = useState<CurrencyAmount<Token> | null>(null);
   const [priceImpactWarningSeverity, setPriceImpactWarningSeverity] = useState<number>(0);
@@ -142,6 +214,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [canSwap, setCanSwap] = useState<boolean>(false);
   const [isSwapping, setIsSwapping] = useState<boolean>(false);
   const [swapResult, setSwapResult] = useState<SwapResult | null>(null);
+  const [aggregatorPairs, setAggregatorPairs] = useState<TCustomPair[]>([]);
   // Input değişiklikleri için handler'lar
   const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const regex = /^[0-9]*\.?[0-9]*$/;
@@ -239,6 +312,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       })
       return null;
     }
+
 
     if (_pairInfo.reserveBase <= MINIMUM_LIQUIDITY || _pairInfo.reserveQuote <= MINIMUM_LIQUIDITY) {
       setSwapResult({
@@ -505,10 +579,178 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   }
 
   useEffect(() => {
-    fetchPairInfo();
+    if(swapMode == SWAP_MODE.SIMPLESWAP){
+      fetchPairInfo();
+    }else if(swapMode == SWAP_MODE.AGGREGATOR){
+      fetchAggregatorInfo();
+    }
   }, [baseToken, quoteToken, fromAmount, toAmount, tradeType]);
 
 
+  const fetchAggregatorInfo = async () => {
+    console.log("fetchAggregatorInfo")
+    setCanSwap(false);
+    setSwapResult(null);
+    if (!chainId) {
+      resetSwap();
+      return null;
+    }
+    if (!baseToken || !quoteToken) {
+      resetSwap();
+      return null;
+    }
+
+    if (tradeType == TradeType.EXACT_INPUT) {
+      if (!fromAmount || parseFloat(fromAmount) <= 0) {
+        setToAmount("");
+        setTradeInfo(null);
+        return null;
+      }
+    } else if (tradeType == TradeType.EXACT_OUTPUT) {
+      if (!toAmount || parseFloat(toAmount) <= 0) {
+        setFromAmount("");
+        setTradeInfo(null);
+        return null;
+      }
+    }
+
+
+
+
+
+    let WRAPPED_TOKEN = WETH9[Number(chainId)].address;
+    const FANTOKENWrapper = CHILIZWRAPPER[Number(chainId)].address
+
+
+    let _baseTokenAddress = baseToken.address == ZeroAddress ? WRAPPED_TOKEN : baseToken.address;
+    let _quoteTokenAddress = quoteToken.address == ZeroAddress ? WRAPPED_TOKEN : quoteToken.address;
+
+    const _baseToken = new Token(baseToken.chainId, _baseTokenAddress, baseToken.decimals, baseToken.symbol, baseToken.name)
+    const _quoteToken = new Token(quoteToken.chainId, _quoteTokenAddress, quoteToken.decimals, quoteToken.symbol, quoteToken.name)
+
+
+    const tradeAmount: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(_baseToken, JSBI.BigInt(ethers.parseUnits(fromAmount, _baseToken.decimals).toString()));
+
+    let dexContract = await getContractByName(TContractType.DEX, Number(chainId));
+    const routers = getRoutersByChainId(Number(chainId));
+
+    const _tradingPairs: any = await dexContract.client.readContract({
+      address: dexContract.caller.address,
+      abi: dexContract.abi,
+      functionName: 'fetchPairs',
+      args: [routers,FANTOKENWrapper, _baseToken.address, _quoteToken.address,toHex(tradeAmount)],
+      account: ethers.getAddress(account) as `0x${string}`,
+    })
+    console.log("tradingPairs", _tradingPairs)
+
+    const seenPairs = new Set<string>();
+    const _validPairs = _tradingPairs.filter((pair: any) => {
+      if (!pair.valid || seenPairs.has(pair.pair)) return false;
+      if(JSBI.lessThanOrEqual(JSBI.BigInt(pair.reserve0.toString()), JSBI.BigInt(MINIMUM_LIQUIDITY)) || JSBI.lessThanOrEqual(JSBI.BigInt(pair.reserve1.toString()), JSBI.BigInt(MINIMUM_LIQUIDITY))){
+        return false;
+      }
+      seenPairs.add(pair.pair);
+      return true;
+    });
+
+    console.log("validPairs", _validPairs)
+    const customPairs: TCustomPair[] = []; // Custom pair dizisi oluşturuluyor
+
+    for (const pair of _validPairs) {
+  
+         let _selectedBaseAddress = (baseToken.address === ZeroAddress || baseToken.address === ETHER_ADDRESS) ? pair.weth : baseToken.address
+        let _selectedQuoteAddress = (quoteToken.address === ZeroAddress || quoteToken.address === ETHER_ADDRESS) ? pair.weth : quoteToken.address
+        let selectedBase: any
+        let selectedQuote: any
+
+        if (_selectedBaseAddress == pair.weth) {
+          [selectedBase, selectedQuote] = _selectedBaseAddress == pair.token0 ? [pair.token0, pair.token1] : [pair.token1, pair.token0]
+        } else if (_selectedQuoteAddress == pair.weth) {
+          [selectedBase, selectedQuote] = _selectedQuoteAddress == pair.token0 ? [pair.token1, pair.token0] : [pair.token0, pair.token1]
+        } else {
+          [selectedBase, selectedQuote] = [_selectedBaseAddress, _selectedQuoteAddress]
+        }
+
+
+        let _baseAddress = ethers.getAddress(selectedBase);
+        let _quoteAddress = ethers.getAddress(selectedQuote);
+
+        let _baseDecimals = Number(pair.token0 == _baseAddress ? pair.token0Decimals : pair.token1Decimals)
+        let _quoteDecimals = Number(pair.token1 == _quoteAddress ? pair.token1Decimals : pair.token0Decimals)
+        const baseTokenEntity = new Token(baseToken.chainId, _baseAddress, _baseDecimals, baseToken.symbol)
+        const quoteTokenEntity = new Token(quoteToken.chainId, _quoteAddress, _quoteDecimals, quoteToken.symbol)
+        const [baseReserve, quoteReserve] = _baseAddress == pair.token0 ? [pair.reserve0, pair.reserve1] : [pair.reserve1, pair.reserve0]
+
+
+        let _checkBaseLiquidty = CurrencyAmount.fromRawAmount(baseTokenEntity, baseReserve.toString())
+        let _checkQuuteLiquidity = CurrencyAmount.fromRawAmount(quoteTokenEntity, quoteReserve.toString())
+
+
+        if (JSBI.lessThanOrEqual(_checkBaseLiquidty.quotient, MINIMUM_LIQUIDITY)) {
+          continue;
+        }
+
+        if (JSBI.lessThanOrEqual(_checkQuuteLiquidity.quotient, MINIMUM_LIQUIDITY)) {
+          continue;
+        }
+
+        const exchangePair = new Pair(
+          CurrencyAmount.fromRawAmount(baseTokenEntity, baseReserve.toString()),
+          CurrencyAmount.fromRawAmount(quoteTokenEntity, quoteReserve.toString()),pair.pair)
+
+          const baseAmount: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(baseTokenEntity, JSBI.BigInt(ethers.parseUnits(fromAmount, Number(_baseDecimals)).toString()));
+
+          let _tradeInfo = new Trade(
+            new Route([exchangePair], baseTokenEntity, quoteTokenEntity),
+            CurrencyAmount.fromRawAmount(baseTokenEntity, baseAmount.quotient),
+            TradeType.EXACT_INPUT
+          )
+
+          let _baseLiquidity = CurrencyAmount.fromRawAmount(baseTokenEntity, baseReserve.toString())
+          let _quoteLiquidity = CurrencyAmount.fromRawAmount(quoteTokenEntity, quoteReserve.toString())
+  
+          const DEFAULT_ADD_SLIPPAGE_TOLERANCE = new Percent(INITIAL_ALLOWED_SLIPPAGE, 10_000)
+          const amountOutSlippage = _tradeInfo.minimumAmountOut(DEFAULT_ADD_SLIPPAGE_TOLERANCE)
+
+        
+        
+        let outputAmount = amountOutSlippage.toSignificant(6)
+
+        const base = JSBI.BigInt(_baseLiquidity.quotient.toString())
+        const quote = JSBI.BigInt(_quoteLiquidity.quotient.toString())
+        const total = JSBI.add(base, quote)
+       
+        let exchangeInfo = getExchangeByRouterAndWETH(pair.router, pair.weth,Number(chainId))
+
+        if (parseFloat(_tradeInfo.priceImpact.toFixed(2)) <= riskTolerance) {
+          customPairs.push({ pair: pair, 
+            isSelected: false, 
+            trade: _tradeInfo, 
+            baseLiqudity: _baseLiquidity, 
+            quoteLiquidity: _quoteLiquidity, 
+            exchangeInfo: exchangeInfo, 
+            outputAmount: outputAmount,
+            baseReservePercent: new Percent(base, total),
+            quoteReservePercent: new Percent(quote, total),
+            totalReservePercent: new Percent(total, total),
+            warningSeverity:warningSeverity(_tradeInfo.priceImpact), 
+            warningSeverityText:warningSeverityText(warningSeverity(_tradeInfo.priceImpact) )
+          })
+
+        }
+  
+
+       
+
+    }
+    setAggregatorPairs(customPairs)
+    console.log("customPairs", customPairs)
+
+  }
+
+  const handleAggregatorSwap = async (walletProvider: any) => {
+    console.log("handleAggregatorSwap")
+  }
 
 
 
@@ -531,11 +773,15 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     handleToChange,
     setToggleDetails,
     handleSwap,
+    handleAggregatorSwap,
     baseReservePercent,
     quoteReservePercent,
+    totalReservePercent,
     baseReserveAmount,
     quoteReserveAmount,
     priceImpactWarningSeverity,
+    aggregatorPairs,
+    setAggregatorPairs,
     // Diğer değerler...
   };
 

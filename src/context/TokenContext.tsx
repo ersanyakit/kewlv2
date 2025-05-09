@@ -27,8 +27,16 @@ export type Token = {
   loading?: boolean;
 };
 
+export enum SWAP_MODE {
+  SIMPLESWAP = 'SWAP',
+  AGGREGATOR = 'AGGREGATOR'
+}
+
 interface TokenContextType {
   tokens: Token[];
+  riskTolerance: number;
+  setRiskTolerance: (riskTolerance: number) => void;
+  swapMode: SWAP_MODE;
   enableTaxesContract: boolean;
   slippageTolerance: number;
   setSlippageTolerance: (tolerance: number) => void;
@@ -44,6 +52,7 @@ interface TokenContextType {
   account: string;
   isDarkMode: boolean; // Tema durumu
   isLoading: boolean; // Token listesi yüklenme durumu
+  setSwapMode: (swapMode: SWAP_MODE) => void;
   setAccount: (account: string) => void;
   setOpenTokenSelector: (open: boolean) => void;
   setTradeType: (tradeType: TradeType) => void;
@@ -61,7 +70,11 @@ interface TokenContextType {
 
 // Default context değeri
 const defaultContext: TokenContextType = {
+  swapMode: SWAP_MODE.AGGREGATOR,
+  setSwapMode: () => {},
   slippageTolerance: 0.5,
+  riskTolerance: 100,
+  setRiskTolerance: () => {},
   tokens: [],
   baseToken:  null,
   quoteToken: null,
@@ -208,6 +221,8 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [account, setAccount] = useState<string>('');
   const [enableTaxesContract, setEnableTaxesContract] = useState<boolean>(false);
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
+  const [swapMode, setSwapMode] = useState<SWAP_MODE>(SWAP_MODE.AGGREGATOR);
+  const [riskTolerance, setRiskTolerance] = useState<number>(100);
   // Input değerleri için state
 
   
@@ -301,6 +316,10 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     account,
     enableTaxesContract,
     slippageTolerance,
+    swapMode,
+    riskTolerance,
+    setRiskTolerance,
+    setSwapMode,
     setSlippageTolerance,
     reloadTokens,
     setAccount,
