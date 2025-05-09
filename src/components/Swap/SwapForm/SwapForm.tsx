@@ -64,6 +64,8 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
   } = useTokenContext();
 
   const {
+    isSwapping,
+    loading,
     canSwap,
     tradeInfo,
     fromAmount,
@@ -516,7 +518,7 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                               background: 'linear-gradient(to right, #10b981 0%, #10b981 20%, #f59e0b 20%, #f59e0b 40%, #f97316 40%, #f97316 60%, #ef4444 60%, #ef4444 80%, #dc2626 80%, #dc2626 100%)'
                             }}
                           ></div>
-                        </div>
+                                </div>
                         
                         {/* Enhanced current price impact indicator */}
                         {tradeInfo && tradeInfo.priceImpact && (
@@ -574,22 +576,22 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                         <span>2%</span>
                         <span>3%</span>
                         <span>5%+</span>
-                      </div>
+                                </div>
 
                       {/* Professional legend with severity descriptions */}
                       <div className="grid grid-cols-5 gap-1 text-[9px]">
                         <div className="flex flex-col items-center">
                           <div className="w-3 h-3 rounded-full bg-green-500 mb-1"></div>
                           <div className={`${isDarkMode ? 'text-green-400' : 'text-green-600'} text-center`}>Safe</div>
-                        </div>
+                              </div>
                         <div className="flex flex-col items-center">
                           <div className="w-3 h-3 rounded-full bg-yellow-500 mb-1"></div>
                           <div className={`${isDarkMode ? 'text-yellow-400' : 'text-yellow-600'} text-center`}>Medium</div>
-                        </div>
+                            </div>
                         <div className="flex flex-col items-center">
                           <div className="w-3 h-3 rounded-full bg-orange-500 mb-1"></div>
                           <div className={`${isDarkMode ? 'text-orange-400' : 'text-orange-600'} text-center`}>High</div>
-                        </div>
+                          </div>
                         <div className="flex flex-col items-center">
                           <div className="w-3 h-3 rounded-full bg-red-500 mb-1"></div>
                           <div className={`${isDarkMode ? 'text-red-400' : 'text-red-600'} text-center`}>Risky</div>
@@ -610,23 +612,23 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
 
             <div className="px-3 pb-3">
               <motion.button
-
                 onClick={() => handleSwap(walletProvider)}
-                
-                className="w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                disabled={!canSwap}
+                className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${!canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
+                whileHover={canSwap ? { scale: 1.02 } : undefined}
+                whileTap={canSwap ? { scale: 0.98 } : undefined}
+                disabled={!canSwap || isSwapping}
                 style={{
                   background: `linear-gradient(135deg, #ff1356, #ff4080)`
                 }}
               >
-                {/* Background animation */}
+                {/* Background animation - only show when enabled */}
+                {canSwap && (
                 <div className="absolute inset-0 bg-white opacity-20">
                   <div className="h-full w-1/3 bg-white/40 blur-xl transform -skew-x-30 -translate-x-full animate-shimmer"></div>
                 </div>
+                )}
 
-                <span>Swap {canSwap ? "Now" : "Later"}</span>
+                <span>{isSwapping ? "Swapping..." : "Swap"}</span>
                 <Zap className="w-4 h-4" />
               </motion.button>
 
