@@ -7,14 +7,13 @@ import { ethers, parseEther, ZeroAddress } from 'ethers';
 import { getContractByName } from '../constants/contracts/contracts';
 import { TContractType } from '../constants/contracts/addresses';
 import JSBI from 'jsbi';
-import { ALLOWED_PRICE_IMPACT_MEDIUM, warningSeverity } from '../constants/entities/utils/calculateSlippageAmount';
+import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_MEDIUM, warningSeverity } from '../constants/entities/utils/calculateSlippageAmount';
 import moment from 'moment';
 import { toHex } from '../constants/entities/utils/computePriceImpact';
-import { s } from 'framer-motion/client';
-import { writeContract } from 'viem/actions';
 // Context için tip tanımı
 interface SwapContextProps {
   // Diğer özellikler...
+  swapResult: SwapResult | null;
   canSwap: boolean;
   isSwapping: boolean;
   toggleDetails: boolean;
@@ -38,6 +37,7 @@ interface SwapContextProps {
 
 // Context varsayılan değeri
 const defaultContext: SwapContextProps = {
+  swapResult: null,
   canSwap: false,
   isSwapping: false,
   fromAmount: '',
@@ -63,6 +63,47 @@ const defaultContext: SwapContextProps = {
 // Context oluşturma
 const SwapContext = createContext<SwapContextProps>(defaultContext);
 
+export enum SwapStatusType {
+  SUCCESS = "SUCCESS",
+  INVALID_ACCOUNT = "INVALID_ACCOUNT",
+  INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS",
+  SLIPPAGE_TOO_HIGH = "SLIPPAGE_TOO_HIGH",
+  PRICE_IMPACT_TOO_HIGH = "PRICE_IMPACT_TOO_HIGH",
+  INSUFFICIENT_LIQUIDITY = "INSUFFICIENT_LIQUIDITY",
+  TOKEN_NOT_SUPPORTED = "TOKEN_NOT_SUPPORTED",
+  INVALID_ADDRESS = "INVALID_ADDRESS",
+  NETWORK_ERROR = "NETWORK_ERROR",
+  USER_REJECTED = "USER_REJECTED",
+  CONTRACT_ERROR = "CONTRACT_ERROR",
+  UNKNOWN_ERROR = "UNKNOWN_ERROR",
+  INVALID_CHAIN = "INVALID_CHAIN",
+  INVALID_TOKEN = "INVALID_TOKEN",
+  INVALID_AMOUNT = "INVALID_AMOUNT",
+  INVALID_SLIPPAGE = "INVALID_SLIPPAGE",
+  INVALID_DEADLINE = "INVALID_DEADLINE",
+  INVALID_PATH = "INVALID_PATH",
+  INVALID_TRADE_TYPE = "INVALID_TRADE_TYPE",
+}
+export interface SwapError {
+  type: SwapStatusType;
+  message: string;
+  details?: string;       // Daha teknik bilgi (örneğin hata kodu, tx hash, vs.)
+  timestamp?: number;     // Hata zamanı (opsiyonel)
+  context?: any;          // Ek bağlam verisi (örneğin tradeInfo, chainId vs.)
+}
+
+export interface SwapSuccess {
+  status: SwapStatusType;
+  txHash: string;
+  amountIn: string;
+  amountOut: string;
+  tokenIn: Token;
+  tokenOut: Token;
+  timestamp: number;
+  explorerUrl?: string;
+}
+
+export type SwapResult = SwapSuccess | SwapError;
 // Custom hook
 export const useSwapContext = () => useContext(SwapContext);
 
@@ -95,6 +136,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [loading, setLoading] = useState<boolean>(false);
   const [canSwap, setCanSwap] = useState<boolean>(false);
   const [isSwapping, setIsSwapping] = useState<boolean>(false);
+  const [swapResult, setSwapResult] = useState<SwapResult | null>(null);
   // Input değişiklikleri için handler'lar
   const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const regex = /^[0-9]*\.?[0-9]*$/;
@@ -121,14 +163,26 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   };
 
 
+  const resetSwap = () => {
+    setTradeInfo(null);
+    setCanSwap(false);
+    setIsSwapping(false);
+    setFromAmount("");
+    setToAmount("");
+  }
+
+
+
+
   const fetchPairInfo = async () => {
     setCanSwap(false);
+    setSwapResult(null);
     if (!chainId) {
-      setTradeInfo(null);
+      resetSwap();
       return null;
     }
     if (!baseToken || !quoteToken) {
-      setTradeInfo(null);
+      resetSwap();
       return null;
     }
 
@@ -165,18 +219,32 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     })
 
     if (!_pairInfo) {
-      setTradeInfo(null);
+      resetSwap();
       return null;
     }
 
     if (!_pairInfo.valid) {
-      setTradeInfo(null);
+      setSwapResult({
+        type: SwapStatusType.INVALID_PATH,
+        message: "Invalid Pair",
+        context: {
+          baseToken: baseToken,
+          quoteToken: quoteToken,
+        }
+      })
       return null;
     }
 
     if (_pairInfo.reserveBase <= MINIMUM_LIQUIDITY || _pairInfo.reserveQuote <= MINIMUM_LIQUIDITY) {
-      console.log("ersan _pairInfo.reserveBase", _pairInfo.reserveBase);
-      setTradeInfo(null);
+      setSwapResult({
+        type: SwapStatusType.INSUFFICIENT_LIQUIDITY,
+        message: "Insufficient Liquidity",
+        context: {
+          baseToken: baseToken,
+          quoteToken: quoteToken,
+        }
+      })
+      resetSwap();
       return null;
     }
 
@@ -228,27 +296,50 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     setPriceImpactWarningSeverity(warningSeverity(_tradeInfo.priceImpact));
     setTradeInfo(_tradeInfo);
 
-    if (_tradeInfo.priceImpact.lessThan(ALLOWED_PRICE_IMPACT_MEDIUM)) {
+    if (_tradeInfo.priceImpact.lessThan(ALLOWED_PRICE_IMPACT_HIGH)) {
       setCanSwap(true);
     } else {
+      setSwapResult({
+        type: SwapStatusType.PRICE_IMPACT_TOO_HIGH,
+        message: "Price Impact Too High",
+        context: {
+          priceImpact: _tradeInfo.priceImpact.toString(),
+        }
+      })
       setCanSwap(false);
     }
   }
 
   const handleSwap = async (walletProvider: any) => {
     if (!tradeInfo) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_TRADE_TYPE,
+        message: "Invalid Trade Type",
+      })
       return;
     }
 
     if (!account) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_ACCOUNT,
+        message: "Invalid Account",
+      })
       return;
     }
 
     if (!chainId) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_CHAIN,
+        message: "Invalid Chain",
+      })
       return;
     }
 
     if (!baseToken || !quoteToken) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_TOKEN,
+        message: "Invalid Token",
+      })
       return;
     }
 
@@ -321,8 +412,39 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         account: signerAccount,
         value: overrides.value
       })
+      setSwapResult({
+        type: SwapStatusType.SUCCESS,
+        message: "Swap Success",
+        context: {
+          baseToken: baseToken,
+          quoteToken: quoteToken,
+          txHash: tx.hash,
+          amountIn: tradeInfo.inputAmount.toSignificant(),
+          amountOut: tradeInfo.outputAmount.toSignificant(),
+        }
+      })
       console.log("returnValue", tx)
     } catch (error) {
+      const message = error?.toString() || "Unexpected error";
+      let errorType: SwapStatusType = SwapStatusType.UNKNOWN_ERROR;
+      if (message.includes("insufficient funds")) {
+        errorType = SwapStatusType.INSUFFICIENT_FUNDS;
+      } else if (message.includes("slippage")) {
+        errorType = SwapStatusType.SLIPPAGE_TOO_HIGH;
+      } else if (message.includes("user rejected")) {
+        errorType = SwapStatusType.USER_REJECTED;
+      } else if (message.includes("invalid address")) {
+        errorType = SwapStatusType.INVALID_ADDRESS;
+      } else if (message.includes("network")) {
+        errorType = SwapStatusType.NETWORK_ERROR;
+      }
+      setSwapResult({
+        type: SwapStatusType.CONTRACT_ERROR,
+        message: "Contract Error",
+        context: {
+          error: error,
+        }
+      })
       console.log("error", error)
     } finally {
       setIsSwapping(false);
@@ -353,6 +475,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     toAmount,
     tradeInfo,
     toggleDetails,
+    swapResult,
     loading,
     setLoading,
     setFromAmount,
