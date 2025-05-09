@@ -8,6 +8,7 @@ import 'viem/window'
 
 export const getContractByName = async (contractType: TContractType, chainId: string | number,walletProvider?:any): Promise<TCustomContract> => {
     const contractGroup = ContractList[contractType];
+
     if (!contractGroup) {
         throw new Error(`Unknown contract type: ${contractType}`);
     }
@@ -34,15 +35,11 @@ export const getContractByName = async (contractType: TContractType, chainId: st
         },
     });
 
-    const wallet = createWalletClient({
-        chain: chain as Chain,
-        transport: custom(window.ethereum!),
-    });
-
-
-    const [address] = await wallet.requestAddresses()
-    console.log("ersan address",address)
-
+    var wallet : any =  createWalletClient({
+            chain: chain as Chain,
+            transport:  custom(window.ethereum!)
+        });
+    
 
     let signer;
     if (walletProvider) {
