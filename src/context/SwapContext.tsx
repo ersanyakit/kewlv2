@@ -10,6 +10,7 @@ import JSBI from 'jsbi';
 import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_MEDIUM, warningSeverity } from '../constants/entities/utils/calculateSlippageAmount';
 import moment from 'moment';
 import { toHex } from '../constants/entities/utils/computePriceImpact';
+import { erc20Abi, getContract } from 'viem';
 // Context için tip tanımı
 interface SwapContextProps {
   // Diğer özellikler...
@@ -403,6 +404,37 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     const [signerAccount] = await dexContract.wallet.getAddresses();
 
     try {
+
+
+      if(baseToken.address != ZeroAddress){
+        const tokenContract = getContract({
+          address: baseToken.address as `0x${string}`,
+          abi: erc20Abi,
+          client: dexContract.client
+        })
+        
+        const allowance = await tokenContract.read.allowance([
+          signerAccount,
+          dexContract.caller.address
+        ])
+
+        if(allowance < BigInt(tradeInfo.inputAmount.quotient.toString())){
+
+        
+        await dexContract.wallet.writeContract({
+            chain: dexContract.client.chain,
+            address: baseToken.address as `0x${string}`,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [dexContract.address,ethers.MaxUint256],
+            account: signerAccount
+          })
+      }
+
+    }
+
+
+
       const tx: any = await dexContract.wallet.writeContract({
         chain: dexContract.client.chain,
         address: dexContract.caller.address as `0x${string}`,
