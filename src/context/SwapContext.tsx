@@ -93,7 +93,7 @@ export interface SwapError {
 }
 
 export interface SwapSuccess {
-  status: SwapStatusType;
+  type: SwapStatusType;
   txHash: string;
   amountIn: string;
   amountOut: string;

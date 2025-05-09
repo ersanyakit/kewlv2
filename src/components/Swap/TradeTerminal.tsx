@@ -139,7 +139,7 @@ export default function TradeTerminal() {
             tokens={tokens}
             isDarkMode={isDarkMode}
           />
-        </div>  *
+        </div>  
       </div>
     </div>
   );

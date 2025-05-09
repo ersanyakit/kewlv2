@@ -79,7 +79,7 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
         isDarkMode 
           ? 'bg-gray-800/90 border-gray-700/50' 
           : 'bg-white/80 border-white/30'
-      } backdrop-blur-md rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden mb-4 h-full transition-all duration-300`}
+      } backdrop-blur-md  rounded-3xl   shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden mb-4 h-full transition-all duration-300`}
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: 0.4 }}

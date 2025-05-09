@@ -712,7 +712,7 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                   </div>
 
                   {/* Tek Token Listesi - Hangi token seçildiğine bağlı olarak farklı stil */}
-                  <div className={`max-h-[600px] overflow-y-auto ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'
+                  <div className={` max-h-[70vh] overflow-y-auto ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'
                     } pr-1`}>
                     <div className="space-y-1">
                       {filteredTokens.length > 0 ? (

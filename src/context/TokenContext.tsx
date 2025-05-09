@@ -29,6 +29,7 @@ export type Token = {
 
 interface TokenContextType {
   tokens: Token[];
+  enableTaxesContract: boolean;
   setTokens: (tokens: Token[]) => void;
   baseToken: Token | null;
   quoteToken: Token | null;
@@ -66,6 +67,7 @@ const defaultContext: TokenContextType = {
   favoriteOnly: false,
   filteredTokens: [],
   account: '',
+  enableTaxesContract: false,
   isDarkMode: false,
   isLoading: false,
   tradeType: TradeType.EXACT_INPUT,
@@ -200,6 +202,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [tokenFilter, setTokenFilter] = useState<string>('');
   const [favoriteOnly, setFavoriteOnly] = useState<boolean>(false);
   const [account, setAccount] = useState<string>('');
+  const [enableTaxesContract, setEnableTaxesContract] = useState<boolean>(false);
   // Input değerleri için state
 
   
@@ -291,6 +294,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     isLoading,
     tradeType,
     account,
+    enableTaxesContract,
     reloadTokens,
     setAccount,
     setOpenTokenSelector,
@@ -302,7 +306,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setFavoriteOnly,
     selectToken,
     handleSwapTokens,
-  
+    setEnableTaxesContract,
     toggleDarkMode,
     setTokenList,
     setTokens
