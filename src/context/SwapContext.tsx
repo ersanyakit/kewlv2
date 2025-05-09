@@ -493,6 +493,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       console.log("error", error)
     } finally {
       setIsSwapping(false);
+      resetSwap();
     }
  
     await fetchBalances(chainId,signerAccount,walletProvider, tokens,setTokens)
