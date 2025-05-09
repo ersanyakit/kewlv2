@@ -206,7 +206,7 @@ const FushionForm: React.FC = () => {
                 </div>
 
                 {/* Swap Mechanism Button */}
-                <div className="flex flex-row gap-2 justify-center items-center relative h-7">
+                <div className="flex flex-row gap-2 my-4 justify-center items-center relative h-7">
                     {/* Horizontal line (now below the buttons due to z-index) */}
                     <div className={`absolute left-0 right-0 h-px bg-gradient-to-r from-transparent ${isDarkMode ? 'via-gray-600' : 'via-gray-300'} to-transparent`}></div>
 
@@ -297,14 +297,18 @@ const FushionForm: React.FC = () => {
 
 
 
-<div className='flex flex-col gap-3 mt-4 p-3'>
+<div className='flex flex-col gap-3 p-3'>
     <div className="flex items-center justify-between">
-        <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-500'}`}>
+        <div className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
             Available DEXes
         </div>
         <button 
             onClick={() => setToggleDetails(!toggleDetails)} 
-            className={`text-xs flex items-center ${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-500 hover:text-pink-600'}`}
+            className={`text-xs flex items-center px-2 py-0.5 rounded-full transition-colors ${
+                isDarkMode 
+                    ? toggleDetails ? 'bg-[#ff1356]/20 text-[#ff3978]' : 'hover:bg-gray-700/70 text-gray-300 hover:text-[#ff3978]' 
+                    : toggleDetails ? 'bg-[#ff1356]/10 text-[#ff1356]' : 'hover:bg-gray-100 text-gray-500 hover:text-[#ff1356]'
+            }`}
         >
             {toggleDetails ? 'Hide Details' : 'Show Details'}
             <ChevronDown className={`w-3 h-3 ml-1 transition-transform ${toggleDetails ? 'rotate-180' : ''}`} />
@@ -314,21 +318,28 @@ const FushionForm: React.FC = () => {
     <div className="grid grid-cols-1 gap-2">
     {allDexes.map((dex, index) => {
         const isSelected = dex.isSelected;
+        const priceValue = parseFloat(dex.price);
+        const isPriceBest = priceValue > 0.0125;
+        const isPriceWorst = priceValue < 0.0124;
         
         return (
         <motion.div 
             key={dex.id}
-            className={`rounded-xl p-3 ${isDarkMode 
-                ? isSelected ? 'bg-pink-900/30 border border-pink-800/50' : 'bg-gray-700/50 border border-gray-600/50' 
-                : isSelected ? 'bg-pink-50 border border-pink-200' : 'bg-white/50 border border-gray-200'
-            } transition-all duration-200`}
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
+            className={`rounded-xl ${isDarkMode 
+                ? isSelected ? 'bg-[#ff1356]/15 border border-[#ff1356]/30' : 'bg-gray-700/50 border border-gray-600/30' 
+                : isSelected ? 'bg-[#ff1356]/5 border border-[#ff1356]/20' : 'bg-white/70 border border-gray-200/70'
+            } transition-all duration-200 ${isSelected ? 'shadow-sm' : ''}`}
+            whileHover={{ scale: 1.005, boxShadow: isSelected ? "0 4px 12px rgba(0, 0, 0, 0.05)" : "0 2px 8px rgba(0, 0, 0, 0.03)" }}
+            whileTap={{ scale: 0.995 }}
             onClick={() => toggleDexSelection(dex.id)}
         >
-            <div className="flex justify-between items-center">
-                <div className="flex items-center space-x-2">
-                    <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-800' : 'bg-gray-100'}`}>
+            <div className="flex justify-between items-center p-3">
+                <div className="flex items-center space-x-2.5">
+                    <div className={`p-2 rounded-lg ${
+                        isSelected 
+                            ? isDarkMode ? 'bg-[#ff1356]/20 ring-1 ring-[#ff1356]/30' : 'bg-white ring-1 ring-[#ff1356]/20' 
+                            : isDarkMode ? 'bg-gray-800' : 'bg-gray-100'
+                    }`}>
                         <img 
                             src={dex.logo || `https://via.placeholder.com/20?text=${dex.name}`} 
                             alt={dex.name} 
@@ -336,50 +347,57 @@ const FushionForm: React.FC = () => {
                         />
                     </div>
                     <div>
-                        <div className={`font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>
+                        <div className={`font-medium ${
+                            isSelected 
+                                ? isDarkMode ? 'text-white' : 'text-gray-900' 
+                                : isDarkMode ? 'text-gray-100' : 'text-gray-800'
+                        }`}>
                             {dex.name}
                         </div>
                         <div className="flex items-center gap-2 mt-0.5">
-                            <div className="flex items-center space-x-1">
-                                <span className={`text-xs ${
-                                    parseFloat(dex.price) > 0.0125 
+                            <div className="flex items-center gap-1">
+                                <span className={`text-xs font-medium ${
+                                    isPriceBest 
                                         ? isDarkMode ? 'text-green-400' : 'text-green-600'
-                                        : parseFloat(dex.price) < 0.0124
-                                            ? isDarkMode ? 'text-red-400' : 'text-red-600'
+                                        : isPriceWorst
+                                            ? isDarkMode ? 'text-[#ff3978]' : 'text-[#ff1356]'
                                             : isDarkMode ? 'text-amber-400' : 'text-amber-600'
                                 }`}>
                                     ${dex.price || '---'}
                                 </span>
                             </div>
                             
-                            {/* DEX Status Badge */}
+                            {/* Enhanced Status Badge */}
                             <span className={`text-xs px-1.5 py-0.5 rounded-full ${
-                                parseFloat(dex.price) > 0.0125 
-                                    ? isDarkMode ? 'bg-green-900/40 text-green-300' : 'bg-green-100 text-green-700'
-                                    : parseFloat(dex.price) < 0.0124
-                                        ? isDarkMode ? 'bg-red-900/40 text-red-300' : 'bg-red-100 text-red-700'
-                                        : isDarkMode ? 'bg-amber-900/40 text-amber-300' : 'bg-amber-100 text-amber-700'
+                                isPriceBest 
+                                    ? isDarkMode ? 'bg-green-900/50 text-green-300 ring-1 ring-green-700/50' 
+                                               : 'bg-green-100 text-green-700 ring-1 ring-green-300/50'
+                                    : isPriceWorst
+                                        ? isDarkMode ? 'bg-[#ff1356]/20 text-[#ff3978] ring-1 ring-[#ff1356]/30' 
+                                                   : 'bg-[#ff1356]/10 text-[#ff1356] ring-1 ring-[#ff1356]/20'
+                                        : isDarkMode ? 'bg-amber-900/40 text-amber-300 ring-1 ring-amber-700/40' 
+                                                   : 'bg-amber-100 text-amber-700 ring-1 ring-amber-300/40'
                             }`}>
-                                {parseFloat(dex.price) > 0.0125 ? 'Best Rate' : parseFloat(dex.price) < 0.0124 ? 'High Impact' : 'Average'}
+                                {isPriceBest ? 'Best Rate' : isPriceWorst ? 'High Impact' : 'Average'}
                             </span>
                         </div>
                     </div>
                 </div>
                 
-                <div className="flex items-center gap-2">
-                    {/* Improved Multi-selection Checkbox */}
+                <div className="flex items-center">
+                    {/* Improved Multi-selection Checkbox with theme colors */}
                     <motion.div 
-                        className={`relative w-5 h-5 rounded-full flex items-center justify-center cursor-pointer shadow-sm overflow-hidden 
+                        className={`relative w-5 h-5 rounded-md flex items-center justify-center cursor-pointer shadow-sm overflow-hidden 
                         ${isSelected 
                             ? isDarkMode 
-                                ? 'bg-gradient-to-br from-pink-500 to-pink-600 ring-pink-700/50' 
-                                : 'bg-gradient-to-br from-pink-500 to-pink-600 ring-pink-500/30'
+                                ? 'bg-gradient-to-br from-[#ff1356] to-[#ff3978]' 
+                                : 'bg-gradient-to-br from-[#ff1356] to-[#ff3978]'
                             : isDarkMode 
-                                ? 'bg-gray-700 hover:bg-gray-600 border border-gray-600' 
+                                ? 'bg-gray-700/80 hover:bg-gray-600/80 border border-gray-600/80' 
                                 : 'bg-white hover:bg-gray-50 border border-gray-200'
                         } transition-all duration-200`}
-                        whileHover={{ scale: 1.08 }}
-                        whileTap={{ scale: 0.95 }}
+                        whileHover={{ scale: 1.1 }}
+                        whileTap={{ scale: 0.9 }}
                         onClick={(e) => {
                             e.stopPropagation();
                             toggleDexSelection(dex.id);
@@ -387,12 +405,12 @@ const FushionForm: React.FC = () => {
                         style={{
                             boxShadow: isSelected 
                                 ? isDarkMode 
-                                    ? '0 0 0 2px rgba(219, 39, 119, 0.2)' 
-                                    : '0 0 0 2px rgba(219, 39, 119, 0.2)'
+                                    ? '0 0 0 2px rgba(255, 19, 86, 0.3)' 
+                                    : '0 0 0 2px rgba(255, 19, 86, 0.2)'
                                 : 'none'
                         }}
                     >
-                        {/* Background glow effect for selected state */}
+                        {/* Enhanced glow effect for selected state */}
                         {isSelected && (
                             <motion.div 
                                 className="absolute inset-0 bg-white opacity-20"
@@ -410,7 +428,7 @@ const FushionForm: React.FC = () => {
                                     initial={{ scale: 0, opacity: 0 }}
                                     animate={{ scale: 1, opacity: 1 }}
                                     exit={{ scale: 0, opacity: 0 }}
-                                    transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 15 }}
                                 >
                                     <CheckCircle className="w-4 h-4 text-white" />
                                 </motion.div>
@@ -420,7 +438,7 @@ const FushionForm: React.FC = () => {
                 </div>
             </div>
             
-            {/* Enhanced Detail View */}
+            {/* Optimized Detail View with Enhanced UI */}
             <AnimatePresence>
                 {toggleDetails && (
                     <motion.div 
@@ -428,215 +446,128 @@ const FushionForm: React.FC = () => {
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.2 }}
-                        className="mt-2 overflow-hidden"
+                        className="overflow-hidden"
                     >
-                        <div className={`p-3 rounded-lg ${
+                        <div className={`p-3 mx-3 mb-3 rounded-xl ${
                             isSelected 
-                                ? isDarkMode ? 'bg-pink-900/20' : 'bg-pink-50/80' 
-                                : isDarkMode ? 'bg-gray-800/80' : 'bg-gray-50'
-                        } backdrop-blur-sm`}>
-                            {/* Stat Grid Layout */}
-                            <div className="grid grid-cols-2 gap-2">
-                                {/* Left Column - Exchange Rate & Analytics */}
-                                <div className="space-y-2">
-                                    {/* Exchange Rate Card */}
-                                    <div className={`rounded-lg p-2 ${
-                                        isSelected
-                                            ? isDarkMode ? 'bg-pink-900/30 border border-pink-800/50' : 'bg-white border border-pink-100/70'
-                                            : isDarkMode ? 'bg-gray-700/60' : 'bg-white/90'
-                                    } transition-colors`}>
-                                        <div className={`text-xs font-medium mb-1 ${
+                                ? isDarkMode ? 'bg-[#ff1356]/10 border-b border-[#ff1356]/20' 
+                                           : 'bg-white border-b border-[#ff1356]/10' 
+                                : isDarkMode ? 'bg-gray-800/80 border-b border-gray-700/30' 
+                                           : 'bg-white border-b border-gray-200/50'
+                        }`}>
+                            {/* Exchange Rate & Price Impact Summary */}
+                            <div className="flex items-center justify-between mb-3">
+                                <div className={`px-2 py-1 rounded ${
+                                    isSelected
+                                        ? isDarkMode ? 'bg-[#ff1356]/15' : 'bg-[#ff1356]/5'
+                                        : isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50/80'
+                                }`}>
+                                    <div className="flex items-center gap-1.5">
+                                        <TokenShape isDarkMode={isDarkMode} token={baseToken} size="xs" />
+                                        <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>
+                                            1 {baseToken?.symbol}
+                                        </span>
+                                        <span className={`text-xs ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>=</span>
+                                        <span className={`text-xs font-medium ${
                                             isSelected
-                                                ? isDarkMode ? 'text-pink-200' : 'text-pink-700'
-                                                : isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                                                ? isDarkMode ? 'text-[#ff3978]' : 'text-[#ff1356]'
+                                                : isDarkMode ? 'text-gray-200' : 'text-gray-800'
                                         }`}>
-                                            Exchange Rate
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center gap-1">
-                                                <TokenShape isDarkMode={isDarkMode} token={baseToken} size="xs" />
-                                                <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                                                    1 {baseToken?.symbol}
-                                                </span>
-                                            </div>
-                                            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                =
-                                            </span>
-                                            <div className="flex items-center gap-1">
-                                                <span className={`text-xs font-medium ${
-                                                    isSelected
-                                                        ? isDarkMode ? 'text-pink-200' : 'text-pink-700'
-                                                        : isDarkMode ? 'text-gray-200' : 'text-gray-800'
-                                                }`}>
-                                                    {(parseFloat(dex.priceBase)/parseFloat(dex.priceQuote)).toFixed(4)}
-                                                </span>
-                                                <TokenShape isDarkMode={isDarkMode} token={quoteToken} size="xs" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
-                                    {/* Swap Analytics Card */}
-                                    <div className={`rounded-lg p-2 ${
-                                        isSelected
-                                            ? isDarkMode ? 'bg-pink-900/30 border border-pink-800/50' : 'bg-white border border-pink-100/70'
-                                            : isDarkMode ? 'bg-gray-700/60' : 'bg-white/90'
-                                    } transition-colors`}>
-                                        <div className={`text-xs font-medium mb-1 ${
-                                            isSelected
-                                                ? isDarkMode ? 'text-pink-200' : 'text-pink-700'
-                                                : isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                                        }`}>
-                                            Swap Analytics
-                                        </div>
-                                        <div className="flex justify-between items-center mb-1">
-                                            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                Price Impact
-                                            </span>
-                                            <span className={`text-xs font-medium ${
-                                                parseFloat(dex.price) > 0.0125 
-                                                    ? isDarkMode ? 'text-green-400' : 'text-green-600'
-                                                    : parseFloat(dex.price) < 0.0124
-                                                        ? isDarkMode ? 'text-red-400' : 'text-red-600'
-                                                        : isDarkMode ? 'text-amber-400' : 'text-amber-600'
-                                            }`}>
-                                                {((parseFloat(dex.price) - 0.01245) / 0.01245 * 100).toFixed(2)}%
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                Total Liquidity
-                                            </span>
-                                            <span className={`text-xs font-medium ${
-                                                isSelected
-                                                    ? isDarkMode ? 'text-gray-200' : 'text-gray-700'
-                                                    : isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                                            }`}>
-                                                ${dex.liquidity}
-                                            </span>
-                                        </div>
+                                            {(parseFloat(dex.priceBase)/parseFloat(dex.priceQuote)).toFixed(4)}
+                                        </span>
+                                        <TokenShape isDarkMode={isDarkMode} token={quoteToken} size="xs" />
                                     </div>
                                 </div>
                                 
-                                {/* Right Column - Token Prices & Reserves */}
-                                <div className="space-y-2">
-                                    {/* Token Prices Card */}
-                                    <div className={`rounded-lg p-2 ${
-                                        isSelected
-                                            ? isDarkMode ? 'bg-pink-900/30 border border-pink-800/50' : 'bg-white border border-pink-100/70'
-                                            : isDarkMode ? 'bg-gray-700/60' : 'bg-white/90'
-                                    } transition-colors`}>
-                                        <div className={`text-xs font-medium mb-1 ${
-                                            isSelected
-                                                ? isDarkMode ? 'text-pink-200' : 'text-pink-700'
-                                                : isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                                        }`}>
-                                            Token Prices
+                                <div className={`px-2 py-1 rounded ${
+                                    isPriceBest 
+                                        ? isDarkMode ? 'bg-green-900/30' : 'bg-green-50'
+                                        : isPriceWorst
+                                            ? isDarkMode ? 'bg-[#ff1356]/15' : 'bg-[#ff1356]/5'
+                                            : isDarkMode ? 'bg-amber-900/30' : 'bg-amber-50'
+                                }`}>
+                                    <span className={`text-xs font-medium ${
+                                        isPriceBest 
+                                            ? isDarkMode ? 'text-green-400' : 'text-green-600'
+                                            : isPriceWorst
+                                                ? isDarkMode ? 'text-[#ff3978]' : 'text-[#ff1356]'
+                                                : isDarkMode ? 'text-amber-400' : 'text-amber-600'
+                                    }`}>
+                                        Impact: {((priceValue - 0.01245) / 0.01245 * 100).toFixed(2)}%
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            {/* Key Metrics */}
+                            <div className="grid grid-cols-2 gap-3 mb-3">
+                                <div className="flex flex-col gap-1.5">
+                                    {/* Token Prices */}
+                                    <div className={`text-xs font-medium ${
+                                        isSelected ? isDarkMode ? 'text-[#ff3978]' : 'text-[#ff1356]' : isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                                    }`}>Token Prices</div>
+                                    
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-1">
+                                            <TokenShape isDarkMode={isDarkMode} token={baseToken} size="xs" />
+                                            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{baseToken?.symbol}</span>
                                         </div>
-                                        <div className="flex justify-between items-center mb-1">
-                                            <div className="flex items-center gap-1">
-                                                <TokenShape isDarkMode={isDarkMode} token={baseToken} size="xs" />
-                                                <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                    {baseToken?.symbol}
-                                                </span>
-                                            </div>
-                                            <span className={`text-xs font-medium ${
-                                                isSelected
-                                                    ? isDarkMode ? 'text-gray-200' : 'text-gray-700'
-                                                    : isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                                            }`}>
-                                                ${dex.priceBase}
-                                            </span>
-                                        </div>
-                                        <div className="flex justify-between items-center">
-                                            <div className="flex items-center gap-1">
-                                                <TokenShape isDarkMode={isDarkMode} token={quoteToken} size="xs" />
-                                                <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                    {quoteToken?.symbol}
-                                                </span>
-                                            </div>
-                                            <span className={`text-xs font-medium ${
-                                                isSelected
-                                                    ? isDarkMode ? 'text-gray-200' : 'text-gray-700'
-                                                    : isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                                            }`}>
-                                                ${dex.priceQuote}
-                                            </span>
-                                        </div>
+                                        <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>${dex.priceBase}</span>
                                     </div>
                                     
-                                    {/* Token Reserves Card */}
-                                    <div className={`rounded-lg p-2 ${
-                                        isSelected
-                                            ? isDarkMode ? 'bg-pink-900/30 border border-pink-800/50' : 'bg-white border border-pink-100/70'
-                                            : isDarkMode ? 'bg-gray-700/60' : 'bg-white/90'
-                                    } transition-colors`}>
-                                        <div className={`text-xs font-medium mb-1 ${
-                                            isSelected
-                                                ? isDarkMode ? 'text-pink-200' : 'text-pink-700'
-                                                : isDarkMode ? 'text-gray-300' : 'text-gray-600'
-                                        }`}>
-                                            Token Reserves
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-1">
+                                            <TokenShape isDarkMode={isDarkMode} token={quoteToken} size="xs" />
+                                            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{quoteToken?.symbol}</span>
                                         </div>
-                                        <div className="flex justify-between items-center mb-1">
-                                            <div className="flex items-center gap-1">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                                                <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                    {baseToken?.symbol}
-                                                </span>
-                                            </div>
-                                            <div className="flex flex-col items-end">
-                                                <span className={`text-xs font-medium ${
-                                                    isSelected
-                                                        ? isDarkMode ? 'text-gray-200' : 'text-gray-700'
-                                                        : isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                                                }`}>
-                                                    {dex.baseReserve}
-                                                </span>
-                                                <span className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                                                    {dex.baseReservePercent}%
-                                                </span>
-                                            </div>
+                                        <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>${dex.priceQuote}</span>
+                                    </div>
+                                </div>
+                                
+                                <div className="flex flex-col gap-1.5">
+                                    {/* Liquidity Info */}
+                                    <div className={`text-xs font-medium ${
+                                        isSelected ? isDarkMode ? 'text-[#ff3978]' : 'text-[#ff1356]' : isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                                    }`}>Liquidity: ${dex.liquidity}</div>
+                                    
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-1">
+                                            <div className="w-2 h-2 rounded-full bg-blue-500"></div>
+                                            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{baseToken?.symbol}</span>
                                         </div>
-                                        <div className="flex justify-between items-center mb-1.5">
-                                            <div className="flex items-center gap-1">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-pink-500"></div>
-                                                <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                    {quoteToken?.symbol}
-                                                </span>
-                                            </div>
-                                            <div className="flex flex-col items-end">
-                                                <span className={`text-xs font-medium ${
-                                                    isSelected
-                                                        ? isDarkMode ? 'text-gray-200' : 'text-gray-700'
-                                                        : isDarkMode ? 'text-gray-300' : 'text-gray-700'
-                                                }`}>
-                                                    {dex.quoteReserve}
-                                                </span>
-                                                <span className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>
-                                                    {100 - dex.baseReservePercent}%
-                                                </span>
-                                            </div>
+                                        <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{dex.baseReserve}</span>
+                                    </div>
+                                    
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-1">
+                                            <div className="w-2 h-2 rounded-full bg-[#ff2c6a]"></div>
+                                            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{quoteToken?.symbol}</span>
                                         </div>
-                                        
-                                        {/* Enhanced Reserve Bar */}
-                                        <div className="relative h-2 mt-0.5 rounded-full overflow-hidden 
-                                            bg-gray-200 dark:bg-gray-700">
-                                            <div 
-                                                className={`absolute top-0 left-0 h-full rounded-full
-                                                    ${isSelected 
-                                                        ? "bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500" 
-                                                        : "bg-gradient-to-r from-blue-500 to-pink-500"
-                                                    }`}
-                                                style={{ width: `${dex.baseReservePercent}%` }}
-                                            >
-                                                {/* Subtle animation effect for selected state */}
-                                                {isSelected && (
-                                                    <div className="absolute inset-0 bg-white opacity-20">
-                                                        <div className="h-full w-1/3 bg-white/40 blur-xl transform -skew-x-30 -translate-x-full animate-shimmer"></div>
-                                                    </div>
-                                                )}
+                                        <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{dex.quoteReserve}</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {/* Optimized Reserve Bar */}
+                            <div className="relative">
+                                <div className="flex justify-between items-center mb-1">
+                                    <span className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{dex.baseReservePercent}%</span>
+                                    <span className={`text-[10px] ${isDarkMode ? 'text-gray-500' : 'text-gray-400'}`}>{100 - dex.baseReservePercent}%</span>
+                                </div>
+                                <div className="relative h-2 rounded-full overflow-hidden 
+                                    bg-gray-200/70 dark:bg-gray-700/50">
+                                    <div 
+                                        className={`absolute top-0 left-0 h-full rounded-full
+                                            ${isSelected 
+                                                ? "bg-gradient-to-r from-blue-500 via-[#ff2c6a] to-[#ff3978]" 
+                                                : "bg-gradient-to-r from-blue-500 to-[#ff1356]"
+                                            }`}
+                                        style={{ width: `${dex.baseReservePercent}%` }}
+                                    >
+                                        {isSelected && (
+                                            <div className="absolute inset-0 bg-white opacity-20">
+                                                <div className="h-full w-1/4 bg-white/30 blur-sm transform -skew-x-30 -translate-x-full animate-shimmer"></div>
                                             </div>
-                                        </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>
