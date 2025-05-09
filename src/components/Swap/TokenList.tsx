@@ -29,7 +29,7 @@ const TokenList: React.FC<TokenListProps> = ({ isDarkMode }) => {
     className={`${isDarkMode
       ? 'bg-gray-800/90 border-gray-700/50'
       : 'bg-white/80 border-white/30'
-      } backdrop-blur-md rounded-3xl flex h-full flex-col items-start justify-between gap-2 shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden transition-all duration-300`}
+      } backdrop-blur-md min-h-[68vh]  max-h-[68vh]  rounded-3xl flex h-full flex-col items-start justify-between gap-2 shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden transition-all duration-300`}
     initial={{ opacity: 0, x: -20 }}
     animate={{ opacity: 1, x: 0 }}
     transition={{ delay: 0.2 }}
@@ -105,7 +105,7 @@ const TokenList: React.FC<TokenListProps> = ({ isDarkMode }) => {
         </div>
       </div>
       <div className='w-full flex flex-1 items-start justify-center gap-2'>
-        <div className={`w-full px-3 py-2 overflow-y-scroll max-h-[33.399vh] ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'
+        <div className={`w-full px-3 py-2 overflow-y-scroll max-h-[35vh] ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'
           }`}>
           {filteredTokens.map(token => (
             <motion.div

@@ -639,11 +639,12 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
           {/* Ortak Token Seçim Paneli - Her iki input için tek liste */}
           <AnimatePresence>
             {openTokenSelector && (
-              <motion.div
-                initial={{ height: 0, opacity: 0 }}
-                animate={{ height: 'auto', opacity: 1 }}
-                exit={{ height: 0, opacity: 0 }}
-                transition={{ duration: 0.3, ease: "easeInOut" }}
+        
+        <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
                 className={`overflow-hidden ${isDarkMode
                   ? 'bg-gray-700/90 border-gray-600'
                   : 'bg-white/90 border-gray-200'
@@ -712,7 +713,7 @@ const SwapForm: React.FC<SwapFormProps> = memo(({
                   </div>
 
                   {/* Tek Token Listesi - Hangi token seçildiğine bağlı olarak farklı stil */}
-                  <div className={` max-h-[70vh] overflow-y-auto ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'
+                  <div className={` min-h-[53vh]  max-h-[53vh]  overflow-y-auto ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'
                     } pr-1`}>
                     <div className="space-y-1">
                       {filteredTokens.length > 0 ? (
