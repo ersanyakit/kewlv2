@@ -4,13 +4,15 @@ import { DEFAULT_DEADLINE_FROM_NOW, INITIAL_ALLOWED_SLIPPAGE, MINIMUM_LIQUIDITY,
 import { useTokenContext } from './TokenContext';
 import { useAppKitNetwork } from '@reown/appkit/react';
 import { ethers, parseEther, ZeroAddress } from 'ethers';
-import { getContractByName } from '../constants/contracts/contracts';
+import { fetchBalances, getContractByName } from '../constants/contracts/contracts';
 import { TContractType } from '../constants/contracts/addresses';
 import JSBI from 'jsbi';
 import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_MEDIUM, warningSeverity } from '../constants/entities/utils/calculateSlippageAmount';
 import moment from 'moment';
 import { toHex } from '../constants/entities/utils/computePriceImpact';
 import { erc20Abi, getContract } from 'viem';
+import { waitForTransactionReceipt } from 'viem/actions';
+
 // Context için tip tanımı
 interface SwapContextProps {
   // Diğer özellikler...
@@ -122,6 +124,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     tradeType,
     enableTaxesContract,
     setTradeType,
+    tokens,
+    setTokens
   } = useTokenContext();
   const { chainId } = useAppKitNetwork();
 
@@ -421,7 +425,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         if(allowance < BigInt(tradeInfo.inputAmount.quotient.toString())){
 
         
-        await dexContract.wallet.writeContract({
+        const approvalTx = await dexContract.wallet.writeContract({
             chain: dexContract.client.chain,
             address: baseToken.address as `0x${string}`,
             abi: erc20Abi,
@@ -429,8 +433,11 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
             args: [dexContract.address,ethers.MaxUint256],
             account: signerAccount
           })
+          const receiptApproval = await waitForTransactionReceipt(dexContract.wallet, {
+            hash: approvalTx,
+          });
+          console.log("receiptApproval", receiptApproval)
       }
-
     }
 
 
@@ -444,6 +451,12 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         account: signerAccount,
         value: overrides.value
       })
+
+      const receipt = await waitForTransactionReceipt(dexContract.wallet, {
+        hash: tx,
+      });
+      console.log("receipt", receipt)
+
       setSwapResult({
         type: SwapStatusType.SUCCESS,
         message: "Swap Success",
@@ -455,7 +468,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
           amountOut: tradeInfo.outputAmount.toSignificant(),
         }
       })
-      console.log("returnValue", tx)
+    
     } catch (error) {
       const message = error?.toString() || "Unexpected error";
       let errorType: SwapStatusType = SwapStatusType.UNKNOWN_ERROR;
@@ -481,7 +494,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     } finally {
       setIsSwapping(false);
     }
-
+ 
+    await fetchBalances(chainId,signerAccount,walletProvider, tokens,setTokens)
 
 
 
