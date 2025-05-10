@@ -164,7 +164,7 @@ const FushionForm: React.FC = () => {
 
                         <motion.button
                             onClick={() => { setTradeType(TradeType.EXACT_INPUT); setOpenTokenSelector(true) }}
-                            className={`z-[100] relative flex flex-row items-center transition-all duration-300 bg-gradient-to-r from-[#ff1356]/10 to-[#3b82f6]/10 p-1 rounded-full`}
+                            className={`z-[100] relative flex flex-row items-center transition-all duration-300 bg-gradient-to-r from-[#ff1356]/10 to-[#3b82f6]/10 p-1 rounded-full group`}
                             whileHover={{
                                 scale: 1.03,
                                 boxShadow: "0 0 8px rgba(255, 19, 86, 0.3)",

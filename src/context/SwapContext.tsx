@@ -38,6 +38,7 @@ interface SwapContextProps {
   setAggregatorPairs: (pairs: TCustomPair[]) => void;
   setFromAmount: (amount: string) => void;
   setToAmount: (amount: string) => void;
+  handleBundleSwap: (walletProvider: any, tokens: any[]) => void;
   setLoading: (loading: boolean) => void;
   handleFromChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleToChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -74,6 +75,7 @@ const defaultContext: SwapContextProps = {
   setToggleDetails: () => { },
   handleSwap: (walleProvider: any) => { },
   setCanAggregatorSwap: () => { },
+  handleBundleSwap: () => { },
   // Diğer varsayılan değerler...
 };
 
@@ -121,13 +123,13 @@ export interface SwapSuccess {
 }
 
 export interface SwapParam {
-  amountIn: bigint;
-  amountOut: bigint;
+  amountIn: any;
+  amountOut: any;
   weth9: string; // Address type represented as a string
   wrapper: string;
   pair: string;
   input: string;
-  flag:boolean;
+  flag: boolean;
 }
 
 export interface Router {
@@ -137,7 +139,7 @@ export interface Router {
 
 export interface PairInfo {
   valid: boolean;
-  flag:boolean;
+  flag: boolean;
   reserve0: bigint;
   reserve1: bigint;
   amount0Out: bigint;
@@ -152,7 +154,7 @@ export interface PairInfo {
 }
 
 export interface PairInput {
-  flag:boolean;
+  flag: boolean;
   router: string; // Address type
   pair: string;   // Address type
   input: string;  // Address type
@@ -161,21 +163,21 @@ export interface PairInput {
 }
 
 
-export interface TCustomPair  {
+export interface TCustomPair {
   pair: PairInfo; // Pair bilgileri
   isSelected: boolean; // Seçim durumu
-  trade:any;
-  baseLiqudity:any;
-  quoteLiquidity:any
-  exchangeInfo:any;
-  outputAmount:string;
-  baseReservePercent:Percent;
-  quoteReservePercent:Percent;
-  totalReservePercent:Percent;
-  warningSeverity:number;
-  warningSeverityText:string;
+  trade: any;
+  baseLiqudity: any;
+  quoteLiquidity: any
+  exchangeInfo: any;
+  outputAmount: string;
+  baseReservePercent: Percent;
+  quoteReservePercent: Percent;
+  totalReservePercent: Percent;
+  warningSeverity: number;
+  warningSeverityText: string;
 };
-export interface TradeItemProps  {
+export interface TradeItemProps {
   pair: TCustomPair,
 };
 
@@ -254,7 +256,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     setToAmount("");
 
 
-    if(swapMode == SWAP_MODE.AGGREGATOR){
+    if (swapMode == SWAP_MODE.AGGREGATOR) {
       setAggregatorPairs([]);
     }
   }
@@ -494,35 +496,35 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     try {
 
 
-      if(baseToken.address != ZeroAddress){
+      if (baseToken.address != ZeroAddress) {
         const tokenContract = getContract({
           address: baseToken.address as `0x${string}`,
           abi: erc20Abi,
           client: dexContract.client
         })
-        
+
         const allowance = await tokenContract.read.allowance([
           signerAccount,
           dexContract.caller.address
         ])
 
-        if(allowance < BigInt(tradeInfo.inputAmount.quotient.toString())){
+        if (allowance < BigInt(tradeInfo.inputAmount.quotient.toString())) {
 
-        
-        const approvalTx = await dexContract.wallet.writeContract({
+
+          const approvalTx = await dexContract.wallet.writeContract({
             chain: dexContract.client.chain,
             address: baseToken.address as `0x${string}`,
             abi: erc20Abi,
             functionName: "approve",
-            args: [dexContract.address,ethers.MaxUint256],
+            args: [dexContract.address, ethers.MaxUint256],
             account: signerAccount
           })
           const receiptApproval = await waitForTransactionReceipt(dexContract.wallet, {
             hash: approvalTx,
           });
           console.log("receiptApproval", receiptApproval)
+        }
       }
-    }
 
 
 
@@ -552,7 +554,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
           amountOut: tradeInfo.outputAmount.toSignificant(),
         }
       })
-    
+
     } catch (error) {
       const message = error?.toString() || "Unexpected error";
       let errorType: SwapStatusType = SwapStatusType.UNKNOWN_ERROR;
@@ -579,8 +581,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       setIsSwapping(false);
       resetSwap();
     }
- 
-    await fetchBalances(chainId,signerAccount,walletProvider, tokens,setTokens)
+
+    await fetchBalances(chainId, signerAccount, walletProvider, tokens, setTokens)
 
 
 
@@ -589,9 +591,9 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   }
 
   useEffect(() => {
-    if(swapMode == SWAP_MODE.SIMPLESWAP){
+    if (swapMode == SWAP_MODE.SIMPLESWAP) {
       fetchPairInfo();
-    }else if(swapMode == SWAP_MODE.AGGREGATOR){
+    } else if (swapMode == SWAP_MODE.AGGREGATOR) {
       fetchAggregatorInfo();
     }
   }, [baseToken, quoteToken, fromAmount, toAmount, tradeType]);
@@ -649,7 +651,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       address: dexContract.caller.address,
       abi: dexContract.abi,
       functionName: 'fetchPairs',
-      args: [routers,FANTOKENWrapper, _baseToken.address, _quoteToken.address,toHex(tradeAmount)],
+      args: [routers, FANTOKENWrapper, _baseToken.address, _quoteToken.address, toHex(tradeAmount)],
       account: ethers.getAddress(account) as `0x${string}`,
     })
     console.log("tradingPairs", _tradingPairs)
@@ -657,7 +659,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     const seenPairs = new Set<string>();
     const _validPairs = _tradingPairs.filter((pair: any) => {
       if (!pair.valid || seenPairs.has(pair.pair)) return false;
-      if(JSBI.lessThanOrEqual(JSBI.BigInt(pair.reserve0.toString()), JSBI.BigInt(MINIMUM_LIQUIDITY)) || JSBI.lessThanOrEqual(JSBI.BigInt(pair.reserve1.toString()), JSBI.BigInt(MINIMUM_LIQUIDITY))){
+      if (JSBI.lessThanOrEqual(JSBI.BigInt(pair.reserve0.toString()), JSBI.BigInt(MINIMUM_LIQUIDITY)) || JSBI.lessThanOrEqual(JSBI.BigInt(pair.reserve1.toString()), JSBI.BigInt(MINIMUM_LIQUIDITY))) {
         return false;
       }
       seenPairs.add(pair.pair);
@@ -668,90 +670,91 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     const customPairs: TCustomPair[] = []; // Custom pair dizisi oluşturuluyor
 
     for (const pair of _validPairs) {
-  
-         let _selectedBaseAddress = (baseToken.address === ZeroAddress || baseToken.address === ETHER_ADDRESS) ? pair.weth : baseToken.address
-        let _selectedQuoteAddress = (quoteToken.address === ZeroAddress || quoteToken.address === ETHER_ADDRESS) ? pair.weth : quoteToken.address
-        let selectedBase: any
-        let selectedQuote: any
 
-        if (_selectedBaseAddress == pair.weth) {
-          [selectedBase, selectedQuote] = _selectedBaseAddress == pair.token0 ? [pair.token0, pair.token1] : [pair.token1, pair.token0]
-        } else if (_selectedQuoteAddress == pair.weth) {
-          [selectedBase, selectedQuote] = _selectedQuoteAddress == pair.token0 ? [pair.token1, pair.token0] : [pair.token0, pair.token1]
-        } else {
-          [selectedBase, selectedQuote] = [_selectedBaseAddress, _selectedQuoteAddress]
-        }
+      let _selectedBaseAddress = (baseToken.address === ZeroAddress || baseToken.address === ETHER_ADDRESS) ? pair.weth : baseToken.address
+      let _selectedQuoteAddress = (quoteToken.address === ZeroAddress || quoteToken.address === ETHER_ADDRESS) ? pair.weth : quoteToken.address
+      let selectedBase: any
+      let selectedQuote: any
 
-
-        let _baseAddress = ethers.getAddress(selectedBase);
-        let _quoteAddress = ethers.getAddress(selectedQuote);
-
-        let _baseDecimals = Number(pair.token0 == _baseAddress ? pair.token0Decimals : pair.token1Decimals)
-        let _quoteDecimals = Number(pair.token1 == _quoteAddress ? pair.token1Decimals : pair.token0Decimals)
-        const baseTokenEntity = new Token(baseToken.chainId, _baseAddress, _baseDecimals, baseToken.symbol)
-        const quoteTokenEntity = new Token(quoteToken.chainId, _quoteAddress, _quoteDecimals, quoteToken.symbol)
-        const [baseReserve, quoteReserve] = _baseAddress == pair.token0 ? [pair.reserve0, pair.reserve1] : [pair.reserve1, pair.reserve0]
+      if (_selectedBaseAddress == pair.weth) {
+        [selectedBase, selectedQuote] = _selectedBaseAddress == pair.token0 ? [pair.token0, pair.token1] : [pair.token1, pair.token0]
+      } else if (_selectedQuoteAddress == pair.weth) {
+        [selectedBase, selectedQuote] = _selectedQuoteAddress == pair.token0 ? [pair.token1, pair.token0] : [pair.token0, pair.token1]
+      } else {
+        [selectedBase, selectedQuote] = [_selectedBaseAddress, _selectedQuoteAddress]
+      }
 
 
-        let _checkBaseLiquidty = CurrencyAmount.fromRawAmount(baseTokenEntity, baseReserve.toString())
-        let _checkQuuteLiquidity = CurrencyAmount.fromRawAmount(quoteTokenEntity, quoteReserve.toString())
+      let _baseAddress = ethers.getAddress(selectedBase);
+      let _quoteAddress = ethers.getAddress(selectedQuote);
+
+      let _baseDecimals = Number(pair.token0 == _baseAddress ? pair.token0Decimals : pair.token1Decimals)
+      let _quoteDecimals = Number(pair.token1 == _quoteAddress ? pair.token1Decimals : pair.token0Decimals)
+      const baseTokenEntity = new Token(baseToken.chainId, _baseAddress, _baseDecimals, baseToken.symbol)
+      const quoteTokenEntity = new Token(quoteToken.chainId, _quoteAddress, _quoteDecimals, quoteToken.symbol)
+      const [baseReserve, quoteReserve] = _baseAddress == pair.token0 ? [pair.reserve0, pair.reserve1] : [pair.reserve1, pair.reserve0]
 
 
-        if (JSBI.lessThanOrEqual(_checkBaseLiquidty.quotient, MINIMUM_LIQUIDITY)) {
-          continue;
-        }
+      let _checkBaseLiquidty = CurrencyAmount.fromRawAmount(baseTokenEntity, baseReserve.toString())
+      let _checkQuuteLiquidity = CurrencyAmount.fromRawAmount(quoteTokenEntity, quoteReserve.toString())
 
-        if (JSBI.lessThanOrEqual(_checkQuuteLiquidity.quotient, MINIMUM_LIQUIDITY)) {
-          continue;
-        }
 
-        const exchangePair = new Pair(
-          CurrencyAmount.fromRawAmount(baseTokenEntity, baseReserve.toString()),
-          CurrencyAmount.fromRawAmount(quoteTokenEntity, quoteReserve.toString()),pair.pair)
+      if (JSBI.lessThanOrEqual(_checkBaseLiquidty.quotient, MINIMUM_LIQUIDITY)) {
+        continue;
+      }
 
-          const baseAmount: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(baseTokenEntity, JSBI.BigInt(ethers.parseUnits(fromAmount, Number(_baseDecimals)).toString()));
+      if (JSBI.lessThanOrEqual(_checkQuuteLiquidity.quotient, MINIMUM_LIQUIDITY)) {
+        continue;
+      }
 
-          let _tradeInfo = new Trade(
-            new Route([exchangePair], baseTokenEntity, quoteTokenEntity),
-            CurrencyAmount.fromRawAmount(baseTokenEntity, baseAmount.quotient),
-            TradeType.EXACT_INPUT
-          )
+      const exchangePair = new Pair(
+        CurrencyAmount.fromRawAmount(baseTokenEntity, baseReserve.toString()),
+        CurrencyAmount.fromRawAmount(quoteTokenEntity, quoteReserve.toString()), pair.pair)
 
-          let _baseLiquidity = CurrencyAmount.fromRawAmount(baseTokenEntity, baseReserve.toString())
-          let _quoteLiquidity = CurrencyAmount.fromRawAmount(quoteTokenEntity, quoteReserve.toString())
-  
-          const DEFAULT_ADD_SLIPPAGE_TOLERANCE = new Percent(INITIAL_ALLOWED_SLIPPAGE, 10_000)
-          const amountOutSlippage = _tradeInfo.minimumAmountOut(DEFAULT_ADD_SLIPPAGE_TOLERANCE)
+      const baseAmount: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(baseTokenEntity, JSBI.BigInt(ethers.parseUnits(fromAmount, Number(_baseDecimals)).toString()));
 
-        
-        
-        let outputAmount = amountOutSlippage.toSignificant(6)
+      let _tradeInfo = new Trade(
+        new Route([exchangePair], baseTokenEntity, quoteTokenEntity),
+        CurrencyAmount.fromRawAmount(baseTokenEntity, baseAmount.quotient),
+        TradeType.EXACT_INPUT
+      )
 
-        const base = JSBI.BigInt(_baseLiquidity.quotient.toString())
-        const quote = JSBI.BigInt(_quoteLiquidity.quotient.toString())
-        const total = JSBI.add(base, quote)
-       
-        let exchangeInfo = getExchangeByRouterAndWETH(pair.router, pair.weth,Number(chainId))
+      let _baseLiquidity = CurrencyAmount.fromRawAmount(baseTokenEntity, baseReserve.toString())
+      let _quoteLiquidity = CurrencyAmount.fromRawAmount(quoteTokenEntity, quoteReserve.toString())
 
-        if (parseFloat(_tradeInfo.priceImpact.toFixed(2)) <= riskTolerance) {
-          customPairs.push({ pair: pair, 
-            isSelected: false, 
-            trade: _tradeInfo, 
-            baseLiqudity: _baseLiquidity, 
-            quoteLiquidity: _quoteLiquidity, 
-            exchangeInfo: exchangeInfo, 
-            outputAmount: outputAmount,
-            baseReservePercent: new Percent(base, total),
-            quoteReservePercent: new Percent(quote, total),
-            totalReservePercent: new Percent(total, total),
-            warningSeverity:warningSeverity(_tradeInfo.priceImpact), 
-            warningSeverityText:warningSeverityText(warningSeverity(_tradeInfo.priceImpact) )
-          })
+      const DEFAULT_ADD_SLIPPAGE_TOLERANCE = new Percent(INITIAL_ALLOWED_SLIPPAGE, 10_000)
+      const amountOutSlippage = _tradeInfo.minimumAmountOut(DEFAULT_ADD_SLIPPAGE_TOLERANCE)
 
-        }
-  
 
-       
+
+      let outputAmount = amountOutSlippage.toSignificant(6)
+
+      const base = JSBI.BigInt(_baseLiquidity.quotient.toString())
+      const quote = JSBI.BigInt(_quoteLiquidity.quotient.toString())
+      const total = JSBI.add(base, quote)
+
+      let exchangeInfo = getExchangeByRouterAndWETH(pair.router, pair.weth, Number(chainId))
+
+      if (parseFloat(_tradeInfo.priceImpact.toFixed(2)) <= riskTolerance) {
+        customPairs.push({
+          pair: pair,
+          isSelected: false,
+          trade: _tradeInfo,
+          baseLiqudity: _baseLiquidity,
+          quoteLiquidity: _quoteLiquidity,
+          exchangeInfo: exchangeInfo,
+          outputAmount: outputAmount,
+          baseReservePercent: new Percent(base, total),
+          quoteReservePercent: new Percent(quote, total),
+          totalReservePercent: new Percent(total, total),
+          warningSeverity: warningSeverity(_tradeInfo.priceImpact),
+          warningSeverityText: warningSeverityText(warningSeverity(_tradeInfo.priceImpact))
+        })
+
+      }
+
+
+
 
     }
     setAggregatorPairs(customPairs)
@@ -760,9 +763,9 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const selectedPairs = aggregatorPairs.filter(pair => pair.isSelected);
-    if(selectedPairs.length > 0){
+    if (selectedPairs.length > 0) {
       setCanAggregatorSwap(true);
-    }else{
+    } else {
       setCanAggregatorSwap(false);
     }
   }, [aggregatorPairs])
@@ -793,7 +796,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       return;
     }
 
-    if(aggregatorPairs.length == 0){
+    if (aggregatorPairs.length == 0) {
       setSwapResult({
         type: SwapStatusType.INVALID_PATH,
         message: "Invalid Path",
@@ -802,7 +805,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     }
 
     const selectedPairs = aggregatorPairs.filter(pair => pair.isSelected);
-    if(selectedPairs.length == 0){
+    if (selectedPairs.length == 0) {
       setSwapResult({
         type: SwapStatusType.INVALID_PATH,
         message: "Invalid Path",
@@ -824,7 +827,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
 
 
-  
+
     //setIsSwapping(true);
 
     const allSwapParams: SwapParam[] = [];
@@ -841,54 +844,54 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       value: etherIn ? DEPOSIT_AMOUNT_TOTAL : 0n,
     }
 
-      for (const pair of selectedPairs) {
-        let outputAmount = JSBI.greaterThan(JSBI.BigInt(pair.pair.amount0Out.toString()), JSBI.BigInt(0)) ? pair.pair.amount0Out : pair.pair.amount1Out
+    for (const pair of selectedPairs) {
+      let outputAmount = JSBI.greaterThan(JSBI.BigInt(pair.pair.amount0Out.toString()), JSBI.BigInt(0)) ? pair.pair.amount0Out : pair.pair.amount1Out
 
-        let INPUT_TOKEN = etherIn ? pair.pair.weth : baseToken.address;
-        let swapParam = {
-          amountIn: ethers.parseUnits(fromAmount, _baseToken.decimals),
-          amountOut:outputAmount,
-          weth9: pair.pair.weth,
-          wrapper: FANTOKENWrapper,
-          pair: pair.pair.pair,
-          input: INPUT_TOKEN,
-          flag:pair.pair.flag 
-        }
-        allSwapParams.push(swapParam)
-
+      let INPUT_TOKEN = etherIn ? pair.pair.weth : baseToken.address;
+      let swapParam = {
+        amountIn: ethers.parseUnits(fromAmount, _baseToken.decimals),
+        amountOut: outputAmount,
+        weth9: pair.pair.weth,
+        wrapper: FANTOKENWrapper,
+        pair: pair.pair.pair,
+        input: INPUT_TOKEN,
+        flag: pair.pair.flag
       }
+      allSwapParams.push(swapParam)
 
-      const [signerAccount] = await dexContract.wallet.getAddresses();
+    }
 
-      try{
-      if(!etherIn){
+    const [signerAccount] = await dexContract.wallet.getAddresses();
+
+    try {
+      if (!etherIn) {
         const tokenContract = getContract({
           address: baseToken.address as `0x${string}`,
           abi: erc20Abi,
           client: dexContract.client
         })
-        
+
         const allowance = await tokenContract.read.allowance([
           signerAccount,
           dexContract.caller.address
         ])
-  
-        if(allowance < DEPOSIT_AMOUNT_TOTAL){
-  
-        
-        const approvalTx = await dexContract.wallet.writeContract({
+
+        if (allowance < DEPOSIT_AMOUNT_TOTAL) {
+
+
+          const approvalTx = await dexContract.wallet.writeContract({
             chain: dexContract.client.chain,
             address: baseToken.address as `0x${string}`,
             abi: erc20Abi,
             functionName: "approve",
-            args: [dexContract.address,ethers.MaxUint256],
+            args: [dexContract.address, ethers.MaxUint256],
             account: signerAccount
           })
           const receiptApproval = await waitForTransactionReceipt(dexContract.wallet, {
             hash: approvalTx,
           });
           console.log("receiptApproval", receiptApproval)
-      }
+        }
       }
 
       const tx: any = await dexContract.wallet.writeContract({
@@ -915,7 +918,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
           amountOut: "0",
         }
       })
-    }catch(error){
+    } catch (error) {
       const message = error?.toString() || "Unexpected error";
       let errorType: SwapStatusType = SwapStatusType.UNKNOWN_ERROR;
       if (message.includes("insufficient funds")) {
@@ -936,13 +939,210 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
           error: error,
         }
       })
-    }finally{
+    } finally {
       setIsSwapping(false);
       resetSwap();
     }
-    await fetchBalances(chainId,signerAccount,walletProvider, tokens,setTokens)
+    await fetchBalances(chainId, signerAccount, walletProvider, tokens, setTokens)
 
-   }
+  }
+
+  const handleBundleSwap = async (walletProvider: any, fanTokens: any[]) => {
+    console.log("handleBundleSwap", tokens)
+
+    if (!chainId) {
+      resetSwap();
+      return null;
+    }
+
+    const totalInvestment = parseFloat(fromAmount || "0");
+    const depositAmount = fanTokens.length > 0 ? (totalInvestment / fanTokens.length).toFixed(6) : "0";
+
+
+    let WRAPPED_TOKEN = WETH9[Number(chainId)].address;
+    const FANTOKENWrapper = CHILIZWRAPPER[Number(chainId)].address
+    const allSwapParams: SwapParam[] = [];
+
+    let dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+
+    let pairsAddressList : any[] =[]
+    fanTokens.forEach(token => {
+             const pair : any = token.pair
+             if(pair != ethers.ZeroAddress){
+                 pairsAddressList.push(pair)
+                 console.log("Pair Aliniyor..", token.symbol, pair)
+             }
+     });
+
+     const pairs: any = await dexContract.client.readContract({
+      address: dexContract.caller.address,
+      abi: dexContract.abi,
+      functionName: 'getReservesByPairAddresses',
+      args: [pairsAddressList],
+      account: ethers.getAddress(account) as `0x${string}`,
+    })
+
+    if(pairs.length == 0){
+      setSwapResult({
+        type: SwapStatusType.INVALID_PATH,
+        message: "Invalid Path",
+      })
+      return;
+    }
+   setIsSwapping(true)
+
+
+    for (const pair of pairs) {
+      const token0 = new Token(
+        Number(chainId), // Chain ID
+        pair.token0,
+        Number(pair.token0Decimals),
+        'TOKEN0',
+        'Token0'
+      );
+
+      const token1 = new Token(
+        Number(chainId), // Chain ID
+        pair.token1,
+        Number(pair.token1Decimals),
+        'TOKEN1',
+        'Token1'
+      );
+
+
+      var side = pair.token0 == WRAPPED_TOKEN
+
+      const [tokenA, tokenB]: [Token, Token] = side
+        ? [token0, token1]
+        : [token1, token0];
+      const [reserveA, reserveB] = side
+        ? [pair.reserve0, pair.reserve1]
+        : [pair.reserve1, pair.reserve0];
+
+
+      const exchangePair = new Pair(
+        CurrencyAmount.fromRawAmount(tokenA, reserveA.toString()),
+        CurrencyAmount.fromRawAmount(tokenB, reserveB.toString()),
+        pair.pair
+      )
+
+
+      const inputOutputToken = tokenA
+
+
+
+      const baseAmount: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(inputOutputToken, JSBI.BigInt(ethers.parseUnits(depositAmount, Number(18)).toString()));
+
+      let _tradeInfo = new Trade(
+        new Route([exchangePair], tokenA, tokenB),
+        CurrencyAmount.fromRawAmount(inputOutputToken, baseAmount.quotient),
+        TradeType.EXACT_INPUT
+      )
+
+
+      const DEFAULT_ADD_SLIPPAGE_TOLERANCE = new Percent(INITIAL_ALLOWED_SLIPPAGE, 10_000)
+
+      if (parseFloat(_tradeInfo.priceImpact.toFixed(2)) > riskTolerance) {
+        //skip
+        continue;
+      }
+
+
+      const amountIn: string = toHex(_tradeInfo.maximumAmountIn(DEFAULT_ADD_SLIPPAGE_TOLERANCE))
+      const amountOut: string = toHex(_tradeInfo.outputAmount)
+      const amountOutMin: string = toHex(_tradeInfo.minimumAmountOut(DEFAULT_ADD_SLIPPAGE_TOLERANCE))
+
+
+      let swapParam: SwapParam = {
+        amountIn: amountIn,
+        amountOut: amountOutMin,
+        weth9: WRAPPED_TOKEN,
+        wrapper: FANTOKENWrapper,
+        pair: pair.pair,
+        input: WRAPPED_TOKEN,
+        flag: false
+      }
+
+      allSwapParams.push(swapParam)
+ 
+
+
+    }
+
+
+    if(allSwapParams.length == 0){
+      setSwapResult({
+        type: SwapStatusType.INVALID_PATH,
+        message: "Invalid Path",
+      })
+      setIsSwapping(false)
+      return;
+    }
+
+    let fee = parseEther("10")
+    let overrides = {
+        value:fee + parseEther(totalInvestment.toString())
+    }
+
+    const [signerAccount] = await dexContract.wallet.getAddresses();
+
+    try {
+ 
+
+      const tx: any = await dexContract.wallet.writeContract({
+        chain: dexContract.client.chain,
+        address: dexContract.caller.address as `0x${string}`,
+        abi: dexContract.abi,
+        functionName: "swapAll",
+        args: [allSwapParams],
+        account: signerAccount,
+        value: overrides.value
+      })
+
+      const receipt = await waitForTransactionReceipt(dexContract.wallet, {
+        hash: tx,
+      });
+      setSwapResult({
+        type: SwapStatusType.SUCCESS,
+        message: "Swap Success",
+        context: {
+          baseToken: baseToken,
+          quoteToken: quoteToken,
+          txHash: tx.hash,
+          amountIn: formatEther(overrides.value),
+          amountOut: "0",
+        }
+      })
+    } catch (error) {
+      const message = error?.toString() || "Unexpected error";
+      let errorType: SwapStatusType = SwapStatusType.UNKNOWN_ERROR;
+      if (message.includes("insufficient funds")) {
+        errorType = SwapStatusType.INSUFFICIENT_FUNDS;
+      } else if (message.includes("slippage")) {
+        errorType = SwapStatusType.SLIPPAGE_TOO_HIGH;
+      } else if (message.includes("user rejected")) {
+        errorType = SwapStatusType.USER_REJECTED;
+      } else if (message.includes("invalid address")) {
+        errorType = SwapStatusType.INVALID_ADDRESS;
+      } else if (message.includes("network")) {
+        errorType = SwapStatusType.NETWORK_ERROR;
+      }
+      setSwapResult({
+        type: errorType,
+        message: "Contract Error",
+        context: {
+          error: error,
+        }
+      })
+    } finally {
+      setIsSwapping(false);
+      resetSwap();
+    }
+    await fetchBalances(chainId, signerAccount, walletProvider, tokens, setTokens)
+
+
+
+  }
 
 
 
@@ -976,6 +1176,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     setAggregatorPairs,
     canAggregatorSwap,
     setCanAggregatorSwap,
+    handleBundleSwap,
     // Diğer değerler...
   };
 

@@ -71,6 +71,7 @@ const BundleForm: React.FC = () => {
         setAggregatorPairs,
         setToggleDetails,
         handleFromChange,
+        handleBundleSwap,
         handleAggregatorSwap,
         setCanAggregatorSwap,
         handleToChange,
@@ -872,52 +873,8 @@ const BundleForm: React.FC = () => {
 
                     </div>
                 </div>
-
-                {/* Swap Mechanism Button */}
-                <div className="flex flex-row gap-2 my-4 justify-center items-center relative h-7">
-                    {/* Horizontal line (now below the buttons due to z-index) */}
-                    <div className={`absolute left-0 right-0 h-px bg-gradient-to-r from-transparent ${isDarkMode ? 'via-gray-600' : 'via-gray-300'} to-transparent`}></div>
-
-                    {/* Base token button with background */}
-                    <div className="relative z-20">
-                        {/* Background div to hide the line */}
-                        <div className={`absolute inset-0 rounded-full ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}></div>
-
-                        <motion.button
-                            onClick={() => { setTradeType(TradeType.EXACT_INPUT); setOpenTokenSelector(true) }}
-                            className={`z-[100] relative flex flex-row items-center transition-all duration-300 bg-gradient-to-r from-[#ff1356]/10 to-[#3b82f6]/10 p-1 rounded-full`}
-                            whileHover={{
-                                scale: 1.03,
-                                boxShadow: "0 0 8px rgba(255, 19, 86, 0.3)",
-                                backgroundColor: isDarkMode ? "rgba(255, 19, 86, 0.15)" : "rgba(255, 19, 86, 0.1)"
-                            }}
-                            whileTap={{ scale: 0.97 }}
-                            transition={{ duration: 0.2 }}
-                        >
-                            <div className="relative">
-                                <TokenShape isDarkMode={isDarkMode} token={nativeToken} size="sm" />
-                            </div>
-                            <motion.div
-                                animate={{
-                                    rotateX: openTokenSelector && tradeType === TradeType.EXACT_INPUT ? 180 : 0,
-                                    y: openTokenSelector && tradeType === TradeType.EXACT_INPUT ? 2 : 0
-                                }}
-                                transition={{ duration: 0.3 }}
-                            >
-                            </motion.div>
-                            <div className="flex w-full text-start flex-col items-start mx-2">
-                                <div className={`font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>Invest Now</div>
-                            </div>
-                            <Shuffle className={`w-6 h-6 mx-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-400'} group-hover:text-pink-500`} />
-
-                        </motion.button>
-                    </div>
-
-                 
-                </div>
-
-                                        {/* Token Seçim Slider'ı */}
-                                        <div className="mb-5 px-4">
+                                             {/* Token Seçim Slider'ı */}
+                                             <div className="mb-5 px-4">
                     <div className="flex justify-between items-center mb-1">
                       <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>0 Tokens</span>
                       <span className={`text-xs font-medium ${isDarkMode ? 'text-pink-300' : 'text-pink-600'}`}>
@@ -1015,6 +972,52 @@ const BundleForm: React.FC = () => {
                     </div>
                   </div>
 
+                {/* Swap Mechanism Button */}
+                <div className="flex flex-row gap-2 my-4 justify-center items-center relative h-7">
+                    {/* Horizontal line (now below the buttons due to z-index) */}
+                    <div className={`absolute left-0 right-0 h-px bg-gradient-to-r from-transparent ${isDarkMode ? 'via-gray-600' : 'via-gray-300'} to-transparent`}></div>
+
+                    {/* Base token button with background */}
+                    <div className="relative z-20">
+                        {/* Background div to hide the line */}
+                        <div className={`absolute inset-0 rounded-full ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}></div>
+
+                        <motion.button
+                            disabled={isSwapping}
+                            onClick={() => { setTradeType(TradeType.EXACT_INPUT); handleBundleSwap (walletProvider,selectableFanTokens.filter(t => t.isSelected))}}
+                            className={`z-[100] relative flex flex-row items-center transition-all duration-300 bg-gradient-to-r from-[#ff1356]/10 to-[#3b82f6]/10 p-1 rounded-full`}
+                            whileHover={{
+                                scale: 1.03,
+                                boxShadow: "0 0 8px rgba(255, 19, 86, 0.3)",
+                                backgroundColor: isDarkMode ? "rgba(255, 19, 86, 0.15)" : "rgba(255, 19, 86, 0.1)"
+                            }}
+                            whileTap={{ scale: 0.97 }}
+                            transition={{ duration: 0.2 }}
+                        >
+                            <div className="relative">
+                                <TokenShape isDarkMode={isDarkMode} token={nativeToken} size="sm" />
+                            </div>
+                            <motion.div
+                                animate={{
+                                    rotateX: openTokenSelector && tradeType === TradeType.EXACT_INPUT ? 180 : 0,
+                                    y: openTokenSelector && tradeType === TradeType.EXACT_INPUT ? 2 : 0
+                                }}
+                                transition={{ duration: 0.3 }}
+                            >
+                            </motion.div>
+                            <div className="flex w-full text-start flex-col items-start mx-2">
+                                <div className={`font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>{isSwapping ? "Swapping..." : "Invest Now"}</div>
+                            </div>
+                            <Shuffle className={`w-6 h-6 mx-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-400'} group-hover:text-pink-500`} />
+
+                        </motion.button>
+                    </div>
+
+                 
+                </div>
+
+           
+
                 <div className={`flex flex-col gap-3 mx-3 mt-3 p-3 rounded-xl ${isDarkMode ? 'bg-gray-800/80 border border-gray-700' : 'bg-white/90 border border-gray-200'}`}>
                     {/* Summary Header */}
                     <div className="flex items-center justify-between">
@@ -1078,32 +1081,23 @@ const BundleForm: React.FC = () => {
                             </div>
                         </div>
                         
-                        {/* Distribution bars visualization */}
-                        <div className="grid grid-cols-12 gap-0.5 h-2 mt-1">
-                            {Array.from({ length: 12 }).map((_, index) => (
-                                <div 
-                                    key={index} 
-                                    className={`h-full rounded-sm ${
-                                        isDarkMode 
-                                            ? 'bg-gradient-to-r from-pink-500 to-purple-500' 
-                                            : 'bg-gradient-to-r from-pink-400 to-purple-400'
-                                    }`} 
-                                />
-                            ))}
-                        </div>
+                  
                         
                         {/* Token selection preview */}
                         <div className="grid grid-cols-5 gap-2 mt-2 mb-1 flex-wrap gap-1">
                             {selectableFanTokens.filter(t => t.isSelected).map((token, idx) => (
                                 <div 
                                     key={idx} 
-                                    className={`px-1.5 basis-5 w-full py-0.5 text-xs rounded-full flex items-center gap-1
+                                    className={`cursor-pointer basis-5 w-full py-0.5 text-xs rounded-full flex flex-col items-center gap-1 hover:bg-gray-200/40 
                                         ${isDarkMode ? 'bg-gray-600 text-gray-300' : 'bg-gray-200 text-gray-700'}`}
                                 >
-                                    <div className="w-3 h-3 rounded-full overflow-hidden">
+                                    <div className='w-full flex flex-row items-center justify-start gap-1 px-1'>
+                                    <div className="min-w-5 min-h-5 w-5 h-5 rounded-full overflow-hidden">
                                         <img src={token.logoURI} alt={token.symbol} className="w-full h-full object-cover" />
                                     </div>
-                                    {token.symbol}
+                                    <span className='text-[10px] truncate'> {token.symbol}</span>
+                                    </div>
+                                 
                                 </div>
                             ))}
                         </div>
