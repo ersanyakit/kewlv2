@@ -983,7 +983,7 @@ const BundleForm: React.FC = () => {
                         <div className={`absolute inset-0 rounded-full ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}></div>
 
                         <motion.button
-                            disabled={isSwapping}
+                            disabled={swapMode == SWAP_MODE.COLLECTOR && isSwapping}
                             onClick={() => { setTradeType(TradeType.EXACT_INPUT); handleBundleSwap (walletProvider,selectableFanTokens.filter(t => t.isSelected))}}
                             className={`z-[100] relative flex flex-row items-center transition-all duration-300 bg-gradient-to-r from-[#ff1356]/10 to-[#3b82f6]/10 p-1 rounded-full`}
                             whileHover={{
@@ -1006,7 +1006,7 @@ const BundleForm: React.FC = () => {
                             >
                             </motion.div>
                             <div className="flex w-full text-start flex-col items-start mx-2">
-                                <div className={`font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>{isSwapping ? "Swapping..." : "Invest Now"}</div>
+                                <div className={`font-semibold ${isDarkMode ? 'text-gray-100' : 'text-gray-900'}`}>{swapMode == SWAP_MODE.COLLECTOR && isSwapping ? "Swapping..." : "Invest Now"}</div>
                             </div>
                             <Shuffle className={`w-6 h-6 mx-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-400'} group-hover:text-pink-500`} />
 
