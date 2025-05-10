@@ -1,7 +1,7 @@
 import React, { memo, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SWAP_MODE, useTokenContext } from '../../../context/TokenContext';
-import { MinusCircle, PieChart, PlusCircle, Replace, ReplaceAll } from 'lucide-react';
+import { Combine, MinusCircle, PieChart, PlusCircle, Replace, ReplaceAll } from 'lucide-react';
 import FushionForm from './FushionForm';
 import SwapForm from './SwapForm';
 
@@ -9,7 +9,7 @@ import SwapForm from './SwapForm';
 // memo ile render performansını optimize etme
 const SwapLayout: React.FC = () => {
     const { isDarkMode,swapMode,setSwapMode } = useTokenContext();
-    const [activeTab, setActiveTab] = useState<'swap' | 'fushion'>('fushion');
+    const [activeTab, setActiveTab] = useState<'swap' | 'fushion' | 'collector'>('fushion');
 
 
 
@@ -58,6 +58,20 @@ const SwapLayout: React.FC = () => {
                     >
                         <Replace className="w-4 h-4 mr-1.5" />
                         Swap
+                    </button>
+                    <button
+                        className={`flex-1 py-2 text-sm font-medium rounded-xl flex items-center justify-center mx-2 ${activeTab === 'collector'
+                                ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white'
+                                : isDarkMode
+                                    ? 'text-gray-300 hover:bg-gray-700/50'
+                                    : 'text-gray-600 hover:bg-gray-100/70'
+                            }`}
+                        onClick={() => {
+                            setSwapMode(SWAP_MODE.COLLECTOR)
+                            setActiveTab('collector')}}
+                    >
+                        <Combine className="w-4 h-4 mr-1.5" />
+                        Bundle
                     </button>
                 </div>
                 {activeTab === 'fushion' && (

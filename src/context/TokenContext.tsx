@@ -29,7 +29,8 @@ export type Token = {
 
 export enum SWAP_MODE {
   SIMPLESWAP = 'SWAP',
-  AGGREGATOR = 'AGGREGATOR'
+  AGGREGATOR = 'AGGREGATOR',
+  COLLECTOR = 'COLLECTOR'
 }
 
 interface TokenContextType {

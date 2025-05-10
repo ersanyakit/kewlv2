@@ -512,7 +512,7 @@ const FushionForm: React.FC = () => {
                             </div>
                         )}
 
-                        <span>{isSwapping ? "Swapping..." : "Swap"}</span>
+                        <span>{swapMode == SWAP_MODE.AGGREGATOR && isSwapping ? "Swapping..." : "Swap"}</span>
                         <Zap className="w-4 h-4" />
                     </motion.button>
 
