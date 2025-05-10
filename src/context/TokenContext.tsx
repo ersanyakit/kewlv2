@@ -58,6 +58,7 @@ interface TokenContextType {
   account: string;
   isDarkMode: boolean; // Tema durumu
   isLoading: boolean; // Token listesi yüklenme durumu
+  setEnableTaxesContract: (enableTaxesContract: boolean) => void;
   setNativeToken: (nativeToken: Token) => void;
   setSwapMode: (swapMode: SWAP_MODE) => void;
   setAccount: (account: string) => void;
@@ -84,7 +85,7 @@ const defaultContext: TokenContextType = {
   setNativeToken: () => {},
   setSwapMode: () => {},
   slippageTolerance: 0.5,
-  riskTolerance: 100,
+  riskTolerance: 10,
   setRiskTolerance: () => {},
   tokens: [],
   baseToken:  null,
@@ -99,6 +100,7 @@ const defaultContext: TokenContextType = {
   isLoading: false,
   tradeType: TradeType.EXACT_INPUT,
   openTokenSelector:false,
+  setEnableTaxesContract: () => {},
   setSlippageTolerance: () => {},
   setTokens: () => {},
   setAccount: () => {},
@@ -233,7 +235,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [enableTaxesContract, setEnableTaxesContract] = useState<boolean>(false);
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(SWAP_MODE.AGGREGATOR);
-  const [riskTolerance, setRiskTolerance] = useState<number>(100);
+  const [riskTolerance, setRiskTolerance] = useState<number>(10);
   const [nativeToken, setNativeToken] = useState<Token | null>(null);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
   // Input değerleri için state
@@ -335,6 +337,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     slippageTolerance,
     swapMode,
     riskTolerance,
+    setEnableTaxesContract,
     setRiskTolerance,
     setSwapMode,
     setSlippageTolerance,

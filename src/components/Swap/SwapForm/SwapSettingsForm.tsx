@@ -50,13 +50,15 @@ const SwapSettingsForm: React.FC = () => {
     handleSwapTokens,
     setSelectingTokenIndex,
     setTradeType,
-
+    setRiskTolerance,
+    riskTolerance,
+    enableTaxesContract,
+    setEnableTaxesContract,
     isSettingsModalOpen,
     setIsSettingsModalOpen,
   } = useTokenContext();
   const [slippage, setSlippage] = useState('0.5');
   const [deadline, setDeadline] = useState('20');
-  const [riskTolerance, setRiskTolerance] = useState(50); // Default risk tolerance
   const [expertMode, setExpertMode] = useState(false);
 
   const predefinedSlippages = ['0.1', '0.5', '1.0', '3.0'];
@@ -74,7 +76,7 @@ const SwapSettingsForm: React.FC = () => {
   };
 
   const handleExpertModeToggle = () => {
-    setExpertMode(!expertMode);
+      setEnableTaxesContract(!enableTaxesContract);
   };
 
   // Get the color based on risk value (green to red gradient)
@@ -174,14 +176,14 @@ const SwapSettingsForm: React.FC = () => {
           {/* Expert Mode Option */}
           <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
             <div className="flex items-start">
-              <Shield className={`w-5 h-5 mr-3 mt-0.5 ${expertMode ? 'text-red-500' : 'text-yellow-500'}`} />
+              <Shield className={`w-5 h-5 mr-3 mt-0.5 ${enableTaxesContract ? 'text-red-500' : 'text-yellow-500'}`} />
               <div className="flex-1">
                 <div className="flex justify-between items-center">
                   <p className="font-medium">Expert Mode</p>
                   <label className="relative inline-flex items-center cursor-pointer">
                     <input
                       type="checkbox"
-                      checked={expertMode}
+                      checked={enableTaxesContract}
                       onChange={handleExpertModeToggle}
                       className="sr-only peer"
                     />
@@ -196,7 +198,7 @@ const SwapSettingsForm: React.FC = () => {
                 <p className="text-xs mt-2 text-gray-500">
                   Disables warnings for high slippage values and risky tokens. Only for advanced users.
                 </p>
-                {expertMode && (
+                {enableTaxesContract && (
                   <div className="mt-2 p-2 bg-red-500/10 rounded-lg border border-red-500/20">
                     <p className="text-xs text-red-500">
                       Warning: Expert mode is enabled. Proceed with caution!
