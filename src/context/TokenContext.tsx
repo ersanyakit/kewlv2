@@ -25,6 +25,8 @@ export type Token = {
   category?: string;       
   color?: string;
   loading?: boolean;
+  pair?: string;
+  logoURI?: string;
 };
 
 export enum SWAP_MODE {
