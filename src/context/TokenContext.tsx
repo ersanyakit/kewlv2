@@ -36,6 +36,8 @@ export enum SWAP_MODE {
 }
 
 interface TokenContextType {
+  isSettingsModalOpen: boolean;
+  setIsSettingsModalOpen: (isSettingsModalOpen: boolean) => void;
   tokens: Token[];
   nativeToken: Token | null;
   riskTolerance: number;
@@ -75,6 +77,8 @@ interface TokenContextType {
 
 // Default context değeri
 const defaultContext: TokenContextType = {
+  isSettingsModalOpen: false,
+  setIsSettingsModalOpen: () => {},
   swapMode: SWAP_MODE.AGGREGATOR,
   nativeToken: null,
   setNativeToken: () => {},
@@ -231,6 +235,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(SWAP_MODE.AGGREGATOR);
   const [riskTolerance, setRiskTolerance] = useState<number>(100);
   const [nativeToken, setNativeToken] = useState<Token | null>(null);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
   // Input değerleri için state
 
   
@@ -310,6 +315,8 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   // Context değeri
   const value = {
+    isSettingsModalOpen,
+    setIsSettingsModalOpen,
     nativeToken,
     setNativeToken,
     tokens,

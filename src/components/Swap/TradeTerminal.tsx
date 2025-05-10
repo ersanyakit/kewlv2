@@ -59,6 +59,7 @@ import { useTokenContext } from '../../context/TokenContext';
 import PoolsView from './Pools/PoolsView';
 import ETFView from './ETF/ETFView';
 import SwapLayout from './SwapForm/SwapLayout';
+import SwapSettingsForm from './SwapForm/SwapSettingsForm';
 
 export default function TradeTerminal() {
   // Token context'inden verileri alıyoruz
@@ -66,7 +67,9 @@ export default function TradeTerminal() {
     tokens,
     baseToken,
     quoteToken,
-    isDarkMode
+    isDarkMode,
+    isSettingsModalOpen,
+    setIsSettingsModalOpen
   } = useTokenContext();
 
   // TradeTerminal'a özgü diğer state'ler
@@ -106,7 +109,12 @@ export default function TradeTerminal() {
           />
         </div>
 
-   <div className="order-1 sm:order-2 lg:col-span-3">
+        <div className="order-1 sm:order-2 lg:col-span-3 flex flex-col gap-4">
+          {
+            isSettingsModalOpen && (
+              <SwapSettingsForm/>
+            )
+          }
           <SwapTabs
             activeView={activeView}
             setActiveView={setActiveView}

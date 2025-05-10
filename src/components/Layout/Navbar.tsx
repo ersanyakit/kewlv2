@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Moon, Sun, Wallet, RefreshCw, Menu, X } from 'lucide-react';
+import { Settings, Moon, Sun, Wallet, RefreshCw, Menu, X, Percent, Clock, Shield, Star } from 'lucide-react';
 import { useTokenContext } from '../../context/TokenContext';
 import ConnectButton from '../UI/ConnectButton';
 
@@ -9,9 +9,18 @@ interface NavbarProps {
 }
 
 const Navbar: React.FC<NavbarProps> = () => {
-  const { isDarkMode, toggleDarkMode } = useTokenContext();
+  const { isDarkMode, toggleDarkMode,    isSettingsModalOpen,
+    setIsSettingsModalOpen } = useTokenContext();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   
+  const toggleSettingsModal = () => {
+    setIsSettingsModalOpen(!isSettingsModalOpen);
+    if(isMobileMenuOpen){
+      setIsMobileMenuOpen(false)
+    }
+  };
+  
+
   return (
     <motion.div 
       className={`w-full max-w-6xl mx-auto ${
@@ -70,7 +79,8 @@ const Navbar: React.FC<NavbarProps> = () => {
           } p-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2`}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          aria-label="Ayarlar"
+          onClick={toggleSettingsModal}
+          aria-label="Settings"
         >
           <Settings className="w-5 h-5" />
         </motion.button>
@@ -90,7 +100,7 @@ const Navbar: React.FC<NavbarProps> = () => {
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          aria-label="Mobil Menü"
+          aria-label="Mobile Menu"
         >
           {isMobileMenuOpen ? (
             <X className="w-5 h-5" />
@@ -138,6 +148,7 @@ const Navbar: React.FC<NavbarProps> = () => {
                   ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
                   : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100'
               } p-2 rounded-xl flex items-center justify-between transition-all duration-300`}
+              onClick={toggleSettingsModal}
             >
               <span>Settings</span>
               <Settings className="w-5 h-5" />
@@ -145,6 +156,7 @@ const Navbar: React.FC<NavbarProps> = () => {
           </div>
         </motion.div>
       )}
+ 
     </motion.div>
   );
 };
