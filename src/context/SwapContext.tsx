@@ -387,7 +387,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     setPriceImpactWarningSeverity(warningSeverity(_tradeInfo.priceImpact));
     setTradeInfo(_tradeInfo);
 
-    if (_tradeInfo.priceImpact.lessThan(ALLOWED_PRICE_IMPACT_HIGH)) {
+    if (parseFloat(_tradeInfo.priceImpact.toFixed(2)) <= riskTolerance) {
       setCanSwap(true);
     } else {
       setSwapResult({
