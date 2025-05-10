@@ -21,6 +21,8 @@ import {
     RedoDot,
     Shuffle,
     PlusCircle,
+    LayoutGrid,
+    List,
 } from 'lucide-react';
 import { SWAP_MODE, Token, useTokenContext } from '../../../context/TokenContext';
 import TokenShape from '../../UI/TokenShape';
@@ -814,7 +816,7 @@ const BundleForm: React.FC = () => {
         setSelectableFanTokens(updatedFanTokens);
       };
 
-
+      const [viewMode, setViewMode] = useState<'grid' | 'list'>('list');
 
     return (
         <div className="flex flex-col">
@@ -1029,7 +1031,7 @@ const BundleForm: React.FC = () => {
                     </div>
                   </div>
                   {/* Arama ve Filtre */}
-                  <div className="flex items-center gap-2 mb-2">
+                  <div className="flex items-center gap-2 mb-3">
                     <div className="relative flex-grow">
                       <Search className={`w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 ${isDarkMode ? 'text-gray-500' : 'text-gray-400'
                         }`} />
@@ -1060,72 +1062,147 @@ const BundleForm: React.FC = () => {
                         </button>
                       )}
                     </div>
+                    
+                    {/* Görünüm Seçenekleri */}
+                    <div className={`flex rounded-lg overflow-hidden ${isDarkMode ? 'bg-gray-600' : 'bg-gray-100'}`}>
+                      <button 
+                        onClick={() => setViewMode('grid')}
+                        className={`p-1.5 transition-colors ${viewMode === 'grid' 
+                          ? (isDarkMode ? 'bg-pink-600 text-white' : 'bg-pink-500 text-white') 
+                          : (isDarkMode ? 'text-gray-300 hover:bg-gray-500' : 'text-gray-500 hover:bg-gray-200')
+                        }`}
+                        aria-label="Grid view"
+                      >
+                        <LayoutGrid className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={() => setViewMode('list')}
+                        className={`p-1.5 transition-colors ${viewMode === 'list' 
+                          ? (isDarkMode ? 'bg-pink-600 text-white' : 'bg-pink-500 text-white') 
+                          : (isDarkMode ? 'text-gray-300 hover:bg-gray-500' : 'text-gray-500 hover:bg-gray-200')
+                        }`}
+                        aria-label="List view"
+                      >
+                        <List className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                   
-             
-
                   {/* Token Listesi */}
-                  <div className={` min-h-[45dvh]  max-h-[45dvh]  overflow-y-auto ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'
-                    } pr-1`}>
-                    <div className="space-y-1">
-                      {filteredFanTokens.length > 0 ? (
-                        filteredFanTokens.map((token : any, tokenIndex: number) => {
-                          const isSelected = token.isSelected
+                  <div className={`min-h-[45dvh] max-h-[45dvh] overflow-y-auto ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'} pr-1`}>
+                    {viewMode === 'list' ? (
+                      /* Liste Görünümü */
+                      <div className="space-y-1">
+                        {filteredFanTokens.length > 0 ? (
+                          filteredFanTokens.map((token : any, tokenIndex: number) => {
+                            const isSelected = token.isSelected
 
-                          return (
-                            <div
-                              key={token.symbol}
-                              className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all duration-150 ${isSelected
-                                ? isDarkMode
-                                  ? 'bg-pink-900/30 border border-pink-800/50'
-                                  : 'bg-pink-50 border border-pink-200'
-                                : isDarkMode
-                                  ? 'hover:bg-gray-600/70 border border-transparent hover:border-gray-500'
-                                  : 'hover:bg-gray-50 border border-transparent hover:border-gray-200'
-                                }`}
-                              onClick={() => toggleSelection(token.address)}
-                            >
-                              <div className="flex items-center">
-                                <TokenShape isDarkMode={isDarkMode} token={token} size="sm" />
-                                <div className="ml-2">
-                                  <div className="flex items-center">
-                                    <span className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                                      {token.symbol}
-                                    </span>
-                                  </div>
-                                  <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                    {token.name}
+                            return (
+                              <div
+                                key={token.symbol}
+                                className={`flex items-center justify-between p-2 rounded-lg cursor-pointer transition-all duration-150 ${isSelected
+                                  ? isDarkMode
+                                    ? 'bg-pink-900/30 border border-pink-800/50'
+                                    : 'bg-pink-50 border border-pink-200'
+                                  : isDarkMode
+                                    ? 'hover:bg-gray-600/70 border border-transparent hover:border-gray-500'
+                                    : 'hover:bg-gray-50 border border-transparent hover:border-gray-200'
+                                  }`}
+                                onClick={() => toggleSelection(token.address)}
+                              >
+                                <div className="flex items-center">
+                                  <TokenShape isDarkMode={isDarkMode} token={token} size="sm" />
+                                  <div className="ml-2">
+                                    <div className="flex items-center">
+                                      <span className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                                        {token.symbol}
+                                      </span>
+                                    </div>
+                                    <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                      {token.name}
+                                    </div>
                                   </div>
                                 </div>
+                                <div className="flex items-center">
+                                  {token.loading ? (
+                                    <div className="inline-block animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"
+                                      aria-hidden="true">
+                                    </div>
+                                  ) : (
+                                    <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
+                                      isSelected 
+                                      ? (isDarkMode ? 'bg-pink-500 text-white' : 'bg-pink-500 text-white') 
+                                      : (isDarkMode ? 'bg-gray-700 text-gray-500' : 'bg-gray-100 text-gray-400')
+                                    }`}>
+                                      {isSelected 
+                                        ? <CheckCircle className="w-5 h-5" /> 
+                                        : <PlusCircle className="w-5 h-5" />
+                                      }
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                              <div className="flex items-center">
-                                {token.loading ? (
-                                  <div className="inline-block animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"
-                                    aria-hidden="true">
-                                  </div>
-                                ) : (
-                                  <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
+                            );
+                          })
+                        ) : (
+                          <div className={`py-6 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            <Search className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                            <p>Token Not Found</p>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      /* Grid Görünümü */
+                      <div className="grid grid-cols-3 gap-2">
+                        {filteredFanTokens.length > 0 ? (
+                          filteredFanTokens.map((token : any, tokenIndex: number) => {
+                            const isSelected = token.isSelected
+
+                            return (
+                              <div
+                                key={token.symbol}
+                                className={`flex flex-col items-center p-3 rounded-lg cursor-pointer transition-all duration-150 ${isSelected
+                                  ? isDarkMode
+                                    ? 'bg-pink-900/30 border border-pink-800/50'
+                                    : 'bg-pink-50 border border-pink-200'
+                                  : isDarkMode
+                                    ? 'hover:bg-gray-600/70 border border-transparent hover:border-gray-500'
+                                    : 'hover:bg-gray-50 border border-transparent hover:border-gray-200'
+                                  }`}
+                                onClick={() => toggleSelection(token.address)}
+                              >
+                                <div className="relative">
+                                  <TokenShape isDarkMode={isDarkMode} token={token} size="md" />
+                                  <div className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center ${
                                     isSelected 
                                     ? (isDarkMode ? 'bg-pink-500 text-white' : 'bg-pink-500 text-white') 
                                     : (isDarkMode ? 'bg-gray-700 text-gray-500' : 'bg-gray-100 text-gray-400')
                                   }`}>
                                     {isSelected 
-                                      ? <CheckCircle className="w-5 h-5" /> 
-                                      : <PlusCircle className="w-5 h-5" />
+                                      ? <CheckCircle className="w-4 h-4" /> 
+                                      : <PlusCircle className="w-4 h-4" />
                                     }
                                   </div>
-                                )}
+                                </div>
+                                <div className="mt-2 text-center">
+                                  <div className={`font-medium text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                                    {token.symbol}
+                                  </div>
+                                  <div className={`text-xs truncate max-w-[90px] ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    {token.name}
+                                  </div>
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })
-                      ) : (
-                        <div className={`py-6 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                          <Search className="w-6 h-6 mx-auto mb-2 opacity-50" />
-                          <p>Token Not Found</p>
-                        </div>
-                      )}
-                    </div>
+                            );
+                          })
+                        ) : (
+                          <div className={`col-span-2 py-6 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                            <Search className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                            <p>Token Not Found</p>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 </div>
               </motion.div>
