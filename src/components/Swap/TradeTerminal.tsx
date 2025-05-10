@@ -96,7 +96,7 @@ export default function TradeTerminal() {
 
 
   return (
-    <div className={`${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 text-gray-900'}  flex flex-col p-4 md:p-6 transition-colors duration-300`}>
+    <div className={`${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 text-gray-900'}  flex flex-col px-0 py-4 md:p-4 transition-colors duration-300`}>
       {/* Main Content - Three Column Grid */}
       <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-7 gap-4">
         {/* Left Column - Token List Component */}

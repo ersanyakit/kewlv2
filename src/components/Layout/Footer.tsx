@@ -26,7 +26,7 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
           </div>
           <div>
             <h3 className="text-sm font-bold bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-transparent bg-clip-text">KEWL EXCHANGE</h3>
-            <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>© 2023 Tüm hakları saklıdır</p>
+            <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>© 2025 All rights reserved</p>
           </div>
         </div>
         
@@ -34,19 +34,19 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
         <div className="flex space-x-4 text-xs mb-4 md:mb-0">
           <a href="#" className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center`}>
             <Info className="w-3 h-3 mr-1" />
-            Hakkımızda
+            About Us
           </a>
           <a href="#" className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center`}>
             <Shield className="w-3 h-3 mr-1" />
-            Güvenlik
+            Security
           </a>
           <a href="#" className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center`}>
             <Award className="w-3 h-3 mr-1" />
-            Ödüller
+            Rewards
           </a>
           <a href="#" className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center`}>
             <Compass className="w-3 h-3 mr-1" />
-            Keşfet
+            Explore
           </a>
         </div>
         
@@ -109,14 +109,14 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
       <div className={`mt-4 pt-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'} flex flex-col md:flex-row justify-between items-center text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
         <div className="flex items-center mb-2 md:mb-0">
           <Shield className={`w-3 h-3 ${isDarkMode ? 'text-pink-400' : 'text-[#ff1356]'} mr-1`} />
-          <span>SSL Korumalı İşlemler</span>
+          <span>SSL Secure Transactions</span>
         </div>
         
         <div className="flex space-x-3">
-          <a href="#" className={`${isDarkMode ? 'hover:text-pink-300' : 'hover:text-[#ff1356]'} transition-colors`}>Kullanım Şartları</a>
-          <a href="#" className={`${isDarkMode ? 'hover:text-pink-300' : 'hover:text-[#ff1356]'} transition-colors`}>Gizlilik Politikası</a>
-          <a href="#" className={`${isDarkMode ? 'hover:text-pink-300' : 'hover:text-[#ff1356]'} transition-colors`}>Çerezler</a>
-          <a href="#" className={`${isDarkMode ? 'hover:text-pink-300' : 'hover:text-[#ff1356]'} transition-colors`}>Yardım</a>
+          <a href="#" className={`${isDarkMode ? 'hover:text-pink-300' : 'hover:text-[#ff1356]'} transition-colors`}>Terms of Service</a>
+          <a href="#" className={`${isDarkMode ? 'hover:text-pink-300' : 'hover:text-[#ff1356]'} transition-colors`}>Privacy Policy</a>
+          <a href="#" className={`${isDarkMode ? 'hover:text-pink-300' : 'hover:text-[#ff1356]'} transition-colors`}>Cookies</a>
+          <a href="#" className={`${isDarkMode ? 'hover:text-pink-300' : 'hover:text-[#ff1356]'} transition-colors`}>Help</a>
         </div>
         
         <div className="mt-2 md:mt-0 flex items-center">
