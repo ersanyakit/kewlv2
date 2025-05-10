@@ -121,6 +121,51 @@ const SwapSettingsForm: React.FC = () => {
         </div>
 
         <div className="space-y-6">
+              {/* Risk Tolerance */}
+              <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+            <div className="flex items-center mb-3">
+              <Star className={`w-4 h-4 mr-2 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-500'}`} />
+              <label className="font-medium">Risk Tolerance</label>
+            </div>
+            <div className="mb-3">
+              <div className="relative pt-1">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  value={riskTolerance}
+                  onChange={handleRiskToleranceChange}
+                  className="w-full h-2 rounded-lg appearance-none cursor-pointer"
+                  style={{
+                    background: 'linear-gradient(to right, rgb(34, 197, 94), rgb(234, 179, 8), rgb(249, 115, 22), rgb(239, 68, 68))'
+                  }}
+                />
+                <div className="flex justify-between text-xs mt-2">
+                  <span className="text-green-500">Low</span>
+                  <span className="text-yellow-500">Medium</span>
+                  <span className="text-red-500">High</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center">
+              <div
+                className="w-10 h-10 rounded-full flex items-center justify-center mr-3 transition-all duration-300"
+                style={{
+                  backgroundColor: getRiskColor(),
+                  boxShadow: `0 0 10px ${getRiskColor()}`
+                }}
+              >
+                <span className="text-white text-xs font-bold">{riskTolerance}</span>
+              </div>
+              <div className="flex-1 text-sm">
+                {getRiskLabel()}
+              </div>
+            </div>
+            <p className="text-xs mt-2 text-gray-500">
+              Higher risk tolerance means greater potential for both gains and losses.
+            </p>
+          </div>
+          
           {/* Slippage Tolerance */}
           <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
             <div className="flex items-center mb-3">
@@ -191,50 +236,7 @@ const SwapSettingsForm: React.FC = () => {
             </p>
           </div>
 
-          {/* Risk Tolerance */}
-          <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
-            <div className="flex items-center mb-3">
-              <Star className={`w-4 h-4 mr-2 ${isDarkMode ? 'text-yellow-400' : 'text-yellow-500'}`} />
-              <label className="font-medium">Risk Tolerance</label>
-            </div>
-            <div className="mb-3">
-              <div className="relative pt-1">
-                <input
-                  type="range"
-                  min="0"
-                  max="100"
-                  value={riskTolerance}
-                  onChange={handleRiskToleranceChange}
-                  className="w-full h-2 rounded-lg appearance-none cursor-pointer"
-                  style={{
-                    background: 'linear-gradient(to right, rgb(34, 197, 94), rgb(234, 179, 8), rgb(249, 115, 22), rgb(239, 68, 68))'
-                  }}
-                />
-                <div className="flex justify-between text-xs mt-2">
-                  <span className="text-green-500">Low</span>
-                  <span className="text-yellow-500">Medium</span>
-                  <span className="text-red-500">High</span>
-                </div>
-              </div>
-            </div>
-            <div className="flex items-center">
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center mr-3 transition-all duration-300"
-                style={{
-                  backgroundColor: getRiskColor(),
-                  boxShadow: `0 0 10px ${getRiskColor()}`
-                }}
-              >
-                <span className="text-white text-xs font-bold">{riskTolerance}</span>
-              </div>
-              <div className="flex-1 text-sm">
-                {getRiskLabel()}
-              </div>
-            </div>
-            <p className="text-xs mt-2 text-gray-500">
-              Higher risk tolerance means greater potential for both gains and losses.
-            </p>
-          </div>
+      
 
           {/* Expert Mode Option */}
           <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
