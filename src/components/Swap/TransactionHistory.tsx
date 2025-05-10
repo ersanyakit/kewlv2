@@ -86,9 +86,9 @@ const TransactionHistory: React.FC<TransactionHistoryProps> = ({
     >
       <div className={`p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
         <div className="flex justify-between items-center">
-          <h3 className={`font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>Son İşlemler</h3>
+          <h3 className={`font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>Last Transactions</h3>
           <div className={`${isDarkMode ? 'bg-pink-900/30' : 'bg-pink-50'} px-2 py-1 rounded-md text-xs ${isDarkMode ? 'text-pink-300' : 'text-[#ff1356]'}`}>
-            {transactions.length} işlem
+            {transactions.length} Transaction
           </div>
         </div>
       </div>
