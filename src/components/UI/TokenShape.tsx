@@ -36,7 +36,7 @@ const TokenShape: React.FC<TokenShapeProps> = memo(({
     >
       <div className={`absolute inset-0.5 rounded-full flex items-center justify-center`}>
         <img 
-          src={token?.icon} 
+          src={token?.icon || token?.logoURI} 
           className="w-full h-full rounded-full" 
           alt={token?.name}
           loading="lazy" // Lazy loading eklendi
