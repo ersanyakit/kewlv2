@@ -79,17 +79,19 @@ const SwapSettingsForm: React.FC = () => {
 
   // Get the color based on risk value (green to red gradient)
   const getRiskColor = () => {
-    if (riskTolerance < 25) return 'rgb(34, 197, 94)'; // Green
-    if (riskTolerance < 50) return 'rgb(234, 179, 8)';  // Yellow
-    if (riskTolerance < 75) return 'rgb(249, 115, 22)'; // Orange
-    return 'rgb(239, 68, 68)';                         // Red
+    if (riskTolerance <= 10) return 'rgb(34, 197, 94)';       // Yeşil
+    if (riskTolerance <= 25) return 'rgb(132, 204, 22)';      // Açık yeşil / limon
+    if (riskTolerance <= 50) return 'rgb(234, 179, 8)';       // Sarı
+    if (riskTolerance <= 75) return 'rgb(249, 115, 22)';      // Turuncu
+    return 'rgb(239, 68, 68)';                                // Kırmızı
   };
 
   const getRiskLabel = () => {
-    if (riskTolerance < 25) return "Low-risk transactions preferred";
-    if (riskTolerance < 50) return "Moderate-low risk level";
-    if (riskTolerance < 75) return "Moderate-high risk level";
-    return "High-risk transactions accepted";
+    if (riskTolerance <= 10) return "Ultra-safe preference";
+    if (riskTolerance <= 25) return "Low-risk transactions preferred";
+    if (riskTolerance <= 50) return "Moderate risk tolerance";
+    if (riskTolerance <= 75) return "High risk tolerance";
+    return "Willing to accept very high risk";
   };
 
   return (
@@ -144,6 +146,7 @@ const SwapSettingsForm: React.FC = () => {
                   <span className="text-green-500">Low</span>
                   <span className="text-yellow-500">Medium</span>
                   <span className="text-red-500">High</span>
+                  <span className="text-red-500">Very High</span>
                 </div>
               </div>
             </div>
@@ -165,7 +168,7 @@ const SwapSettingsForm: React.FC = () => {
               Higher risk tolerance means greater potential for both gains and losses.
             </p>
           </div>
-          
+
           {/* Slippage Tolerance */}
           <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
             <div className="flex items-center mb-3">
