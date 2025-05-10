@@ -44,7 +44,7 @@ const SwapLayout: React.FC = () => {
                         }
                     >
                         <ReplaceAll className="w-4 h-4 mr-1.5" />
-                        Aggragetor
+                        Aggregator
                     </button>
                     <button
                         className={`flex-1 py-2 text-sm font-medium rounded-xl flex items-center justify-center mx-2 ${activeTab === 'swap'
