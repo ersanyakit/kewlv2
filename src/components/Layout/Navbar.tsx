@@ -132,7 +132,10 @@ const Navbar: React.FC<NavbarProps> = () => {
                   ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
                   : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100'
               } p-2 rounded-xl flex items-center justify-between transition-all duration-300`}
-              onClick={toggleDarkMode}
+              onClick={()=>{
+                toggleDarkMode();
+                setIsMobileMenuOpen(false);
+              }}
             >
               <span>{isDarkMode ? 'Light Theme' : 'Dark Theme'}</span>
               {isDarkMode ? (
