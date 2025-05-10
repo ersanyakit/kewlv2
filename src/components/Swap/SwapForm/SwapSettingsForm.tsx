@@ -169,6 +169,45 @@ const SwapSettingsForm: React.FC = () => {
             </p>
           </div>
 
+                
+
+          {/* Expert Mode Option */}
+          <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+            <div className="flex items-start">
+              <Shield className={`w-5 h-5 mr-3 mt-0.5 ${expertMode ? 'text-red-500' : 'text-yellow-500'}`} />
+              <div className="flex-1">
+                <div className="flex justify-between items-center">
+                  <p className="font-medium">Expert Mode</p>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={expertMode}
+                      onChange={handleExpertModeToggle}
+                      className="sr-only peer"
+                    />
+                    <div className={`w-11 h-6 rounded-full peer 
+                            ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'} 
+                            peer-checked:after:translate-x-full peer-checked:after:border-white 
+                            after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
+                            after:bg-white after:border-gray-300 after:border after:rounded-full 
+                            after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ff1356]`}></div>
+                  </label>
+                </div>
+                <p className="text-xs mt-2 text-gray-500">
+                  Disables warnings for high slippage values and risky tokens. Only for advanced users.
+                </p>
+                {expertMode && (
+                  <div className="mt-2 p-2 bg-red-500/10 rounded-lg border border-red-500/20">
+                    <p className="text-xs text-red-500">
+                      Warning: Expert mode is enabled. Proceed with caution!
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+
           {/* Slippage Tolerance */}
           <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
             <div className="flex items-center mb-3">
@@ -239,43 +278,6 @@ const SwapSettingsForm: React.FC = () => {
             </p>
           </div>
 
-      
-
-          {/* Expert Mode Option */}
-          <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
-            <div className="flex items-start">
-              <Shield className={`w-5 h-5 mr-3 mt-0.5 ${expertMode ? 'text-red-500' : 'text-yellow-500'}`} />
-              <div className="flex-1">
-                <div className="flex justify-between items-center">
-                  <p className="font-medium">Expert Mode</p>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={expertMode}
-                      onChange={handleExpertModeToggle}
-                      className="sr-only peer"
-                    />
-                    <div className={`w-11 h-6 rounded-full peer 
-                            ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'} 
-                            peer-checked:after:translate-x-full peer-checked:after:border-white 
-                            after:content-[''] after:absolute after:top-[2px] after:left-[2px] 
-                            after:bg-white after:border-gray-300 after:border after:rounded-full 
-                            after:h-5 after:w-5 after:transition-all peer-checked:bg-[#ff1356]`}></div>
-                  </label>
-                </div>
-                <p className="text-xs mt-2 text-gray-500">
-                  Disables warnings for high slippage values and risky tokens. Only for advanced users.
-                </p>
-                {expertMode && (
-                  <div className="mt-2 p-2 bg-red-500/10 rounded-lg border border-red-500/20">
-                    <p className="text-xs text-red-500">
-                      Warning: Expert mode is enabled. Proceed with caution!
-                    </p>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
 
           {/* Save Button */}
           <motion.button
