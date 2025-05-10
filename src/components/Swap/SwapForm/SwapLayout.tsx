@@ -4,6 +4,7 @@ import { SWAP_MODE, useTokenContext } from '../../../context/TokenContext';
 import { Combine, MinusCircle, PieChart, PlusCircle, Replace, ReplaceAll } from 'lucide-react';
 import FushionForm from './FushionForm';
 import SwapForm from './SwapForm';
+import BundleForm from './BundleForm';
 
 
 // memo ile render performansını optimize etme
@@ -79,6 +80,9 @@ const SwapLayout: React.FC = () => {
                 )}
                 {activeTab === 'swap' && (
                     <SwapForm/>
+                )}
+                {activeTab === 'collector' && (
+                    <BundleForm/>
                 )}
                 
 

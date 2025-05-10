@@ -35,6 +35,7 @@ export enum SWAP_MODE {
 
 interface TokenContextType {
   tokens: Token[];
+  nativeToken: Token | null;
   riskTolerance: number;
   setRiskTolerance: (riskTolerance: number) => void;
   swapMode: SWAP_MODE;
@@ -53,6 +54,7 @@ interface TokenContextType {
   account: string;
   isDarkMode: boolean; // Tema durumu
   isLoading: boolean; // Token listesi yüklenme durumu
+  setNativeToken: (nativeToken: Token) => void;
   setSwapMode: (swapMode: SWAP_MODE) => void;
   setAccount: (account: string) => void;
   setOpenTokenSelector: (open: boolean) => void;
@@ -72,6 +74,8 @@ interface TokenContextType {
 // Default context değeri
 const defaultContext: TokenContextType = {
   swapMode: SWAP_MODE.AGGREGATOR,
+  nativeToken: null,
+  setNativeToken: () => {},
   setSwapMode: () => {},
   slippageTolerance: 0.5,
   riskTolerance: 100,
@@ -167,6 +171,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         color: generateTokenColorByContractAddress(ZeroAddress, isDarkMode),
         loading: true
       }
+      setNativeToken(nativeCurrencyInfo);
        
       let _tokens = [nativeCurrencyInfo, ...formattedTokens];
 
@@ -223,6 +228,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [slippageTolerance, setSlippageTolerance] = useState<number>(0.5);
   const [swapMode, setSwapMode] = useState<SWAP_MODE>(SWAP_MODE.AGGREGATOR);
   const [riskTolerance, setRiskTolerance] = useState<number>(100);
+  const [nativeToken, setNativeToken] = useState<Token | null>(null);
   // Input değerleri için state
 
   
@@ -302,6 +308,8 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   // Context değeri
   const value = {
+    nativeToken,
+    setNativeToken,
     tokens,
     baseToken,
     quoteToken,
