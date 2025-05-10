@@ -18,7 +18,7 @@ import {
   XCircle,
   RefreshCcw,
 } from 'lucide-react';
-import { useTokenContext } from '../../../context/TokenContext';
+import { SWAP_MODE, useTokenContext } from '../../../context/TokenContext';
 import TokenShape from '../../UI/TokenShape';
 import { TradeType } from '../../../constants/entities/utils/misc';
 import { useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
@@ -34,6 +34,7 @@ const SwapForm: React.FC  = () => {
     isDarkMode,
     slippageTolerance,
     baseToken,
+    swapMode,
     quoteToken,
     selectingTokenIndex,
     tokenFilter,
@@ -583,13 +584,13 @@ const SwapForm: React.FC  = () => {
                 className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${!canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
                 whileHover={canSwap ? { scale: 1.02 } : undefined}
                 whileTap={canSwap ? { scale: 0.98 } : undefined}
-                disabled={!canSwap || isSwapping}
+                disabled={(!canSwap || isSwapping) && swapMode == SWAP_MODE.SIMPLESWAP}
                 style={{
                   background: `linear-gradient(135deg, #ff1356, #ff4080)`
                 }}
               >
                 {/* Background animation - only show when enabled */}
-                {canSwap && (
+                {canSwap && swapMode == SWAP_MODE.SIMPLESWAP && (
                   <div className="absolute inset-0 bg-white opacity-20">
                     <div className="h-full w-1/3 bg-white/40 blur-xl transform -skew-x-30 -translate-x-full animate-shimmer"></div>
                   </div>
@@ -737,7 +738,7 @@ const SwapForm: React.FC  = () => {
                       ) : (
                         <div className={`py-6 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                           <Search className="w-6 h-6 mx-auto mb-2 opacity-50" />
-                          <p>Sonuç bulunamadı</p>
+                          <p>Token Not Found</p>
                         </div>
                       )}
                     </div>

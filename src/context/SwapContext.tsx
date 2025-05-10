@@ -3,7 +3,7 @@ import { CHILIZWRAPPER, CurrencyAmount, Pair, Percent, Route, Token, Trade, WETH
 import { DEFAULT_DEADLINE_FROM_NOW, ETHER_ADDRESS, INITIAL_ALLOWED_SLIPPAGE, MINIMUM_LIQUIDITY, TradeType } from '../constants/entities/utils/misc';
 import { SWAP_MODE, useTokenContext } from './TokenContext';
 import { useAppKitNetwork } from '@reown/appkit/react';
-import { ethers, parseEther, ZeroAddress } from 'ethers';
+import { ethers, formatEther, parseEther, ZeroAddress } from 'ethers';
 import { fetchBalances, getContractByName } from '../constants/contracts/contracts';
 import { TContractType } from '../constants/contracts/addresses';
 import JSBI from 'jsbi';
@@ -19,6 +19,7 @@ interface SwapContextProps {
   // Diğer özellikler...
   swapResult: SwapResult | null;
   canSwap: boolean;
+  canAggregatorSwap: boolean;
   isSwapping: boolean;
   toggleDetails: boolean;
   fromAmount: string;
@@ -42,10 +43,12 @@ interface SwapContextProps {
   handleToChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   setToggleDetails: (toggleDetails: boolean) => void;
   handleSwap: (walletProvider: any) => void;
+  setCanAggregatorSwap: (canAggregatorSwap: boolean) => void;
 }
 
 // Context varsayılan değeri
 const defaultContext: SwapContextProps = {
+  canAggregatorSwap: false,
   swapResult: null,
   canSwap: false,
   isSwapping: false,
@@ -70,6 +73,7 @@ const defaultContext: SwapContextProps = {
   handleToChange: () => { },
   setToggleDetails: () => { },
   handleSwap: (walleProvider: any) => { },
+  setCanAggregatorSwap: () => { },
   // Diğer varsayılan değerler...
 };
 
@@ -212,6 +216,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [priceImpactWarningSeverity, setPriceImpactWarningSeverity] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [canSwap, setCanSwap] = useState<boolean>(false);
+  const [canAggregatorSwap, setCanAggregatorSwap] = useState<boolean>(false);
   const [isSwapping, setIsSwapping] = useState<boolean>(false);
   const [swapResult, setSwapResult] = useState<SwapResult | null>(null);
   const [aggregatorPairs, setAggregatorPairs] = useState<TCustomPair[]>([]);
@@ -247,6 +252,11 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     setIsSwapping(false);
     setFromAmount("");
     setToAmount("");
+
+
+    if(swapMode == SWAP_MODE.AGGREGATOR){
+      setAggregatorPairs([]);
+    }
   }
 
 
@@ -558,7 +568,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         errorType = SwapStatusType.NETWORK_ERROR;
       }
       setSwapResult({
-        type: SwapStatusType.CONTRACT_ERROR,
+        type: errorType,
         message: "Contract Error",
         context: {
           error: error,
@@ -589,8 +599,9 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
   const fetchAggregatorInfo = async () => {
     console.log("fetchAggregatorInfo")
-    setCanSwap(false);
+    setCanAggregatorSwap(false);
     setSwapResult(null);
+    setAggregatorPairs([]);
     if (!chainId) {
       resetSwap();
       return null;
@@ -744,13 +755,194 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
     }
     setAggregatorPairs(customPairs)
-    console.log("customPairs", customPairs)
 
   }
+
+  useEffect(() => {
+    const selectedPairs = aggregatorPairs.filter(pair => pair.isSelected);
+    if(selectedPairs.length > 0){
+      setCanAggregatorSwap(true);
+    }else{
+      setCanAggregatorSwap(false);
+    }
+  }, [aggregatorPairs])
 
   const handleAggregatorSwap = async (walletProvider: any) => {
     console.log("handleAggregatorSwap")
-  }
+    if (!account) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_ACCOUNT,
+        message: "Invalid Account",
+      })
+      return;
+    }
+
+    if (!chainId) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_CHAIN,
+        message: "Invalid Chain",
+      })
+      return;
+    }
+
+    if (!baseToken || !quoteToken) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_TOKEN,
+        message: "Invalid Token",
+      })
+      return;
+    }
+
+    if(aggregatorPairs.length == 0){
+      setSwapResult({
+        type: SwapStatusType.INVALID_PATH,
+        message: "Invalid Path",
+      })
+      return;
+    }
+
+    const selectedPairs = aggregatorPairs.filter(pair => pair.isSelected);
+    if(selectedPairs.length == 0){
+      setSwapResult({
+        type: SwapStatusType.INVALID_PATH,
+        message: "Invalid Path",
+      })
+      return;
+    }
+
+    setIsSwapping(true);
+    let WRAPPED_TOKEN = WETH9[Number(chainId)].address;
+    let _baseTokenAddress = baseToken.address == ZeroAddress ? WRAPPED_TOKEN : baseToken.address;
+    const _baseToken = new Token(baseToken.chainId, _baseTokenAddress, baseToken.decimals, baseToken.symbol, baseToken.name)
+
+    const tradeAmount: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(_baseToken, JSBI.BigInt(ethers.parseUnits(fromAmount, _baseToken.decimals).toString()));
+
+
+    const FANTOKENWrapper = CHILIZWRAPPER[Number(chainId)].address
+
+
+
+
+
+  
+    //setIsSwapping(true);
+
+    const allSwapParams: SwapParam[] = [];
+
+
+
+    let dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+    const etherIn = baseToken.address === ZeroAddress
+    const etherOut = quoteToken.address === ZeroAddress
+
+    let DEPOSIT_AMOUNT = ethers.parseUnits(fromAmount, _baseToken.decimals)
+    let DEPOSIT_AMOUNT_TOTAL = DEPOSIT_AMOUNT * BigInt(selectedPairs.length)
+    let overrides = {
+      value: etherIn ? DEPOSIT_AMOUNT_TOTAL : 0n,
+    }
+
+      for (const pair of selectedPairs) {
+        let outputAmount = JSBI.greaterThan(JSBI.BigInt(pair.pair.amount0Out.toString()), JSBI.BigInt(0)) ? pair.pair.amount0Out : pair.pair.amount1Out
+
+        let INPUT_TOKEN = etherIn ? pair.pair.weth : baseToken.address;
+        let swapParam = {
+          amountIn: ethers.parseUnits(fromAmount, _baseToken.decimals),
+          amountOut:outputAmount,
+          weth9: pair.pair.weth,
+          wrapper: FANTOKENWrapper,
+          pair: pair.pair.pair,
+          input: INPUT_TOKEN,
+          flag:pair.pair.flag 
+        }
+        allSwapParams.push(swapParam)
+
+      }
+
+      const [signerAccount] = await dexContract.wallet.getAddresses();
+
+      try{
+      if(!etherIn){
+        const tokenContract = getContract({
+          address: baseToken.address as `0x${string}`,
+          abi: erc20Abi,
+          client: dexContract.client
+        })
+        
+        const allowance = await tokenContract.read.allowance([
+          signerAccount,
+          dexContract.caller.address
+        ])
+  
+        if(allowance < DEPOSIT_AMOUNT_TOTAL){
+  
+        
+        const approvalTx = await dexContract.wallet.writeContract({
+            chain: dexContract.client.chain,
+            address: baseToken.address as `0x${string}`,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [dexContract.address,ethers.MaxUint256],
+            account: signerAccount
+          })
+          const receiptApproval = await waitForTransactionReceipt(dexContract.wallet, {
+            hash: approvalTx,
+          });
+          console.log("receiptApproval", receiptApproval)
+      }
+      }
+
+      const tx: any = await dexContract.wallet.writeContract({
+        chain: dexContract.client.chain,
+        address: dexContract.caller.address as `0x${string}`,
+        abi: dexContract.abi,
+        functionName: "swapAll",
+        args: [allSwapParams],
+        account: signerAccount,
+        value: overrides.value
+      })
+
+      const receipt = await waitForTransactionReceipt(dexContract.wallet, {
+        hash: tx,
+      });
+      setSwapResult({
+        type: SwapStatusType.SUCCESS,
+        message: "Swap Success",
+        context: {
+          baseToken: baseToken,
+          quoteToken: quoteToken,
+          txHash: tx.hash,
+          amountIn: formatEther(DEPOSIT_AMOUNT_TOTAL),
+          amountOut: "0",
+        }
+      })
+    }catch(error){
+      const message = error?.toString() || "Unexpected error";
+      let errorType: SwapStatusType = SwapStatusType.UNKNOWN_ERROR;
+      if (message.includes("insufficient funds")) {
+        errorType = SwapStatusType.INSUFFICIENT_FUNDS;
+      } else if (message.includes("slippage")) {
+        errorType = SwapStatusType.SLIPPAGE_TOO_HIGH;
+      } else if (message.includes("user rejected")) {
+        errorType = SwapStatusType.USER_REJECTED;
+      } else if (message.includes("invalid address")) {
+        errorType = SwapStatusType.INVALID_ADDRESS;
+      } else if (message.includes("network")) {
+        errorType = SwapStatusType.NETWORK_ERROR;
+      }
+      setSwapResult({
+        type: errorType,
+        message: "Contract Error",
+        context: {
+          error: error,
+        }
+      })
+    }finally{
+      setIsSwapping(false);
+      resetSwap();
+    }
+    await fetchBalances(chainId,signerAccount,walletProvider, tokens,setTokens)
+
+   }
 
 
 
@@ -782,6 +974,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     priceImpactWarningSeverity,
     aggregatorPairs,
     setAggregatorPairs,
+    canAggregatorSwap,
+    setCanAggregatorSwap,
     // Diğer değerler...
   };
 

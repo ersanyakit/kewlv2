@@ -19,7 +19,7 @@ import {
     RefreshCcw,
     Repeat,
 } from 'lucide-react';
-import { useTokenContext } from '../../../context/TokenContext';
+import { SWAP_MODE, useTokenContext } from '../../../context/TokenContext';
 import TokenShape from '../../UI/TokenShape';
 import { TradeType } from '../../../constants/entities/utils/misc';
 import { useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
@@ -35,6 +35,7 @@ const FushionForm: React.FC = () => {
         isDarkMode,
         baseToken,
         quoteToken,
+        swapMode,
         slippageTolerance,
         selectingTokenIndex,
         tokenFilter,
@@ -57,21 +58,15 @@ const FushionForm: React.FC = () => {
     const {
         isSwapping,
         loading,
-        canSwap,
-        tradeInfo,
+        canAggregatorSwap,
         fromAmount,
-        toAmount,
-        baseReservePercent,
-        quoteReservePercent,
-        baseReserveAmount,
-        quoteReserveAmount,
-        priceImpactWarningSeverity,
         toggleDetails,
         aggregatorPairs,
         setAggregatorPairs,
         setToggleDetails,
         handleFromChange,
-        handleSwap,
+        handleAggregatorSwap,
+        setCanAggregatorSwap,
         handleToChange,
     } = useSwapContext();
     const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
@@ -87,6 +82,11 @@ const FushionForm: React.FC = () => {
             isSelected: !updatedPairs[dexId].isSelected, // sadece bu property güncellenir
         };
         setAggregatorPairs(updatedPairs); // yeni referansla state güncellenir
+        if(updatedPairs.filter(pair => pair.isSelected).length > 0){
+            setCanAggregatorSwap(true);
+        }else{
+            setCanAggregatorSwap(false);
+        }
     };
 
     useEffect(() => {
@@ -496,17 +496,17 @@ const FushionForm: React.FC = () => {
 
                 <div className="pt-5 px-3 pb-3">
                     <motion.button
-                        onClick={() => handleSwap(walletProvider)}
-                        className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${!canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
-                        whileHover={canSwap ? { scale: 1.02 } : undefined}
-                        whileTap={canSwap ? { scale: 0.98 } : undefined}
-                        disabled={!canSwap || isSwapping}
+                        onClick={() => handleAggregatorSwap(walletProvider)}
+                        className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${!canAggregatorSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
+                        whileHover={canAggregatorSwap ? { scale: 1.02 } : undefined}
+                        whileTap={canAggregatorSwap ? { scale: 0.98 } : undefined}
+                        disabled={(!canAggregatorSwap || isSwapping) && swapMode == SWAP_MODE.AGGREGATOR}
                         style={{
                             background: `linear-gradient(135deg, #ff1356, #ff4080)`
                         }}
                     >
                         {/* Background animation - only show when enabled */}
-                        {canSwap && (
+                        {canAggregatorSwap && swapMode == SWAP_MODE.AGGREGATOR && (
                             <div className="absolute inset-0 bg-white opacity-20">
                                 <div className="h-full w-1/3 bg-white/40 blur-xl transform -skew-x-30 -translate-x-full animate-shimmer"></div>
                             </div>
