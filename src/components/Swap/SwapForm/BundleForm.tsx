@@ -929,6 +929,105 @@ const BundleForm: React.FC = () => {
                   }  mt-1 rounded-xl mx-3`}
               >
                 <div className="p-3">
+
+                         {/* Token Seçim Slider'ı */}
+                  <div className="mb-5 px-2">
+                    <div className="flex justify-between items-center mb-1">
+                      <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>0 Tokens</span>
+                      <span className={`text-xs font-medium ${isDarkMode ? 'text-pink-300' : 'text-pink-600'}`}>
+                        {selectableFanTokens.filter(t => t.isSelected).length} Selected
+                      </span>
+                      <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{selectableFanTokens.length} Tokens</span>
+                    </div>
+                    
+                    <div className="relative w-full h-9 flex items-center">
+                      {/* Slider Track Background */}
+                      <div className={`absolute w-full h-1 rounded-full ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></div>
+                      
+                      {/* Colored Progress Bar */}
+                      <div 
+                        className={`absolute h-1 rounded-full left-0 ${isDarkMode ? 'bg-gradient-to-r from-pink-500 to-purple-500' : 'bg-gradient-to-r from-pink-400 to-purple-400'}`} 
+                        style={{ 
+                          width: `${(selectableFanTokens.filter(t => t.isSelected).length / selectableFanTokens.length) * 100}%` 
+                        }}
+                      ></div>
+                      
+                      {/* Actual Range Input (hidden visually but functional) */}
+                      <input 
+                        type="range" 
+                        min="0" 
+                        max="100" 
+                        value={(selectableFanTokens.filter(t => t.isSelected).length / selectableFanTokens.length) * 100}
+                        onChange={(e) => {
+                          const percentage = parseInt(e.target.value);
+                          const selectCount = Math.round((percentage / 100) * selectableFanTokens.length);
+                          
+                          // Update token selections based on slider position
+                          const updatedTokens = selectableFanTokens.map((token, index) => ({
+                            ...token,
+                            isSelected: index < selectCount
+                          }));
+                          
+                          setSelectableFanTokens(updatedTokens);
+                        }}
+                        className="absolute w-full h-9 opacity-0 cursor-pointer z-10"
+                      />
+                      
+                      {/* Visible Thumb */}
+                      <div 
+                        className={`absolute  w-7 h-7 rounded-full shadow-md border-2 pointer-events-none ${
+                          isDarkMode 
+                            ? 'bg-pink-600 border-pink-400' 
+                            : 'bg-pink-500 border-pink-300'
+                        }`}
+                        style={{ 
+                          left: `calc(${(selectableFanTokens.filter(t => t.isSelected).length / selectableFanTokens.length) * 100}% - ${((selectableFanTokens.filter(t => t.isSelected).length / selectableFanTokens.length) * 14)}px)` 
+                        }}
+                      >
+                        <div className="flex justify-center items-center h-full">
+                          <span className={`text-xs  ${isDarkMode ? 'text-white' : 'text-white'}`}>
+                            {Math.round((selectableFanTokens.filter(t => t.isSelected).length / selectableFanTokens.length) * 100)}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="flex justify-between mt-1">
+                      <button 
+                        onClick={() => {
+                          const updatedTokens = selectableFanTokens.map(token => ({
+                            ...token,
+                            isSelected: false
+                          }));
+                          setSelectableFanTokens(updatedTokens);
+                        }}
+                        className={`text-xs px-2 py-1 rounded-md ${
+                          isDarkMode 
+                            ? 'bg-gray-700 text-gray-300 hover:bg-gray-600' 
+                            : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                        }`}
+                      >
+                        Clear All
+                      </button>
+                      
+                      <button 
+                        onClick={() => {
+                          const updatedTokens = selectableFanTokens.map(token => ({
+                            ...token,
+                            isSelected: true
+                          }));
+                          setSelectableFanTokens(updatedTokens);
+                        }}
+                        className={`text-xs px-2 py-1 rounded-md ${
+                          isDarkMode 
+                            ? 'bg-pink-700 text-white hover:bg-pink-600' 
+                            : 'bg-pink-500 text-white hover:bg-pink-600'
+                        }`}
+                      >
+                        Select All
+                      </button>
+                    </div>
+                  </div>
                   {/* Arama ve Filtre */}
                   <div className="flex items-center gap-2 mb-2">
                     <div className="relative flex-grow">
@@ -945,20 +1044,16 @@ const BundleForm: React.FC = () => {
                           } border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-pink-500 transition-colors`}
                       />
                     </div>
-              
-                  
-
-                 
-
-
                   </div>
+                  
+             
 
-                  {/* Tek Token Listesi - Hangi token seçildiğine bağlı olarak farklı stil */}
-                  <div className={` min-h-[53dvh]  max-h-[53dvh]  overflow-y-auto ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'
+                  {/* Token Listesi */}
+                  <div className={` min-h-[45dvh]  max-h-[45dvh]  overflow-y-auto ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'
                     } pr-1`}>
                     <div className="space-y-1">
                       {filteredFanTokens.length > 0 ? (
-                        filteredFanTokens.map((token : any,tokenIndex:number) => {
+                        filteredFanTokens.map((token : any, tokenIndex: number) => {
                           const isSelected = token.isSelected
 
                           return (
@@ -981,24 +1076,29 @@ const BundleForm: React.FC = () => {
                                     <span className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
                                       {token.symbol}
                                     </span>
-                                
                                   </div>
                                   <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                                     {token.name}
                                   </div>
                                 </div>
                               </div>
-                              <div className="text-right">
-                                <div className={`font-medium text-sm ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} transition-colors duration-300`}>
-                                  {token.loading ? (
-                                    <div className="inline-block animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"
-                                      aria-hidden="true">
-                                    </div>
-                                  ) : (
-                                    token.balance
-                                  )}
-                                </div>
-
+                              <div className="flex items-center">
+                                {token.loading ? (
+                                  <div className="inline-block animate-spin h-4 w-4 border-2 border-current border-t-transparent rounded-full"
+                                    aria-hidden="true">
+                                  </div>
+                                ) : (
+                                  <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors ${
+                                    isSelected 
+                                    ? (isDarkMode ? 'bg-pink-500 text-white' : 'bg-pink-500 text-white') 
+                                    : (isDarkMode ? 'bg-gray-700 text-gray-500' : 'bg-gray-100 text-gray-400')
+                                  }`}>
+                                    {isSelected 
+                                      ? <CheckCircle className="w-5 h-5" /> 
+                                      : <PlusCircle className="w-5 h-5" />
+                                    }
+                                  </div>
+                                )}
                               </div>
                             </div>
                           );
