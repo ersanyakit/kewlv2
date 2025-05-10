@@ -916,6 +916,10 @@ const BundleForm: React.FC = () => {
                  
                 </div>
 
+                <div className="flex flex-col gap-2">
+                    {/* summary  */}
+                </div>
+
 
                 <AnimatePresence>
 
