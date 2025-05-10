@@ -126,9 +126,8 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
    
     try {
       const fetchedTokens = await fetchTokenListByChainId(Number(chainId));
-      
-      // Fetched tokenleri Token tipine dönüştür
-      const formattedTokens: Token[] = fetchedTokens.tokens.map((token: any) => ({
+      const filteredAssets = fetchedTokens.tokens.filter((asset: any) => asset.decimals !== 0);
+      const formattedTokens: Token[] = filteredAssets.map((token: any) => ({
         chainId: token.chainId || 0,
         symbol: token.symbol || '',
         name: token.name || '',
