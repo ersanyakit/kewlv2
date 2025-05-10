@@ -916,28 +916,8 @@ const BundleForm: React.FC = () => {
                  
                 </div>
 
-                <div className="flex flex-col gap-2">
-                    {/* summary  */}
-                </div>
-
-
-                <AnimatePresence>
-
-
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className={`overflow-hidden ${isDarkMode
-                  ? 'bg-gray-700/90 border-gray-600'
-                  : 'bg-white/90 border-gray-200'
-                  }  mt-1 rounded-xl mx-3`}
-              >
-                <div className="p-3">
-
-                         {/* Token Seçim Slider'ı */}
-                  <div className="mb-5 px-2">
+                                        {/* Token Seçim Slider'ı */}
+                                        <div className="mb-5 px-4">
                     <div className="flex justify-between items-center mb-1">
                       <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>0 Tokens</span>
                       <span className={`text-xs font-medium ${isDarkMode ? 'text-pink-300' : 'text-pink-600'}`}>
@@ -1034,6 +1014,118 @@ const BundleForm: React.FC = () => {
                       </button>
                     </div>
                   </div>
+
+                <div className={`flex flex-col gap-3 mx-3 mt-3 p-3 rounded-xl ${isDarkMode ? 'bg-gray-800/80 border border-gray-700' : 'bg-white/90 border border-gray-200'}`}>
+                    {/* Summary Header */}
+                    <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                            <div className={`p-1.5 rounded-full ${isDarkMode ? 'bg-pink-900/30' : 'bg-pink-100'}`}>
+                                <BarChart3 className={`w-4 h-4 ${isDarkMode ? 'text-pink-400' : 'text-pink-600'}`} />
+                            </div>
+                            <h3 className={`font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>Investment Summary</h3>
+                        </div>
+                        <div className={`px-2 py-1 text-xs rounded-full ${isDarkMode ? 'bg-pink-900/20 text-pink-300' : 'bg-pink-100 text-pink-700'}`}>
+                            {selectableFanTokens.filter(t => t.isSelected).length} tokens selected
+                        </div>
+                    </div>
+                    
+                    {/* Summary Content */}
+                    <div className={`grid grid-cols-2 gap-3 text-sm`}>
+                        {/* Selected Tokens */}
+                        <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                            <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Selected Tokens</div>
+                            <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                                {selectableFanTokens.filter(t => t.isSelected).length} / {selectableFanTokens.length}
+                            </div>
+                        </div>
+                        
+                        {/* Total Investment */}
+                        <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                            <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Investment</div>
+                            <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                                {fromAmount || '0'} {nativeToken?.symbol || 'CHZ'}
+                            </div>
+                        </div>
+                        
+                        {/* Per Token Investment */}
+                        <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                            <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Per Token Investment (~)</div>
+                            <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                                {fromAmount && selectableFanTokens.filter(t => t.isSelected).length > 0 
+                                    ? (parseFloat(fromAmount) / selectableFanTokens.filter(t => t.isSelected).length).toFixed(6)
+                                    : '0'} {nativeToken?.symbol || 'CHZ'}
+                            </div>
+                        </div>
+                        
+                        {/* Token Distribution */}
+                        <div className={`p-2 rounded-lg ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'}`}>
+                            <div className={`text-xs mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Token Distribution</div>
+                            <div className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'} flex items-center gap-1`}>
+                                <Shuffle className="w-3.5 h-3.5" /> Even Split
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {/* Distribution Visualization */}
+                    <div className={`mt-1 ${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'} p-2 rounded-lg`}>
+                        <div className="flex justify-between items-center mb-1">
+                            <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                Token Distribution
+                            </div>
+                            <div className="flex items-center gap-1">
+                                <div className={`w-2 h-2 rounded-full bg-gradient-to-r from-pink-500 to-purple-500`}></div>
+                                <span className={`text-xs ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Even Split</span>
+                            </div>
+                        </div>
+                        
+                        {/* Distribution bars visualization */}
+                        <div className="grid grid-cols-12 gap-0.5 h-2 mt-1">
+                            {Array.from({ length: 12 }).map((_, index) => (
+                                <div 
+                                    key={index} 
+                                    className={`h-full rounded-sm ${
+                                        isDarkMode 
+                                            ? 'bg-gradient-to-r from-pink-500 to-purple-500' 
+                                            : 'bg-gradient-to-r from-pink-400 to-purple-400'
+                                    }`} 
+                                />
+                            ))}
+                        </div>
+                        
+                        {/* Token selection preview */}
+                        <div className="grid grid-cols-5 gap-2 mt-2 mb-1 flex-wrap gap-1">
+                            {selectableFanTokens.filter(t => t.isSelected).map((token, idx) => (
+                                <div 
+                                    key={idx} 
+                                    className={`px-1.5 basis-5 w-full py-0.5 text-xs rounded-full flex items-center gap-1
+                                        ${isDarkMode ? 'bg-gray-600 text-gray-300' : 'bg-gray-200 text-gray-700'}`}
+                                >
+                                    <div className="w-3 h-3 rounded-full overflow-hidden">
+                                        <img src={token.logoURI} alt={token.symbol} className="w-full h-full object-cover" />
+                                    </div>
+                                    {token.symbol}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                </div>
+
+                <AnimatePresence>
+
+
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.3, ease: 'easeInOut' }}
+                className={`overflow-hidden ${isDarkMode
+                  ? 'bg-gray-700/90 border-gray-600'
+                  : 'bg-white/90 border-gray-200'
+                  }  mt-1 rounded-xl mx-3`}
+              >
+                <div className="p-3">
+
+ 
                   {/* Arama ve Filtre */}
                   <div className="flex items-center gap-2 mb-3">
                     <div className="relative flex-grow">
