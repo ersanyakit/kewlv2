@@ -148,7 +148,7 @@ const PoolsView: React.FC<PoolsViewProps> = ({ isDarkMode }) => {
             Remove Liquidity
           </button>
           <button 
-            className={`flex-1 py-2 text-sm font-medium rounded-xl flex items-center justify-center ${
+            className={`hidden flex-1 py-2 text-sm font-medium rounded-xl flex items-center justify-center ${
               activeTab === 'my-pools' 
                 ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white' 
                 : isDarkMode 

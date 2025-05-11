@@ -599,8 +599,8 @@ const SwapForm: React.FC = () => {
           <motion.button
             onClick={() => handleSwap(walletProvider)}
             className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${!canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
-            whileHover={canSwap ? { scale: 1.02 } : undefined}
-            whileTap={canSwap ? { scale: 0.98 } : undefined}
+            whileHover={swapMode == SWAP_MODE.SIMPLESWAP && canSwap ? { scale: 1.02 } : undefined}
+            whileTap={swapMode == SWAP_MODE.SIMPLESWAP && canSwap ? { scale: 0.98 } : undefined}
             disabled={(!canSwap || isSwapping) && swapMode == SWAP_MODE.SIMPLESWAP}
             style={{
               background: `linear-gradient(135deg, #ff1356, #ff4080)`
