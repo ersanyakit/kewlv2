@@ -86,6 +86,10 @@ const AddLiqudityForm: React.FC = () => {
 
   }, [baseToken, quoteToken, pairState]);
 
+  function handleAddLiquidity(walletProvider: unknown): void {
+    throw new Error('Function not implemented.');
+  }
+
   return (
 
     <div className="flex flex-col">
@@ -405,11 +409,11 @@ const AddLiqudityForm: React.FC = () => {
 
         <div className="px-3 pb-3">
           <motion.button
-            onClick={() => handleSwap(walletProvider)}
+            onClick={() => handleAddLiquidity(walletProvider)}
             className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${!canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
-            whileHover={canSwap ? { scale: 1.02 } : undefined}
-            whileTap={canSwap ? { scale: 0.98 } : undefined}
-            disabled={(!canSwap || isSwapping) && swapMode == SWAP_MODE.SIMPLESWAP}
+            whileHover={ swapMode == SWAP_MODE.POOLS && canSwap ? { scale: 1.02 } : undefined}
+            whileTap={ swapMode == SWAP_MODE.POOLS && canSwap ? { scale: 0.98 } : undefined}
+            disabled={(!canSwap || isSwapping) && swapMode == SWAP_MODE.POOLS}
             style={{
               background: `linear-gradient(135deg, #ff1356, #ff4080)`
             }}
