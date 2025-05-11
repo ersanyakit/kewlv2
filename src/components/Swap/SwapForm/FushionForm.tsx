@@ -654,7 +654,7 @@ const FushionForm: React.FC = () => {
                                     ) : (
                                         <div className={`py-6 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                                             <Search className="w-6 h-6 mx-auto mb-2 opacity-50" />
-                                            <p>Sonuç bulunamadı</p>
+                                            <p>No Token Found</p>
                                         </div>
                                     )}
                                 </div>
