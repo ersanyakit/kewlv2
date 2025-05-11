@@ -295,7 +295,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [swapResult, setSwapResult] = useState<SwapResult | null>(null);
   const [aggregatorPairs, setAggregatorPairs] = useState<TCustomPair[]>([]);
   const [pairState, setPairState] = useState<TPairState>(initialPairState);
-  const[removeLiquidityPercent,setRemoveLiquidityPercent] = useState<number>(100);
+  const [removeLiquidityPercent, setRemoveLiquidityPercent] = useState<number>(100);
   // Input değişiklikleri için handler'lar
   const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const regex = /^[0-9]*\.?[0-9]*$/;
@@ -332,7 +332,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
     if (swapMode == SWAP_MODE.AGGREGATOR) {
       setAggregatorPairs([]);
-      
+
     }
   }
 
@@ -669,7 +669,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       fetchSwapPairInfo();
     } else if (swapMode == SWAP_MODE.AGGREGATOR) {
       fetchAggregatorInfo();
-    } else if ( [SWAP_MODE.POOLS,SWAP_MODE.ADD_LIQUIDITY,SWAP_MODE.REMOVE_LIQUIDITY].includes(swapMode)) {
+    } else if ([SWAP_MODE.POOLS, SWAP_MODE.ADD_LIQUIDITY, SWAP_MODE.REMOVE_LIQUIDITY].includes(swapMode)) {
       console.log("ersan fetchLiquidityInfo")
       fetchLiquidityInfo(null);
     }
@@ -1243,7 +1243,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       return;
     }
 
-    if ([SWAP_MODE.POOLS,SWAP_MODE.ADD_LIQUIDITY].includes(swapMode) && tradeType == TradeType.EXACT_INPUT && !fromAmount) {
+    if ([SWAP_MODE.POOLS, SWAP_MODE.ADD_LIQUIDITY].includes(swapMode) && tradeType == TradeType.EXACT_INPUT && !fromAmount) {
       setSwapResult({
         type: SwapStatusType.INVALID_AMOUNT,
         message: "Invalid Amount",
@@ -1252,7 +1252,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       setCanSwap(false)
       return;
     }
-    if ([SWAP_MODE.POOLS,SWAP_MODE.ADD_LIQUIDITY].includes(swapMode) && tradeType == TradeType.EXACT_OUTPUT && !toAmount) {
+    if ([SWAP_MODE.POOLS, SWAP_MODE.ADD_LIQUIDITY].includes(swapMode) && tradeType == TradeType.EXACT_OUTPUT && !toAmount) {
       setSwapResult({
         type: SwapStatusType.INVALID_AMOUNT,
         message: "Invalid Amount",
@@ -1441,7 +1441,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
 
 
-    const inputAmount =  tradeType == TradeType.EXACT_INPUT ? fromAmount : toAmount
+    const inputAmount = tradeType == TradeType.EXACT_INPUT ? fromAmount : toAmount
     const inputToken =
       tradeType === TradeType.EXACT_INPUT
         ? _baseAddress === lpbaseToken.address
@@ -1533,6 +1533,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
   }
 
+
   const handleAddLiquidity = async (walletProvider: any) => {
     console.log("handleAddLiquidity", walletProvider)
 
@@ -1561,7 +1562,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     }
     setIsSwapping(true)
 
-    let WRAPPED_TOKEN = WETH9[Number(chainId)].address;
+    let WRAPPED_TOKEN =  ethers.getAddress(WETH9[Number(chainId)].address);
 
     let _baseAddress = baseToken.address == ZeroAddress ? WRAPPED_TOKEN : baseToken.address;
     let _quoteAddress = quoteToken.address == ZeroAddress ? WRAPPED_TOKEN : quoteToken.address;
@@ -1578,27 +1579,31 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     const DEFAULT_ADD_SLIPPAGE_TOLERANCE = new Percent(INITIAL_ALLOWED_SLIPPAGE, 10_000)
 
 
-    const tokenA = new Token(baseToken.chainId, _baseAddress, baseToken.decimals)
-    const tokenB = new Token(quoteToken.chainId, _quoteAddress, quoteToken.decimals)
+    const tokenA = new Token(baseToken.chainId, _baseAddress, baseToken.decimals, baseToken.symbol, baseToken.name)
+    const tokenB = new Token(quoteToken.chainId, _quoteAddress, quoteToken.decimals, quoteToken.symbol, quoteToken.name)
 
     const [baseAsset, quoteAsset] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
 
-    const amountADesired = ethers.parseUnits(fromAmount, baseAsset.decimals);
-    const amountBDesired = ethers.parseUnits(toAmount, quoteAsset.decimals);
+    const [baseInputAmount, quoteInputAmount] = tokenA.sortsBefore(tokenB)
+  ? [fromAmount, toAmount]
+  : [toAmount, fromAmount];
+
+    const amountADesired = ethers.parseUnits(baseInputAmount, baseAsset.decimals);
+    const amountBDesired = ethers.parseUnits(quoteInputAmount, quoteAsset.decimals);
+   
 
     let reserve0: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(baseAsset, amountADesired.toString());
     let reserve1: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(quoteAsset, amountBDesired.toString());
 
+    const amountAIndex = 0//tradeType === TradeType.EXACT_OUTPUT ? 1 : 0;
+    const amountBIndex = 0//tradeType === TradeType.EXACT_OUTPUT ? 1 : 0;
 
-    const amountAIndex = tradeType === TradeType.EXACT_OUTPUT ? 1 : 0;
-    const amountBIndex = tradeType === TradeType.EXACT_OUTPUT ? 1 : 0;
-
-    const amountAMin =  calculateSlippageAmount(reserve0, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[amountAIndex].toString()
+    const amountAMin = calculateSlippageAmount(reserve0, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[amountAIndex].toString()
     const amountBMin = calculateSlippageAmount(reserve1, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[amountBIndex].toString();
     const addressTo = signerAccount
     const deadline = moment().utc().unix() + (30 * 60)
 
-    if(baseToken.address != ZeroAddress){
+    if (baseToken.address != ZeroAddress) {
       try {
         const tokenContract = getContract({
           address: baseToken.address as `0x${string}`,
@@ -1635,7 +1640,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       }
     }
 
-    if(quoteToken.address != ZeroAddress){
+    if (quoteToken.address != ZeroAddress) {
       try {
         const tokenContract = getContract({
           address: quoteToken.address as `0x${string}`,
@@ -1675,21 +1680,41 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     let functionName = etherIn || etherOut ? 'addLiquidityETH' : 'addLiquidity'
 
     let depositOverrides = {
-      value: etherIn || etherOut ? (baseToken.address === ZeroAddress ? amountADesired : amountBDesired ): undefined
+      value: etherIn || etherOut ? (baseAsset.address === WRAPPED_TOKEN ? amountADesired : amountBDesired) : undefined
     }
 
-    var swapParameters : any []= []
-    if(etherIn || etherOut){
-      let tokenAddress = baseToken.address === ZeroAddress ? quoteToken.address : baseToken.address
-      let _amountTokenDesired = baseToken.address === ZeroAddress ? amountBDesired : amountADesired
-      let _amountTokenMin = baseToken.address === ZeroAddress ? amountBMin : amountAMin
-      let _amountETHMin = baseToken.address === ZeroAddress ? amountAMin : amountBMin
+  
+
+    
+
+    var swapParameters: any[] = []
+    if (etherIn || etherOut) {
+
+      const tokenAddress = baseAsset.address === WRAPPED_TOKEN ? quoteAsset.address : baseAsset.address;
+      const _amountTokenDesired = baseAsset.address == tokenAddress ? amountADesired : amountBDesired;
+      const _amountTokenMin = baseAsset.address == tokenAddress ? amountAMin : amountBMin;
+      const _amountETHMin = baseAsset.address == tokenAddress ? amountBMin : amountAMin;
+
+      console.log("tokenAddress",tokenAddress)
+      console.log("_amountTokenDesired",_amountTokenDesired)
+      console.log("_amountTokenMin",_amountTokenMin)
+      console.log("_amountETHMin",_amountETHMin)
+
       swapParameters = [tokenAddress, _amountTokenDesired, _amountTokenMin, _amountETHMin, account, deadline]
-    }else{
-      swapParameters = [baseToken.address, quoteToken.address, amountADesired, amountBDesired, amountAMin, amountBMin, addressTo, deadline]
-    }
+    } else {
 
-    try{
+      console.log("baseAsset",baseAsset.symbol,amountADesired,baseInputAmount)
+      console.log("quoteAsset",quoteAsset.symbol,amountBDesired,quoteInputAmount)
+      console.log("_amountTokenDesired",(amountADesired))
+      console.log("_amountTokenMin",(amountBDesired))
+      console.log("amountAMin",(amountAMin))
+      console.log("amountBMin",(amountBMin))
+
+      swapParameters = [baseAsset.address, quoteAsset.address, amountADesired, amountBDesired, amountAMin, amountBMin, addressTo, deadline]
+    }
+    
+
+    try {
       const tx: any = await dexContract.wallet.writeContract({
         chain: dexContract.client.chain,
         address: dexContract.caller.address as `0x${string}`,
@@ -1699,7 +1724,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         account: signerAccount,
         value: depositOverrides.value
       })
-  
+
       const receipt = await waitForTransactionReceipt(dexContract.wallet, {
         hash: tx,
       });
@@ -1714,14 +1739,14 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         type: SwapStatusType.ACCOUNT_NOT_CONNECTED,
         message: "Account Not Connected",
       })
-    }finally{
+    } finally {
       setIsSwapping(false)
       resetSwap()
     }
-   
 
 
-   
+
+
   }
 
   const handleRemoveLiquidity = async () => {
@@ -1760,13 +1785,13 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     const ZERO_PERCENT = new Percent('0')
     const DEFAULT_ADD_SLIPPAGE_TOLERANCE = new Percent(INITIAL_ALLOWED_SLIPPAGE, 10_000)
 
-    console.log("handleRemoveLiquidity", _baseAddress, _quoteAddress,pairState)
+    console.log("handleRemoveLiquidity", _baseAddress, _quoteAddress, pairState)
 
     const userLiquidity: CurrencyAmount<Token> | undefined = pairState.userLiquidityRaw
     const selectedPercent: Percent = new Percent(removeLiquidityPercent, 100); // örneğin %25
     let selectedLiquidityAmount: CurrencyAmount<Token> | undefined;
 
-    if(!userLiquidity){
+    if (!userLiquidity) {
       setSwapResult({
         type: SwapStatusType.INSUFFICIENT_LIQUIDITY,
         message: "Insufficient Liquidity",
@@ -1774,14 +1799,14 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       return;
     }
 
-    if(!pairState.liquidityValueB){
+    if (!pairState.liquidityValueB) {
       setSwapResult({
         type: SwapStatusType.INSUFFICIENT_LIQUIDITY,
         message: "Insufficient Liquidity",
       })
       return;
     }
-    if(!pairState.liquidityValueA){
+    if (!pairState.liquidityValueA) {
       setSwapResult({
         type: SwapStatusType.INSUFFICIENT_LIQUIDITY,
         message: "Insufficient Liquidity",
@@ -1791,33 +1816,33 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
 
     selectedLiquidityAmount = userLiquidity.multiply(selectedPercent);
-    
-    const [amountBase,amountQuote] = pairState.pairInfo.base.token === _baseAddress ?  [pairState.liquidityValueA,pairState.liquidityValueB] : [pairState.liquidityValueB,pairState.liquidityValueA]
-    
+
+    const [amountBase, amountQuote] = pairState.pairInfo.base.token === _baseAddress ? [pairState.liquidityValueA, pairState.liquidityValueB] : [pairState.liquidityValueB, pairState.liquidityValueA]
+
     const amountBasePercent = amountBase.multiply(selectedPercent)
     const amountQuotePercent = amountQuote.multiply(selectedPercent)
 
-    var amountA,amountB;
+    var amountA, amountB;
 
-    if(etherIn || etherOut){
-      [amountA,amountB] = _baseAddress === WRAPPED_TOKEN ? [amountQuotePercent,amountBasePercent] : [amountBasePercent,amountQuotePercent]
-    }else{
-      [amountA,amountB] = [amountBasePercent,amountQuotePercent]
+    if (etherIn || etherOut) {
+      [amountA, amountB] = _baseAddress === WRAPPED_TOKEN ? [amountQuotePercent, amountBasePercent] : [amountBasePercent, amountQuotePercent]
+    } else {
+      [amountA, amountB] = [amountBasePercent, amountQuotePercent]
     }
     //const [amountA,amountB] 
     console.log("token0", pairState.pairInfo.base.token, "token1", pairState.pairInfo.quote.token)
     console.log("amountA", amountA.toSignificant(6), "amountB", amountB.toSignificant(6))
-    
-    
+
+
     let liquidity = toHex(selectedLiquidityAmount)
-    
-    
+
+
     const amountAMinWithSlippage = calculateSlippageAmount(amountA, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[0]
     const amountBMinWithSlippage = calculateSlippageAmount(amountB, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[0]
-    
 
-  
-    
+
+
+
     let amountAMin = enableTaxesContract ? ZERO : amountAMinWithSlippage
     let amountBMin = enableTaxesContract ? ZERO : amountBMinWithSlippage
     let to = signerAccount
@@ -1826,44 +1851,44 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
     let functionName = etherIn || etherOut ? 'removeLiquidityETH' : 'removeLiquidity'
     let tokenAddress = _baseAddress === WRAPPED_TOKEN ? _quoteAddress : _baseAddress
-    const swapParameters = etherIn || etherOut ? 
-      [tokenAddress,liquidity,amountAMin,amountBMin,to,deadline] : 
-      [_baseAddress,_quoteAddress,liquidity,amountAMin,amountBMin,to,deadline]
+    const swapParameters = etherIn || etherOut ?
+      [tokenAddress, liquidity, amountAMin, amountBMin, to, deadline] :
+      [_baseAddress, _quoteAddress, liquidity, amountAMin, amountBMin, to, deadline]
 
-      try{
-        const tokenContract = getContract({
+    try {
+      const tokenContract = getContract({
+        address: pairState.pairInfo.pair as `0x${string}`,
+        abi: erc20Abi,
+        client: dexContract.client
+      })
+
+      const allowance = await tokenContract.read.allowance([
+        signerAccount,
+        dexContract.caller.address
+      ])
+
+      if (JSBI.lessThan(JSBI.BigInt(allowance.toString()), selectedLiquidityAmount.quotient)) {
+
+        const approvalTx = await dexContract.wallet.writeContract({
+          chain: dexContract.client.chain,
           address: pairState.pairInfo.pair as `0x${string}`,
           abi: erc20Abi,
-          client: dexContract.client
+          functionName: "approve",
+          args: [dexContract.address, ethers.MaxUint256],
+          account: signerAccount
+        })
+        const receiptApproval = await waitForTransactionReceipt(dexContract.wallet, {
+          hash: approvalTx,
+        });
+        setSwapResult({
+          type: SwapStatusType.SUCCESS,
+          message: "Approval Succeed",
         })
 
-        const allowance = await tokenContract.read.allowance([
-          signerAccount,
-          dexContract.caller.address
-        ])
 
-        if (JSBI.lessThan(JSBI.BigInt(allowance.toString()), selectedLiquidityAmount.quotient)) {
-         
-          const approvalTx = await dexContract.wallet.writeContract({
-            chain: dexContract.client.chain,
-            address: pairState.pairInfo.pair as `0x${string}`,
-            abi: erc20Abi,
-            functionName: "approve",
-            args: [dexContract.address, ethers.MaxUint256],
-            account: signerAccount
-          })
-          const receiptApproval = await waitForTransactionReceipt(dexContract.wallet, {
-            hash: approvalTx,
-          });
-          setSwapResult({
-            type: SwapStatusType.SUCCESS,
-            message: "Approval Succeed",
-          })
+      }
 
-
-        }
-
-        const tx: any = await dexContract.wallet.writeContract({
+      const tx: any = await dexContract.wallet.writeContract({
         chain: dexContract.client.chain,
         address: dexContract.caller.address as `0x${string}`,
         abi: dexContract.abi,
@@ -1888,15 +1913,15 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
 
 
-      }catch(error){
-        console.log("error", error)
-        setSwapResult({
-          type: SwapStatusType.LIQUIDITY_REMOVE_FAILED,
-          message: "Liquidity Remove Failed",
-        })
-      }finally{
-        setIsSwapping(false)
-      }
+    } catch (error) {
+      console.log("error", error)
+      setSwapResult({
+        type: SwapStatusType.LIQUIDITY_REMOVE_FAILED,
+        message: "Liquidity Remove Failed",
+      })
+    } finally {
+      setIsSwapping(false)
+    }
   }
 
 
