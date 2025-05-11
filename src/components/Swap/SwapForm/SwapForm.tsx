@@ -288,7 +288,7 @@ const SwapForm: React.FC  = () => {
                             className="w-full h-full"
                             style={{
                               background: baseReservePercent && quoteReservePercent
-                                ? `linear-gradient(to right, #ff4080 0%, #ff4080 ${baseReservePercent.toSignificant(2)}%, #60a5fa ${baseReservePercent.toSignificant(2)}%, #60a5fa 100%)`
+                                ? `linear-gradient(to right, #ff4080 0%, #ff4080 ${baseReservePercent.toSignificant(2)}%, #60a5fa ${quoteReservePercent.toSignificant(2)}%, #60a5fa 100%)`
                                 : "#e5e7eb" // fallback color
                             }}
                           />
