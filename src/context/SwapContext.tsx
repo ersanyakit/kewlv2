@@ -66,6 +66,7 @@ interface SwapContextProps {
   setToggleDetails: (toggleDetails: boolean) => void;
   handleSwap: (walletProvider: any) => void;
   setCanAggregatorSwap: (canAggregatorSwap: boolean) => void;
+  handleAddLiquidity: (walletProvider: any) => void;
 }
 
 // Context varsayılan değeri
@@ -100,6 +101,7 @@ const defaultContext: SwapContextProps = {
   // Diğer varsayılan değerler...
   pairState: initialPairState,
   setPairState: () => { },
+  handleAddLiquidity: () => { },
 };
 
 // Context oluşturma
@@ -1191,11 +1193,13 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   }
 
   const fetchLiquidityInfo = async (walletProvider: any) => {
+    setLoading(true)
     if (!chainId) {
       setSwapResult({
         type: SwapStatusType.INVALID_CHAIN,
         message: "Invalid Chain",
       })
+      setLoading(false)
       return;
     }
     if (baseToken == null || quoteToken == null) {
@@ -1203,6 +1207,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         type: SwapStatusType.INVALID_TOKEN,
         message: "Invalid Token",
       })
+      setLoading(false)
       return;
     }
 
@@ -1211,6 +1216,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         type: SwapStatusType.INVALID_AMOUNT,
         message: "Invalid Amount",
       })
+      setLoading(false)
       return;
     }
     if (tradeType == TradeType.EXACT_OUTPUT && !toAmount) {
@@ -1218,6 +1224,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         type: SwapStatusType.INVALID_AMOUNT,
         message: "Invalid Amount",
       })
+      setLoading(false)
       return;
     }
 
@@ -1256,6 +1263,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         shareOfPool: "100",
         noLiquidity: true,
       });
+      setLoading(false)
       return null;
     }
 
@@ -1287,6 +1295,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         shareOfPool: "100",
         noLiquidity: true,
       });
+      setLoading(false)
       return
     }
 
@@ -1332,6 +1341,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         type: SwapStatusType.ACCOUNT_NOT_CONNECTED,
         message: "Account Not Connected",
       })
+      setLoading(false)
       return;
     }
 
@@ -1461,11 +1471,41 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       shareOfPool: shareOfPool,
       noLiquidity: false,
     }));
+    setLoading(false)
 
   }
 
+  const handleAddLiquidity = async (walletProvider: any) => {
+    console.log("handleAddLiquidity", walletProvider)
+
+    if (!chainId) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_CHAIN,
+        message: "Invalid Chain",
+      })
+      return;
+    }
+
+    if (baseToken == null || quoteToken == null) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_TOKEN,
+        message: "Invalid Token",
+      })
+      return;
+    }
+
+    if (fromAmount == null || toAmount == null) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_AMOUNT,
+        message: "Invalid Amount",
+      })
+      return;
+    }
 
 
+
+   
+  }
 
 
   // Context değeri
@@ -1499,6 +1539,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     canAggregatorSwap,
     setCanAggregatorSwap,
     handleBundleSwap,
+    handleAddLiquidity,
     // Diğer değerler...
   };
 
