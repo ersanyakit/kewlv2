@@ -1177,7 +1177,7 @@ const BundleForm: React.FC = () => {
             </div>
 
             {/* Token Listesi */}
-            <div className={`min-h-[45dvh] max-h-[45dvh] overflow-y-auto ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'} pr-1`}>
+            <div className={`min-h-[45dvh] max-h-[45dvh]  scrollbar-hide overflow-y-auto ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'} pr-1`}>
               {viewMode === 'list' ? (
                 /* Liste Görünümü */
                 <div className="space-y-1">

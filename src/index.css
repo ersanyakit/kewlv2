@@ -9,6 +9,17 @@
   }
 }
 
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none; /* IE ve Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none; /* Chrome, Safari ve Opera */
+  }
+}
+
 @layer components {
   .card-header {
     @apply p-4 border-b border-gray-100 dark:border-gray-700 transition-colors duration-300;
