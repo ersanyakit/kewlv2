@@ -650,6 +650,21 @@ const SwapForm: React.FC = () => {
                       : 'bg-gray-50 border-gray-100 text-gray-800 placeholder-gray-400'
                       } border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-pink-500 transition-colors`}
                   />
+                    
+                         {/* Clear button */}
+                {tokenFilter && (
+                  <button
+                    onClick={() => setTokenFilter('')}
+                    className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-opacity-80 transition-colors ${isDarkMode
+                      ? 'hover:bg-gray-500/30 text-gray-400 hover:text-gray-300'
+                      : 'hover:bg-gray-200/50 text-gray-500 hover:text-gray-700'
+                      }`}
+                    type="button"
+                    aria-label="Clear search"
+                  >
+                    <XCircle className="w-4 h-4" />
+                  </button>
+                )}
                 </div>
                 <button
                   onClick={() => setFavoriteOnly(!favoriteOnly)}

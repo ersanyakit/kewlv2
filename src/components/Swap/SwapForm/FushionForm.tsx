@@ -83,9 +83,9 @@ const FushionForm: React.FC = () => {
             isSelected: !updatedPairs[dexId].isSelected, // sadece bu property güncellenir
         };
         setAggregatorPairs(updatedPairs); // yeni referansla state güncellenir
-        if(updatedPairs.filter(pair => pair.isSelected).length > 0){
+        if (updatedPairs.filter(pair => pair.isSelected).length > 0) {
             setCanAggregatorSwap(true);
-        }else{
+        } else {
             setCanAggregatorSwap(false);
         }
     };
@@ -458,7 +458,7 @@ const FushionForm: React.FC = () => {
                                                             </div>
                                                         </div>
 
-                                                     
+
 
                                                         <div className="flex items-center gap-2">
                                                             <div>
@@ -472,9 +472,9 @@ const FushionForm: React.FC = () => {
                                                         </div>
                                                     </div>
 
-                                              
+
                                                     <div className="w-full">
-                                                        <div  className="w-full min-h-[5px] h-[5px] radius-full p-1 rounded-full"
+                                                        <div className="w-full min-h-[5px] h-[5px] radius-full p-1 rounded-full"
                                                             style={{
                                                                 width: '100%',
                                                                 background: `linear-gradient(
@@ -554,6 +554,20 @@ const FushionForm: React.FC = () => {
                                             : 'bg-gray-50 border-gray-100 text-gray-800 placeholder-gray-400'
                                             } border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-pink-500 transition-colors`}
                                     />
+                                    {/* Clear button */}
+                                    {tokenFilter && (
+                                        <button
+                                            onClick={() => setTokenFilter('')}
+                                            className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-opacity-80 transition-colors ${isDarkMode
+                                                ? 'hover:bg-gray-500/30 text-gray-400 hover:text-gray-300'
+                                                : 'hover:bg-gray-200/50 text-gray-500 hover:text-gray-700'
+                                                }`}
+                                            type="button"
+                                            aria-label="Clear search"
+                                        >
+                                            <XCircle className="w-4 h-4" />
+                                        </button>
+                                    )}
                                 </div>
                                 <button
                                     onClick={() => setFavoriteOnly(!favoriteOnly)}
