@@ -27,11 +27,11 @@ const TransactionHistory: React.FC = () => {
   }
 
   useEffect(() => {
-     loadData()
+    loadData()
   }, [chainId, address, walletProvider, tokens])
 
   useEffect(() => {
-    console.log("userTradingStats",userTradingStats)
+    console.log("userTradingStats", userTradingStats)
   }, [userTradingStats])
 
 
@@ -127,7 +127,9 @@ const TransactionHistory: React.FC = () => {
                   {/* Percentage Display */}
                   <div className="text-right text-xs font-medium">
                     <span className={`${isDarkMode ? 'text-emerald-300' : 'text-emerald-600'}`}>
-                      {((statItem.individualTrades / statItem.totalTrades) * 100).toFixed(1)}% Participation
+                      {statItem.totalTrades && Number(statItem.totalTrades) > 0
+                        ? `${((Number(statItem.individualTrades) / Number(statItem.totalTrades)) * 100).toFixed(1)}% Participation`
+                        : '0.0% Participation'}
                     </span>
                   </div>
                 </div>
@@ -164,26 +166,25 @@ const TransactionHistory: React.FC = () => {
               </div>
             </div>
           </div>
-          
-        
 
-          <motion.button 
-      onClick={() => {
-        console.log("Claim Rewards")
-      }}
-      className={`${
-        isConnected 
-          ?  isDarkMode 
-          ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600' 
-          : 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white'
-          : "bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white"
-      }  px-4 py-2 rounded-xl font-medium flex text-center items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300`}
-      whileHover={{ scale: 1.05 }}
-      whileTap={{ scale: 0.95 }}>
-     
-      Claim Rewards
-    </motion.button>
-          
+
+
+          <motion.button
+            onClick={() => {
+              console.log("Claim Rewards")
+            }}
+            className={`${isConnected
+                ? isDarkMode
+                  ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600'
+                  : 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white'
+                : "bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white"
+              }  px-4 py-2 rounded-xl font-medium flex text-center items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300`}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}>
+
+            Claim Rewards
+          </motion.button>
+
           <div className={`text-xs text-center ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
             Based on your trading participation
           </div>
