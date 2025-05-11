@@ -18,6 +18,7 @@ import {
 import { useTokenContext, Token, SWAP_MODE } from '../../../context/TokenContext';
 import TokenShape from '../../UI/TokenShape';
 import AddLiqudityForm from './AddLiqudityForm';
+import RemoveLiquidityForm from './RemoveLiquidity';
 
 interface PoolsViewProps {
   isDarkMode: boolean;
@@ -169,10 +170,7 @@ const PoolsView: React.FC<PoolsViewProps> = ({ isDarkMode }) => {
         
         {/* Likidite Çıkarma Ekranı */}
         {activeTab === 'remove' && (
-     
-     <>
-     test
-     </>
+          <RemoveLiquidityForm/>
         )}
         
         {/* Kullanıcı Havuzları Listesi */}

@@ -67,6 +67,7 @@ interface SwapContextProps {
   handleSwap: (walletProvider: any) => void;
   setCanAggregatorSwap: (canAggregatorSwap: boolean) => void;
   handleAddLiquidity: (walletProvider: any) => void;
+  handleRemoveLiquidity: (walletProvider: any) => void;
 }
 
 // Context varsayılan değeri
@@ -102,6 +103,7 @@ const defaultContext: SwapContextProps = {
   pairState: initialPairState,
   setPairState: () => { },
   handleAddLiquidity: () => { },
+  handleRemoveLiquidity: () => { },
 };
 
 // Context oluşturma
@@ -111,6 +113,7 @@ export enum SwapStatusType {
   SUCCESS = "SUCCESS",
   APPROVAL_FAILED = "APPROVAL_FAILED",
   APPROVAL_REQUIRED = "APPROVAL_REQUIRED",
+  PLEASE_WAIT = "PLEASE WAIT",
   INVALID_ACCOUNT = "INVALID_ACCOUNT",
   INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS",
   SLIPPAGE_TOO_HIGH = "SLIPPAGE_TOO_HIGH",
@@ -1676,6 +1679,10 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
 
    
+  }
+
+  function handleRemoveLiquidity(){
+    //remove liquidity
   }
 
 
