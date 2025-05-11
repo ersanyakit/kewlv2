@@ -33,6 +33,10 @@ const initialPairState: TPairState = {
   noLiquidity: true,
   userBaseLiquidityRaw: undefined,
   userQuoteLiquidityRaw: undefined,
+  userLiquidityRaw: undefined,
+  totalLiquidityRaw: undefined,
+  liquidityValueA: undefined,
+  liquidityValueB: undefined,
 };
 // Context için tip tanımı
 interface SwapContextProps {
@@ -123,6 +127,8 @@ export enum SwapStatusType {
   APPROVAL_REQUIRED = "APPROVAL_REQUIRED",
   PLEASE_WAIT = "PLEASE WAIT",
   INVALID_ACCOUNT = "INVALID_ACCOUNT",
+  LIQUIDITY_REMOVE_FAILED = "LIQUIDITY_REMOVE_FAILED",
+  INSUFFICIENT_ALLOWANCE = "INSUFFICIENT_ALLOWANCE",
   INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS",
   SLIPPAGE_TOO_HIGH = "SLIPPAGE_TOO_HIGH",
   PRICE_IMPACT_TOO_HIGH = "PRICE_IMPACT_TOO_HIGH",
@@ -233,8 +239,12 @@ interface TPairState {
   userQuoteLiquidity: any;
   shareOfPool: any;
   noLiquidity: boolean;
+  liquidityValueA: CurrencyAmount<Token> | undefined;
+  liquidityValueB: CurrencyAmount<Token> | undefined;
   userBaseLiquidityRaw: CurrencyAmount<Token> | undefined;
   userQuoteLiquidityRaw: CurrencyAmount<Token> | undefined;
+  userLiquidityRaw: CurrencyAmount<Token> | undefined;
+  totalLiquidityRaw: CurrencyAmount<Token> | undefined;
 }
 
 
@@ -1290,6 +1300,10 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         noLiquidity: true,
         userBaseLiquidityRaw: undefined,
         userQuoteLiquidityRaw: undefined,
+        userLiquidityRaw: undefined,
+        totalLiquidityRaw: undefined,
+        liquidityValueA: undefined,
+        liquidityValueB: undefined,
       });
       setLoading(false)
       setCanSwap(true)
@@ -1325,6 +1339,10 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         noLiquidity: true,
         userBaseLiquidityRaw: undefined,
         userQuoteLiquidityRaw: undefined,
+        userLiquidityRaw: undefined,
+        totalLiquidityRaw: undefined,
+        liquidityValueA: undefined,
+        liquidityValueB: undefined,
       });
       setLoading(false)
       setCanSwap(true)
@@ -1498,11 +1516,15 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       userQuoteLiquidity: _quoteAddress === lpquoteToken.address ? liquidityValueB?.toSignificant(6) : liquidityValueA?.toSignificant(6),
       userBaseLiquidityRaw: _baseAddress === lpbaseToken.address ? liquidityValueA : liquidityValueB,
       userQuoteLiquidityRaw: _quoteAddress === lpquoteToken.address ? liquidityValueB : liquidityValueA,
+      liquidityValueA: liquidityValueA,
+      liquidityValueB: liquidityValueB,
       baseReservePercent: new Percent(base, total).toFixed(2),
       quoteReservePercent: new Percent(quote, total).toFixed(2),
       totalReservePercent: new Percent(total, total).toFixed(2),
       totalLiquidity: totalSupply.toSignificant(6),
+      totalLiquidityRaw: totalSupply,
       userLiquidity: _userLiquidityAmount.toSignificant(6),
+      userLiquidityRaw: _userLiquidityAmount,
       shareOfPool: shareOfPool,
       noLiquidity: false,
     }));
@@ -1571,7 +1593,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     const amountAIndex = tradeType === TradeType.EXACT_OUTPUT ? 1 : 0;
     const amountBIndex = tradeType === TradeType.EXACT_OUTPUT ? 1 : 0;
 
-    const amountAMin = calculateSlippageAmount(reserve0, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[amountAIndex].toString()
+    const amountAMin =  calculateSlippageAmount(reserve0, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[amountAIndex].toString()
     const amountBMin = calculateSlippageAmount(reserve1, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[amountBIndex].toString();
     const addressTo = signerAccount
     const deadline = moment().utc().unix() + (30 * 60)
@@ -1702,10 +1724,181 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
    
   }
 
-  function handleRemoveLiquidity(){
-    //remove liquidity
-    console.log("ersan remove liquidity")
+  const handleRemoveLiquidity = async () => {
+    if (!chainId) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_CHAIN,
+        message: "Invalid Chain",
+      })
+      return;
+    }
+
+    if (baseToken == null || quoteToken == null) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_TOKEN,
+        message: "Invalid Token",
+      })
+      return;
+    }
+
+
+    setIsSwapping(true)
+
+    let WRAPPED_TOKEN = WETH9[Number(chainId)].address;
+
+    let _baseAddress = baseToken.address == ZeroAddress ? WRAPPED_TOKEN : baseToken.address;
+    let _quoteAddress = quoteToken.address == ZeroAddress ? WRAPPED_TOKEN : quoteToken.address;
+
+    let dexContract = await getContractByName(TContractType.DEX, Number(chainId));
+
+    const [signerAccount] = await dexContract.wallet.getAddresses();
+
+    const etherIn = baseToken.address == ZeroAddress
+    const etherOut = quoteToken.address == ZeroAddress
+
+
+    const ZERO_PERCENT = new Percent('0')
+    const DEFAULT_ADD_SLIPPAGE_TOLERANCE = new Percent(INITIAL_ALLOWED_SLIPPAGE, 10_000)
+
+    console.log("handleRemoveLiquidity", _baseAddress, _quoteAddress,pairState)
+
+    const userLiquidity: CurrencyAmount<Token> | undefined = pairState.userLiquidityRaw
+    const selectedPercent: Percent = new Percent(removeLiquidityPercent, 100); // örneğin %25
+    let selectedLiquidityAmount: CurrencyAmount<Token> | undefined;
+
+    if(!userLiquidity){
+      setSwapResult({
+        type: SwapStatusType.INSUFFICIENT_LIQUIDITY,
+        message: "Insufficient Liquidity",
+      })
+      return;
+    }
+
+    if(!pairState.liquidityValueB){
+      setSwapResult({
+        type: SwapStatusType.INSUFFICIENT_LIQUIDITY,
+        message: "Insufficient Liquidity",
+      })
+      return;
+    }
+    if(!pairState.liquidityValueA){
+      setSwapResult({
+        type: SwapStatusType.INSUFFICIENT_LIQUIDITY,
+        message: "Insufficient Liquidity",
+      })
+      return;
+    }
+
+
+    selectedLiquidityAmount = userLiquidity.multiply(selectedPercent);
+    
+    const [amountBase,amountQuote] = pairState.pairInfo.base.token === _baseAddress ?  [pairState.liquidityValueA,pairState.liquidityValueB] : [pairState.liquidityValueB,pairState.liquidityValueA]
+    
+    const amountBasePercent = amountBase.multiply(selectedPercent)
+    const amountQuotePercent = amountQuote.multiply(selectedPercent)
+
+    var amountA,amountB;
+
+    if(etherIn || etherOut){
+      [amountA,amountB] = _baseAddress === WRAPPED_TOKEN ? [amountQuotePercent,amountBasePercent] : [amountBasePercent,amountQuotePercent]
+    }else{
+      [amountA,amountB] = [amountBasePercent,amountQuotePercent]
+    }
+    //const [amountA,amountB] 
+    console.log("token0", pairState.pairInfo.base.token, "token1", pairState.pairInfo.quote.token)
+    console.log("amountA", amountA.toSignificant(6), "amountB", amountB.toSignificant(6))
+    
+    
+    let liquidity = toHex(selectedLiquidityAmount)
+    
+    
+    const amountAMinWithSlippage = calculateSlippageAmount(amountA, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[0]
+    const amountBMinWithSlippage = calculateSlippageAmount(amountB, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[0]
+    
+
+  
+    
+    let amountAMin = enableTaxesContract ? ZERO : amountAMinWithSlippage
+    let amountBMin = enableTaxesContract ? ZERO : amountBMinWithSlippage
+    let to = signerAccount
+    const tenMinutesInSeconds = 10 * 60; // 10 dakika saniye cinsinden
+    const deadline = Math.ceil(Date.now() / 1000) + tenMinutesInSeconds;
+
+    let functionName = etherIn || etherOut ? 'removeLiquidityETH' : 'removeLiquidity'
+    let tokenAddress = _baseAddress === WRAPPED_TOKEN ? _quoteAddress : _baseAddress
+    const swapParameters = etherIn || etherOut ? 
+      [tokenAddress,liquidity,amountAMin,amountBMin,to,deadline] : 
+      [_baseAddress,_quoteAddress,liquidity,amountAMin,amountBMin,to,deadline]
+
+      try{
+        const tokenContract = getContract({
+          address: pairState.pairInfo.pair as `0x${string}`,
+          abi: erc20Abi,
+          client: dexContract.client
+        })
+
+        const allowance = await tokenContract.read.allowance([
+          signerAccount,
+          dexContract.caller.address
+        ])
+
+        if (JSBI.lessThan(JSBI.BigInt(allowance.toString()), selectedLiquidityAmount.quotient)) {
+         
+          const approvalTx = await dexContract.wallet.writeContract({
+            chain: dexContract.client.chain,
+            address: pairState.pairInfo.pair as `0x${string}`,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [dexContract.address, ethers.MaxUint256],
+            account: signerAccount
+          })
+          const receiptApproval = await waitForTransactionReceipt(dexContract.wallet, {
+            hash: approvalTx,
+          });
+          setSwapResult({
+            type: SwapStatusType.SUCCESS,
+            message: "Approval Succeed",
+          })
+
+
+        }
+
+        const tx: any = await dexContract.wallet.writeContract({
+        chain: dexContract.client.chain,
+        address: dexContract.caller.address as `0x${string}`,
+        abi: dexContract.abi,
+        functionName: functionName,
+        args: swapParameters,
+        account: signerAccount,
+        value: undefined
+      })
+
+      const receipt = await waitForTransactionReceipt(dexContract.wallet, {
+        hash: tx,
+      });
+
+      console.log("receipt", receipt)
+      setSwapResult({
+        type: SwapStatusType.SUCCESS,
+        message: "Liquidity Removed",
+        txHash: receipt.transactionHash,
+      })
+
+
+
+
+
+      }catch(error){
+        console.log("error", error)
+        setSwapResult({
+          type: SwapStatusType.LIQUIDITY_REMOVE_FAILED,
+          message: "Liquidity Remove Failed",
+        })
+      }finally{
+        setIsSwapping(false)
+      }
   }
+
 
 
   // Context değeri
