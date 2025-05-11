@@ -31,6 +31,8 @@ const initialPairState: TPairState = {
   totalReservePercent: "0.00",
   shareOfPool: "100",
   noLiquidity: true,
+  userBaseLiquidityRaw: undefined,
+  userQuoteLiquidityRaw: undefined,
 };
 // Context için tip tanımı
 interface SwapContextProps {
@@ -47,8 +49,8 @@ interface SwapContextProps {
   baseReservePercent: Percent;
   quoteReservePercent: Percent;
   totalReservePercent: Percent;
-  baseReserveAmount: CurrencyAmount<Token> | null;
-  quoteReserveAmount: CurrencyAmount<Token> | null;
+  baseReserveAmount: CurrencyAmount<Token> | undefined;
+  quoteReserveAmount: CurrencyAmount<Token> | undefined;
   priceImpactWarningSeverity: number;
   removeLiquidityPercent: number;
   setRemoveLiquidityPercent: (percent: number) => void;
@@ -86,8 +88,8 @@ const defaultContext: SwapContextProps = {
   baseReservePercent: new Percent(0, 0),
   quoteReservePercent: new Percent(0, 0),
   totalReservePercent: new Percent(0, 0),
-  baseReserveAmount: null,
-  quoteReserveAmount: null,
+  baseReserveAmount: undefined,
+  quoteReserveAmount: undefined,
   priceImpactWarningSeverity: 0,
   loading: false,
   aggregatorPairs: [],
@@ -231,6 +233,8 @@ interface TPairState {
   userQuoteLiquidity: any;
   shareOfPool: any;
   noLiquidity: boolean;
+  userBaseLiquidityRaw: CurrencyAmount<Token> | undefined;
+  userQuoteLiquidityRaw: CurrencyAmount<Token> | undefined;
 }
 
 
@@ -271,8 +275,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [baseReservePercent, setBaseReservePercent] = useState<Percent>(new Percent(0, 0));
   const [quoteReservePercent, setQuoteReservePercent] = useState<Percent>(new Percent(0, 0));
   const [totalReservePercent, setTotalReservePercent] = useState<Percent>(new Percent(0, 0));
-  const [baseReserveAmount, setBaseReserveAmount] = useState<CurrencyAmount<Token> | null>(null);
-  const [quoteReserveAmount, setQuoteReserveAmount] = useState<CurrencyAmount<Token> | null>(null);
+  const [baseReserveAmount, setBaseReserveAmount] = useState<CurrencyAmount<Token> | undefined>(undefined);
+  const [quoteReserveAmount, setQuoteReserveAmount] = useState<CurrencyAmount<Token> | undefined>(undefined);
   const [priceImpactWarningSeverity, setPriceImpactWarningSeverity] = useState<number>(0);
   const [loading, setLoading] = useState<boolean>(false);
   const [canSwap, setCanSwap] = useState<boolean>(false);
@@ -1284,6 +1288,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         totalReservePercent: "0.00",
         shareOfPool: "100",
         noLiquidity: true,
+        userBaseLiquidityRaw: undefined,
+        userQuoteLiquidityRaw: undefined,
       });
       setLoading(false)
       setCanSwap(true)
@@ -1317,6 +1323,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         totalReservePercent: "0.00",
         shareOfPool: "100",
         noLiquidity: true,
+        userBaseLiquidityRaw: undefined,
+        userQuoteLiquidityRaw: undefined,
       });
       setLoading(false)
       setCanSwap(true)
@@ -1488,6 +1496,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       quoteLiquidity: _quoteAddress === lpquoteToken.address ? quoteReserve.toSignificant(6) : baseReserve.toSignificant(6),
       userBaseLiquidity: _baseAddress === lpbaseToken.address ? liquidityValueA?.toSignificant(6) : liquidityValueB?.toSignificant(6),
       userQuoteLiquidity: _quoteAddress === lpquoteToken.address ? liquidityValueB?.toSignificant(6) : liquidityValueA?.toSignificant(6),
+      userBaseLiquidityRaw: _baseAddress === lpbaseToken.address ? liquidityValueA : liquidityValueB,
+      userQuoteLiquidityRaw: _quoteAddress === lpquoteToken.address ? liquidityValueB : liquidityValueA,
       baseReservePercent: new Percent(base, total).toFixed(2),
       quoteReservePercent: new Percent(quote, total).toFixed(2),
       totalReservePercent: new Percent(total, total).toFixed(2),
