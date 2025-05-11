@@ -1742,6 +1742,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     } finally {
       setIsSwapping(false)
       resetSwap()
+      await fetchBalances(chainId, signerAccount, walletProvider, tokens, setTokens)
     }
 
 
@@ -1749,7 +1750,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
   }
 
-  const handleRemoveLiquidity = async () => {
+  const handleRemoveLiquidity = async (walletProvider: any) => {
     if (!chainId) {
       setSwapResult({
         type: SwapStatusType.INVALID_CHAIN,
@@ -1920,7 +1921,9 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         message: "Liquidity Remove Failed",
       })
     } finally {
+      resetSwap()
       setIsSwapping(false)
+      await fetchBalances(chainId, signerAccount, walletProvider, tokens, setTokens)
     }
   }
 
