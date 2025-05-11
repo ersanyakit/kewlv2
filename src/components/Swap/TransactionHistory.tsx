@@ -154,13 +154,13 @@ const TransactionHistory: React.FC = () => {
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM4.332 8.027a6.012 6.012 0 011.912-2.706C6.512 5.73 6.974 6 7.5 6A1.5 1.5 0 019 7.5V8a2 2 0 004 0 2 2 0 011.523-1.943A5.977 5.977 0 0116 10c0 .34-.028.675-.083 1H15a2 2 0 00-2 2v2.197A5.973 5.973 0 0110 16v-2a2 2 0 00-2-2 2 2 0 01-2-2 2 2 0 00-1.668-1.973z" clipRule="evenodd" />
                   </svg>
                 </div>
-                <div className="ml-2">
-                  <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Available Rewards</p>
+                <div className="ml-0">
+                  <p className={`text-sm font-small ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Available:</p>
                 </div>
               </div>
               <div className="text-right">
                 <div className="flex items-center">
-                  <p className={`text-lg font-bold ${isDarkMode ? 'text-pink-300' : 'text-pink-600'}`}>{userTradingStats && parseFloat(userTradingStats.individualReward).toFixed(4)}</p>
+                  <p className={`text-lg font-bold ${isDarkMode ? 'text-pink-300' : 'text-pink-600'}`}>{userTradingStats && parseFloat(userTradingStats.individualReward).toFixed(6)}</p>
                   <p className={`ml-1 text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{nativeToken && nativeToken.symbol}</p>
                 </div>
               </div>
