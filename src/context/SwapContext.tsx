@@ -15,6 +15,15 @@ import { waitForTransactionReceipt } from 'viem/actions';
 import { getExchangeByRouterAndWETH, getRoutersByChainId } from '../constants/contracts/exchanges';
 import { sqrt } from '../constants/entities/utils/sqrt';
 
+interface UserTradingStats {
+  totalReward: bigint;
+  individualReward: any; // veya bigint, duruma göre
+  tradingStats: {
+    token: string;
+    totalTrades: string;
+    individualTrades: string;
+  }[];
+}
 
 const initialPairState: TPairState = {
   pairInfo: null,
@@ -58,9 +67,8 @@ interface SwapContextProps {
   priceImpactWarningSeverity: number;
   removeLiquidityPercent: number;
   setRemoveLiquidityPercent: (percent: number) => void;
-  userTradingStats: any[];
-  setUserTradingStats: (userTradingStats: any[]) => void;
-
+  userTradingStats: UserTradingStats | null;
+  setUserTradingStats: (userTradingStats: UserTradingStats | null) => void;
   pairState: TPairState;
   setPairState: (pairState: TPairState) => void;
   handleAggregatorSwap: (walletProvider: any) => void;
@@ -84,7 +92,7 @@ interface SwapContextProps {
 
 // Context varsayılan değeri
 const defaultContext: SwapContextProps = {
-  userTradingStats: [],
+  userTradingStats: null,
   setUserTradingStats: () => { },
   canAggregatorSwap: false,
   swapResult: null,
@@ -302,8 +310,11 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [aggregatorPairs, setAggregatorPairs] = useState<TCustomPair[]>([]);
   const [pairState, setPairState] = useState<TPairState>(initialPairState);
   const [removeLiquidityPercent, setRemoveLiquidityPercent] = useState<number>(100);
-  const [userTradingStats, setUserTradingStats] = useState<any[]>([]);
-  // Input değişiklikleri için handler'lar
+
+ 
+  
+  const [userTradingStats, setUserTradingStats] = useState<UserTradingStats | null>(null);
+    // Input değişiklikleri için handler'lar
   const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const regex = /^[0-9]*\.?[0-9]*$/;
     let value = e.target.value.replace(",", ".")
@@ -1966,15 +1977,28 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
     console.log("individual",individualTrades)
     console.log("totaltrades",totaltrades)
+    var totalReward = parseEther("200")
+    var individualReward : any = 0
     let combinedList = filteredTokensList.map((token: any, index: number) => {
-      const [total, individual] = [individualTrades[index],totaltrades[index]]// hata önleyici
+      const [total, individual] = [individualTrades[index],totaltrades[index]]
+
+      if(token.address == WETH9[Number(chainId)].address){
+        const rewardInEther = (BigInt(individual) * BigInt(totalReward)) / BigInt(total);
+         individualReward = ethers.formatUnits(rewardInEther.toString(), 18); 
+      }
+
       return {
         token:token,
         totalTrades:ethers.formatUnits(total,token.decimals),
         individualTrades:ethers.formatUnits(individual,token.decimals)
       };
     });
-    setUserTradingStats(combinedList)
+    const _userTradingStats: UserTradingStats = {
+      totalReward,
+      individualReward,
+      tradingStats: combinedList,
+    };
+    setUserTradingStats(_userTradingStats)
     console.log("tradeStats",combinedList)
      
 }
