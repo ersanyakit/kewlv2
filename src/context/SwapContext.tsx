@@ -109,6 +109,8 @@ const SwapContext = createContext<SwapContextProps>(defaultContext);
 
 export enum SwapStatusType {
   SUCCESS = "SUCCESS",
+  APPROVAL_FAILED = "APPROVAL_FAILED",
+  APPROVAL_REQUIRED = "APPROVAL_REQUIRED",
   INVALID_ACCOUNT = "INVALID_ACCOUNT",
   INSUFFICIENT_FUNDS = "INSUFFICIENT_FUNDS",
   SLIPPAGE_TOO_HIGH = "SLIPPAGE_TOO_HIGH",
@@ -1550,7 +1552,79 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     const addressTo = signerAccount
     const deadline = moment().utc().unix() + (30 * 60)
 
+    if(baseToken.address != ZeroAddress){
+      try {
+        const tokenContract = getContract({
+          address: baseToken.address as `0x${string}`,
+          abi: erc20Abi,
+          client: dexContract.client
+        })
 
+        const allowance = await tokenContract.read.allowance([
+          signerAccount,
+          dexContract.caller.address
+        ])
+
+        if (allowance < amountADesired) {
+
+          const approvalTx = await dexContract.wallet.writeContract({
+            chain: dexContract.client.chain,
+            address: baseToken.address as `0x${string}`,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [dexContract.address, ethers.MaxUint256],
+            account: signerAccount
+          })
+          const receiptApproval = await waitForTransactionReceipt(dexContract.wallet, {
+            hash: approvalTx,
+          });
+          console.log("receiptApproval", receiptApproval)
+        }
+      } catch (error) {
+        setSwapResult({
+          type: SwapStatusType.APPROVAL_FAILED,
+          message: "Approval Failed",
+        })
+        return;
+      }
+    }
+
+    if(quoteToken.address != ZeroAddress){
+      try {
+        const tokenContract = getContract({
+          address: quoteToken.address as `0x${string}`,
+          abi: erc20Abi,
+          client: dexContract.client
+        })
+
+        const allowance = await tokenContract.read.allowance([
+          signerAccount,
+          dexContract.caller.address
+        ])
+
+        if (allowance < amountBDesired) {
+
+          const approvalTx = await dexContract.wallet.writeContract({
+            chain: dexContract.client.chain,
+            address: quoteToken.address as `0x${string}`,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [dexContract.address, ethers.MaxUint256],
+            account: signerAccount
+          })
+          const receiptApproval = await waitForTransactionReceipt(dexContract.wallet, {
+            hash: approvalTx,
+          });
+          console.log("receiptApproval", receiptApproval)
+        }
+      } catch (error) {
+        setSwapResult({
+          type: SwapStatusType.APPROVAL_FAILED,
+          message: "Approval Failed",
+        })
+        return;
+      }
+    }
 
     let functionName = etherIn || etherOut ? 'addLiquidityETH' : 'addLiquidity'
 
