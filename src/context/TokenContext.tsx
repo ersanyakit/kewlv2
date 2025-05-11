@@ -32,7 +32,11 @@ export type Token = {
 export enum SWAP_MODE {
   SIMPLESWAP = 'SWAP',
   AGGREGATOR = 'AGGREGATOR',
-  COLLECTOR = 'COLLECTOR'
+  COLLECTOR = 'COLLECTOR',
+
+  POOLS = 'POOLS',
+  ADD_LIQUIDITY = 'ADD_LIQUIDITY',
+  REMOVE_LIQUIDITY = 'REMOVE_LIQUIDITY'
 }
 
 interface TokenContextType {
@@ -352,7 +356,6 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setFavoriteOnly,
     selectToken,
     handleSwapTokens,
-    setEnableTaxesContract,
     toggleDarkMode,
     setTokenList,
     setTokens

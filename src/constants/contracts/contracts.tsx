@@ -49,6 +49,7 @@ export const getContractByName = async (contractType: TContractType, chainId: st
     }
     let contract: TCustomContract = {
         abi: contractGroup.abi,
+        pair: contractGroup.pair,
         address: contractGroup.contracts[chainId].address,
         client: client,
         wallet: wallet,

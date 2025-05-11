@@ -1,5 +1,6 @@
 import DEX_ABI from "./abis/KEWLDEX.json";
 import ERC20_ABI from "./abis/ERC20.json";
+import PAIR_ABI from "./abis/PAIR.json";
 import { Address } from "@reown/appkit-adapter-ethers";
 import { PublicClient, WalletClient } from "viem";
  
@@ -15,6 +16,7 @@ export enum TContractType {
   export interface TCustomContract {
     address: Address;
     abi:object[];
+    pair?:any|object[]|undefined;
     client: PublicClient;
     wallet:WalletClient;
     caller: any;
@@ -24,14 +26,17 @@ export enum TContractType {
   export type MultiContractConfig = {
     [contractType in TContractType]: {
       abi: object[];
+      pair?:any | object[]
       contracts?: Record<number | string, TContract>;
     };
   };
 
+export const KEWL_DEPLOYER_ADDRESS = "0x700Ff3371Befd82FdD207Ce40B866905B1B9990b"
 
 export const ContractList: MultiContractConfig = {
     [TContractType.DEX]: {
         abi: DEX_ABI.abi,
+        pair:PAIR_ABI.abi,
         contracts: {
             88888: {
                 address: "0xA0BB8f9865f732C277d0C162249A4F6c157ae9D0",

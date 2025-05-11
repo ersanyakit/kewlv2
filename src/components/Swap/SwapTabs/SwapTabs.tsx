@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, PieChart, Clock } from 'lucide-react';
+import { RefreshCw, PieChart, Clock, Waves } from 'lucide-react';
 
 interface SwapTabsProps {
   activeView: string;
@@ -55,7 +55,7 @@ const SwapTabs: React.FC<SwapTabsProps> = ({
               : 'text-gray-600 hover:bg-white/50'}`}
           onClick={() => setActiveView('pools')}
         >
-          <PieChart className="w-4 h-4 mr-1.5" />
+          <Waves  className="w-4 h-4 mr-1.5" />
           Pools
         </button>
        

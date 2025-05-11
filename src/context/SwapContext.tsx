@@ -1,11 +1,11 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { CHILIZWRAPPER, CurrencyAmount, Pair, Percent, Route, Token, Trade, WETH9 } from '../constants/entities';
-import { DEFAULT_DEADLINE_FROM_NOW, ETHER_ADDRESS, INITIAL_ALLOWED_SLIPPAGE, MINIMUM_LIQUIDITY, TradeType } from '../constants/entities/utils/misc';
+import { CHILIZWRAPPER, CurrencyAmount, Pair, Percent, Price, Route, Token, Trade, WETH9 } from '../constants/entities';
+import { DEFAULT_DEADLINE_FROM_NOW, ETHER_ADDRESS, INITIAL_ALLOWED_SLIPPAGE, MINIMUM_LIQUIDITY, SWAP_FEE_ON, TradeType, ZERO } from '../constants/entities/utils/misc';
 import { SWAP_MODE, useTokenContext } from './TokenContext';
 import { useAppKitNetwork } from '@reown/appkit/react';
-import { ethers, formatEther, parseEther, ZeroAddress } from 'ethers';
+import { AbiCoder, ethers, formatEther, parseEther, ZeroAddress } from 'ethers';
 import { fetchBalances, getContractByName } from '../constants/contracts/contracts';
-import { TContractType } from '../constants/contracts/addresses';
+import { KEWL_DEPLOYER_ADDRESS, TContractType } from '../constants/contracts/addresses';
 import JSBI from 'jsbi';
 import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_MEDIUM, warningSeverity, warningSeverityText } from '../constants/entities/utils/calculateSlippageAmount';
 import moment from 'moment';
@@ -13,7 +13,25 @@ import { toHex } from '../constants/entities/utils/computePriceImpact';
 import { erc20Abi, getContract } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
 import { getExchangeByRouterAndWETH, getRoutersByChainId } from '../constants/contracts/exchanges';
+import { sqrt } from '../constants/entities/utils/sqrt';
 
+
+const initialPairState: TPairState = {
+  pairInfo: null,
+  userLiquidity: "0.0000",
+  totalLiquidity: "0.0000",
+  basePrice: "0.0000",
+  quotePrice: "0.0000",
+  baseLiquidity: "0.0000",
+  quoteLiquidity: "0.0000",
+  userBaseLiquidity: "0.00000",
+  userQuoteLiquidity: "0.0000",
+  baseReservePercent: "0.00",
+  quoteReservePercent: "0.00",
+  totalReservePercent: "0.00",
+  shareOfPool: "100",
+  noLiquidity: true,
+};
 // Context için tip tanımı
 interface SwapContextProps {
   // Diğer özellikler...
@@ -32,6 +50,9 @@ interface SwapContextProps {
   baseReserveAmount: CurrencyAmount<Token> | null;
   quoteReserveAmount: CurrencyAmount<Token> | null;
   priceImpactWarningSeverity: number;
+
+  pairState: TPairState;
+  setPairState: (pairState: TPairState) => void;
   handleAggregatorSwap: (walletProvider: any) => void;
 
   aggregatorPairs: TCustomPair[];
@@ -77,6 +98,8 @@ const defaultContext: SwapContextProps = {
   setCanAggregatorSwap: () => { },
   handleBundleSwap: () => { },
   // Diğer varsayılan değerler...
+  pairState: initialPairState,
+  setPairState: () => { },
 };
 
 // Context oluşturma
@@ -92,6 +115,7 @@ export enum SwapStatusType {
   TOKEN_NOT_SUPPORTED = "TOKEN_NOT_SUPPORTED",
   INVALID_ADDRESS = "INVALID_ADDRESS",
   NETWORK_ERROR = "NETWORK_ERROR",
+  ACCOUNT_NOT_CONNECTED = "ACCOUNT_NOT_CONNECTED",
   USER_REJECTED = "USER_REJECTED",
   CONTRACT_ERROR = "CONTRACT_ERROR",
   UNKNOWN_ERROR = "UNKNOWN_ERROR",
@@ -177,6 +201,27 @@ export interface TCustomPair {
   warningSeverity: number;
   warningSeverityText: string;
 };
+
+
+interface TPairState {
+  pairInfo: any; // Gerçek tip PairInfo varsa onunla değiştir
+  userLiquidity: any;
+  totalLiquidity: any;
+  basePrice: any;
+  quotePrice: any;
+  baseReservePercent: any;
+  quoteReservePercent: any;
+  totalReservePercent: any;
+  baseLiquidity: any;
+  quoteLiquidity: any;
+  userBaseLiquidity: any;
+  userQuoteLiquidity: any;
+  shareOfPool: any;
+  noLiquidity: boolean;
+}
+
+
+
 export interface TradeItemProps {
   pair: TCustomPair,
 };
@@ -222,6 +267,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [isSwapping, setIsSwapping] = useState<boolean>(false);
   const [swapResult, setSwapResult] = useState<SwapResult | null>(null);
   const [aggregatorPairs, setAggregatorPairs] = useState<TCustomPair[]>([]);
+  const [pairState, setPairState] = useState<TPairState>(initialPairState);
   // Input değişiklikleri için handler'lar
   const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const regex = /^[0-9]*\.?[0-9]*$/;
@@ -262,9 +308,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   }
 
 
-
-
-  const fetchPairInfo = async () => {
+  const fetchSwapPairInfo = async () => {
     setCanSwap(false);
     setSwapResult(null);
     if (!chainId) {
@@ -592,9 +636,11 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (swapMode == SWAP_MODE.SIMPLESWAP) {
-      fetchPairInfo();
+      fetchSwapPairInfo();
     } else if (swapMode == SWAP_MODE.AGGREGATOR) {
       fetchAggregatorInfo();
+    } else if (swapMode == SWAP_MODE.POOLS) {
+      fetchLiquidityInfo(null);
     }
   }, [baseToken, quoteToken, fromAmount, toAmount, tradeType]);
 
@@ -965,16 +1011,16 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
     let dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
 
-    let pairsAddressList : any[] =[]
+    let pairsAddressList: any[] = []
     fanTokens.forEach(token => {
-             const pair : any = token.pair
-             if(pair != ethers.ZeroAddress){
-                 pairsAddressList.push(pair)
-                 console.log("Pair Aliniyor..", token.symbol, pair)
-             }
-     });
+      const pair: any = token.pair
+      if (pair != ethers.ZeroAddress) {
+        pairsAddressList.push(pair)
+        console.log("Pair Aliniyor..", token.symbol, pair)
+      }
+    });
 
-     const pairs: any = await dexContract.client.readContract({
+    const pairs: any = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
       functionName: 'getReservesByPairAddresses',
@@ -982,14 +1028,14 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       account: ethers.getAddress(account) as `0x${string}`,
     })
 
-    if(pairs.length == 0){
+    if (pairs.length == 0) {
       setSwapResult({
         type: SwapStatusType.INVALID_PATH,
         message: "Invalid Path",
       })
       return;
     }
-   setIsSwapping(true)
+    setIsSwapping(true)
 
 
     for (const pair of pairs) {
@@ -1064,13 +1110,13 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       }
 
       allSwapParams.push(swapParam)
- 
+
 
 
     }
 
 
-    if(allSwapParams.length == 0){
+    if (allSwapParams.length == 0) {
       setSwapResult({
         type: SwapStatusType.INVALID_PATH,
         message: "Invalid Path",
@@ -1081,13 +1127,13 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
     let fee = parseEther("10")
     let overrides = {
-        value:fee + parseEther(totalInvestment.toString())
+      value: fee + parseEther(totalInvestment.toString())
     }
 
     const [signerAccount] = await dexContract.wallet.getAddresses();
 
     try {
- 
+
 
       const tx: any = await dexContract.wallet.writeContract({
         chain: dexContract.client.chain,
@@ -1144,6 +1190,280 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
   }
 
+  const fetchLiquidityInfo = async (walletProvider: any) => {
+    if (!chainId) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_CHAIN,
+        message: "Invalid Chain",
+      })
+      return;
+    }
+    if (baseToken == null || quoteToken == null) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_TOKEN,
+        message: "Invalid Token",
+      })
+      return;
+    }
+
+    if (tradeType == TradeType.EXACT_INPUT && !fromAmount) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_AMOUNT,
+        message: "Invalid Amount",
+      })
+      return;
+    }
+    if (tradeType == TradeType.EXACT_OUTPUT && !toAmount) {
+      setSwapResult({
+        type: SwapStatusType.INVALID_AMOUNT,
+        message: "Invalid Amount",
+      })
+      return;
+    }
+
+    let WRAPPED_TOKEN = WETH9[Number(chainId)].address;
+
+    let _baseAddress = baseToken.address == ZeroAddress ? WRAPPED_TOKEN : baseToken.address;
+    let _quoteAddress = quoteToken.address == ZeroAddress ? WRAPPED_TOKEN : quoteToken.address;
+
+    let dexContract = await getContractByName(TContractType.DEX, Number(chainId));
+
+
+    const _pairInfo: any = await dexContract.client.readContract({
+      address: dexContract.caller.address,
+      abi: dexContract.abi,
+      functionName: 'getPairInfo',
+      args: [_baseAddress, _quoteAddress],
+      account: account ? ethers.getAddress(account) as `0x${string}` : KEWL_DEPLOYER_ADDRESS
+    })
+
+
+
+    if (!_pairInfo || !_pairInfo.valid) {
+      setPairState({
+        pairInfo: null,
+        userLiquidity: "0.0000",
+        totalLiquidity: "0.0000",
+        basePrice: "0.0000",
+        quotePrice: "0.0000",
+        baseLiquidity: "0.0000",
+        quoteLiquidity: "0.0000",
+        userBaseLiquidity: "0.00000",
+        userQuoteLiquidity: "0.0000",
+        baseReservePercent: "0.00",
+        quoteReservePercent: "0.00",
+        totalReservePercent: "0.00",
+        shareOfPool: "100",
+        noLiquidity: true,
+      });
+      return null;
+    }
+
+    const pairAddress = _pairInfo.pair;
+    const liquidityToken: Token = new Token(Number(chainId), pairAddress, 18, "PAIR", "PAIR", false)
+
+    const tokenA = new Token(Number(chainId), _baseAddress, baseToken.decimals)
+    const tokenB = new Token(Number(chainId), _quoteAddress, quoteToken.decimals)
+
+    const [lpbaseToken, lpquoteToken] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
+
+    const [_reserve0, _reserve1] = [_pairInfo.reserveBase, _pairInfo.reserveQuote]
+    let noLiquidity = _reserve0 === 0 && _reserve1 === 0
+
+    if (noLiquidity) {
+      setPairState({
+        pairInfo: null,
+        userLiquidity: "0.0000",
+        totalLiquidity: "0.0000",
+        basePrice: "0.0000",
+        quotePrice: "0.0000",
+        baseLiquidity: "0.0000",
+        quoteLiquidity: "0.0000",
+        userBaseLiquidity: "0.00000",
+        userQuoteLiquidity: "0.0000",
+        baseReservePercent: "0.00",
+        quoteReservePercent: "0.00",
+        totalReservePercent: "0.00",
+        shareOfPool: "100",
+        noLiquidity: true,
+      });
+      return
+    }
+
+    let abiERC = dexContract.pair;
+    let abiInterfaceParam = new ethers.Interface(abiERC);
+    let multicallParams = [
+      {
+        target: _pairInfo.pair,
+        callData: abiInterfaceParam.encodeFunctionData('balanceOf', [account ? account : ZeroAddress])
+      },
+      {
+        target: _pairInfo.pair,
+        callData: abiInterfaceParam.encodeFunctionData('kLast', [])
+      },
+      {
+        target: _pairInfo.pair,
+        callData: abiInterfaceParam.encodeFunctionData('totalSupply', [])
+      }
+    ]
+
+    var _userLPBalance: any
+    var _kLast: any
+    var _lpTotalSupply: any
+
+    try {
+      const multicallResult: any = await dexContract.client.readContract({
+        address: dexContract.caller.address,
+        abi: dexContract.abi,
+        functionName: 'aggregate',
+        args: [multicallParams],
+        account: account ? ethers.getAddress(account) as `0x${string}` : KEWL_DEPLOYER_ADDRESS,
+      })
+
+      const abiCoder = AbiCoder.defaultAbiCoder();
+      if (multicallResult && multicallResult.length > 0) {
+        [_userLPBalance] = abiCoder.decode(["uint256"], multicallResult[1][0]);
+        [_kLast] = abiCoder.decode(["uint256"], multicallResult[1][1]);
+        [_lpTotalSupply] = abiCoder.decode(["uint256"], multicallResult[1][2]);
+      }
+    } catch (error) {
+      console.log("Error", error)
+      setSwapResult({
+        type: SwapStatusType.ACCOUNT_NOT_CONNECTED,
+        message: "Account Not Connected",
+      })
+      return;
+    }
+
+    let _userLiquidityAmount: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(liquidityToken, JSBI.BigInt(_userLPBalance.toString()));
+    let _totalLiquidityAmount: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(liquidityToken, JSBI.BigInt(_lpTotalSupply.toString()));
+
+
+    const price = new Price(lpbaseToken, lpquoteToken, JSBI.BigInt(_reserve0.toString()), JSBI.BigInt(_reserve1.toString()))
+    let totalSupply: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(liquidityToken, JSBI.BigInt(_lpTotalSupply.toString()));
+
+    const canInvertPrice = Boolean(price && price.baseCurrency && price.quoteCurrency && !price.baseCurrency.equals(price.quoteCurrency))
+
+    const _basePrice = price?.toSignificant(6)
+    const _quotePrice = canInvertPrice ? price?.invert()?.toSignificant(6) : undefined
+
+
+    let reserve0: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(lpbaseToken, JSBI.BigInt(_reserve0.toString()));
+    let reserve1: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(lpquoteToken, JSBI.BigInt(_reserve1.toString()));
+    const [baseReserve, quoteReserve] = lpbaseToken.sortsBefore(lpquoteToken) ? [reserve0, reserve1] : [reserve1, reserve0]
+
+
+    const exchangePair = new Pair(
+      baseReserve,
+      quoteReserve,
+      liquidityToken.address
+    )
+
+    const liquidityValueA =
+      exchangePair &&
+        _totalLiquidityAmount &&
+        _userLiquidityAmount &&
+        baseToken &&
+        JSBI.greaterThanOrEqual(_totalLiquidityAmount.quotient, _userLiquidityAmount.quotient)
+        ? CurrencyAmount.fromRawAmount(lpbaseToken, exchangePair.getLiquidityValue(lpbaseToken, _totalLiquidityAmount, _userLiquidityAmount, SWAP_FEE_ON, JSBI.BigInt(_kLast.toString())).quotient)
+        : undefined
+
+
+    const liquidityValueB =
+      exchangePair &&
+        _totalLiquidityAmount &&
+        _userLiquidityAmount &&
+        lpquoteToken &&
+        JSBI.greaterThanOrEqual(_totalLiquidityAmount.quotient, _userLiquidityAmount.quotient)
+        ? CurrencyAmount.fromRawAmount(lpquoteToken, exchangePair.getLiquidityValue(lpquoteToken, _totalLiquidityAmount, _userLiquidityAmount, SWAP_FEE_ON, JSBI.BigInt(_kLast.toString())).quotient)
+        : undefined
+
+
+
+    const inputAmount = tradeType == TradeType.EXACT_INPUT ? fromAmount : toAmount
+    const inputToken =
+      tradeType === TradeType.EXACT_INPUT
+        ? _baseAddress === lpbaseToken.address
+          ? lpbaseToken
+          : lpquoteToken
+        : _quoteAddress === lpquoteToken.address
+          ? lpquoteToken
+          : lpbaseToken;
+
+
+    let shareOfPool: string = "0"
+    if (inputAmount) {
+      const calculatedAmount: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(inputToken, JSBI.BigInt(ethers.parseUnits(inputAmount, inputToken.decimals).toString()));
+      const isBaseMatch = lpbaseToken.address === _baseAddress;
+      const isQuoteMatch = lpquoteToken.address === _quoteAddress;
+
+      const quotedAmount = (tradeType === TradeType.EXACT_INPUT)
+        ? (isBaseMatch ? price.quote(calculatedAmount) : price.invert().quote(calculatedAmount))
+        : (isQuoteMatch ? price.invert().quote(calculatedAmount) : price.quote(calculatedAmount));
+
+      (tradeType === TradeType.EXACT_INPUT)
+        ? setToAmount(quotedAmount.toSignificant(6))
+        : setFromAmount(quotedAmount.toSignificant(6));
+
+
+      let tokenAmountA: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(tokenA, JSBI.BigInt(calculatedAmount.quotient));
+      let tokenAmountB: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(tokenB, JSBI.BigInt(quotedAmount.quotient));
+      const tokenAmounts = tokenAmountA.currency.sortsBefore(tokenAmountB.currency) // does safety checks
+        ? [tokenAmountA, tokenAmountB]
+        : [tokenAmountB, tokenAmountA]
+      let liquidity: JSBI
+      if (JSBI.equal(totalSupply.quotient, ZERO)) {
+        liquidity = JSBI.subtract(
+          sqrt(JSBI.multiply(tokenAmounts[0].quotient, tokenAmounts[1].quotient)),
+          MINIMUM_LIQUIDITY
+        )
+      } else {
+        const amount0 = JSBI.divide(JSBI.multiply(tokenAmounts[0].quotient, totalSupply.quotient), reserve0.quotient)
+        const amount1 = JSBI.divide(JSBI.multiply(tokenAmounts[1].quotient, totalSupply.quotient), reserve1.quotient)
+        liquidity = JSBI.lessThanOrEqual(amount0, amount1) ? amount0 : amount1
+      }
+      if (!JSBI.greaterThan(liquidity, ZERO)) {
+        shareOfPool = "0"
+      } else {
+        let liquidityMinted: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(liquidityToken, liquidity)
+        if (liquidityMinted && totalSupply) {
+          const poolTokenPercentage = new Percent(liquidityMinted.quotient, totalSupply.add(liquidityMinted).quotient)
+          let percentShare = noLiquidity && price
+            ? '100'
+            : (poolTokenPercentage?.lessThan(new Percent(JSBI.BigInt(1), JSBI.BigInt(10000))) ? '<0.01' : poolTokenPercentage?.toFixed(2)) ?? '0'
+          shareOfPool = percentShare
+        } else {
+          shareOfPool = "0"
+        }
+      }
+
+    }
+
+
+    const base = JSBI.BigInt(baseReserve.quotient.toString())
+    const quote = JSBI.BigInt(quoteReserve.quotient.toString())
+    const total = JSBI.add(base, quote)
+
+    setPairState(prev => ({
+      ...prev,
+      pairInfo: _pairInfo,
+      basePrice: _baseAddress === lpbaseToken.address ? _basePrice : _quotePrice,
+      quotePrice: _quoteAddress === lpquoteToken.address ? _quotePrice : _basePrice,
+      baseLiquidity: _baseAddress === lpbaseToken.address ? baseReserve.toSignificant(6) : quoteReserve.toSignificant(6),
+      quoteLiquidity: _quoteAddress === lpquoteToken.address ? quoteReserve.toSignificant(6) : baseReserve.toSignificant(6),
+      userBaseLiquidity: _baseAddress === lpbaseToken.address ? liquidityValueA?.toSignificant(6) : liquidityValueB?.toSignificant(6),
+      userQuoteLiquidity: _quoteAddress === lpquoteToken.address ? liquidityValueB?.toSignificant(6) : liquidityValueA?.toSignificant(6),
+      baseReservePercent: new Percent(base, total).toFixed(2),
+      quoteReservePercent: new Percent(quote, total).toFixed(2),
+      totalReservePercent: new Percent(total, total).toFixed(2),
+      totalLiquidity: totalSupply.toSignificant(6),
+      userLiquidity: _userLiquidityAmount.toSignificant(6),
+      shareOfPool: shareOfPool,
+      noLiquidity: false,
+    }));
+
+  }
+
 
 
 
@@ -1158,6 +1478,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     toggleDetails,
     swapResult,
     loading,
+    pairState,
+    setPairState,
     setLoading,
     setFromAmount,
     setToAmount,
