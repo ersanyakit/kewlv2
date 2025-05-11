@@ -29,74 +29,10 @@ const PoolsView: React.FC<PoolsViewProps> = ({ isDarkMode }) => {
   
   // Likidite ekranına özel state'ler
   const [activeTab, setActiveTab] = useState<'add' | 'remove' | 'my-pools'>('add');
-  const [amount1, setAmount1] = useState('');
-  const [amount2, setAmount2] = useState('');
-  const [showAdvanced, setShowAdvanced] = useState(false);
-  const [slippageTolerance, setSlippageTolerance] = useState(0.5);
   
-  // Kullanıcının mevcut likidite havuzları (örnek veri)
-  const myPools = [
-    { 
-      pair: 'CHZ-KEWL', 
-      token1: tokens[0], 
-      token2: tokens[1], 
-      myLiquidity: '12,532.40', 
-      totalLiquidity: '$45,830.00',
-      share: '1.8%',
-      apr: '14.2%',
-      earnings: '$328.45'
-    },
-    { 
-      pair: 'KEWL-CHZINU', 
-      token1: tokens[1], 
-      token2: tokens[2], 
-      myLiquidity: '3,050.12', 
-      totalLiquidity: '$128,650.00',
-      share: '0.6%',
-      apr: '22.8%',
-      earnings: '$147.92'
-    }
-  ];
   
-  // Form işlemleri
-  const handleAmount1Change = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9.]/g, '');
-    setAmount1(value);
-    // Oransal hesaplama (basit örnek)
-    if (value) {
-      const calculatedAmount = parseFloat(value) * 0.32; // Örnek oran
-      setAmount2(calculatedAmount.toFixed(6));
-    } else {
-      setAmount2('');
-    }
-  };
-  
-  const handleAmount2Change = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value.replace(/[^0-9.]/g, '');
-    setAmount2(value);
-    // Oransal hesaplama (basit örnek)
-    if (value) {
-      const calculatedAmount = parseFloat(value) * 3.125; // Örnek oran
-      setAmount1(calculatedAmount.toFixed(6));
-    } else {
-      setAmount1('');
-    }
-  };
-  
-  // Token çiftini değiştirme
-  const handleSwapTokens = () => {
-    const tempToken = baseToken;
-    setBaseToken(quoteToken);
-    setQuoteToken(tempToken);
-    
-    // Ayrıca miktarları da değiştir
-    const tempAmount = amount1;
-    setAmount1(amount2);
-    setAmount2(tempAmount);
-  };
-
   useEffect(()=>{
-    setSwapMode(SWAP_MODE.POOLS)
+    
   },[])
   
   return (

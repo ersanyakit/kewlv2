@@ -70,8 +70,10 @@ const RemoveLiquidityForm: React.FC = () => {
     toggleDetails,
     setToggleDetails,
     handleFromChange,
+    setRemoveLiquidityPercent,
+    removeLiquidityPercent,
+    fetchLiquidityInfo,
     handleRemoveLiquidity,
-    handleSwap,
     handleToChange } = useSwapContext();
   const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
   const { walletProvider } = useAppKitProvider('eip155');
@@ -80,15 +82,17 @@ const RemoveLiquidityForm: React.FC = () => {
 
 
   useEffect(() => {
-    setSwapMode(SWAP_MODE.POOLS);
+    setSwapMode(SWAP_MODE.REMOVE_LIQUIDITY);
 }, []);
 
   useEffect(() => {
+    if(baseToken && quoteToken){
+      fetchLiquidityInfo(walletProvider)
+    }
+  }, [swapMode]);
 
-    console.log("ersan baseToken", baseToken);
-    console.log("ersan quoteToken", quoteToken);
-
-  }, [baseToken, quoteToken, pairState,canSwap]);
+  useEffect(() => {
+  }, [baseToken, quoteToken]);
 
 
   return (
@@ -114,12 +118,9 @@ const RemoveLiquidityForm: React.FC = () => {
                     className={`text-xs ${isDarkMode
                       ? 'bg-pink-900/30 text-pink-300 hover:bg-pink-800/40'
                       : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100'
-                      } px-2 py-0.5 rounded-lg transition-colors`}
+                      } px-2 py-0.5 rounded-lg transition-colors ${removeLiquidityPercent == parseInt(percent) ? 'border border-pink-900/30' : ''}`}
                     onClick={() => {
-                      const rawBalance = baseToken?.balance.replace(',', '') || '0';
-                      const amount = (parseFloat(rawBalance) * (parseInt(percent) / 100)).toString();
-                      setTradeType(TradeType.EXACT_INPUT)
-                      handleFromChange({ target: { value: amount } } as React.ChangeEvent<HTMLInputElement>);
+                      setRemoveLiquidityPercent(parseInt(percent));
                     }}
                   >
                     {label}
@@ -138,11 +139,11 @@ const RemoveLiquidityForm: React.FC = () => {
               
                
               >{pairState && pairState.userBaseLiquidity}</span>
-              {fromAmount && (
-                <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
-                  <span>≈ ${(parseFloat(fromAmount) * parseFloat(baseToken ? baseToken?.price.replace('$', '') : '0')).toFixed(2)}</span>
-                </div>
-              )}
+
+              <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
+                  <span>≈ {(parseFloat(pairState.userBaseLiquidity) * (removeLiquidityPercent / 100)).toFixed(6)} {baseToken && baseToken.symbol}</span>
+              </div>
+            
             </div>
 
             <button
@@ -200,12 +201,9 @@ const RemoveLiquidityForm: React.FC = () => {
                     className={`text-xs ${isDarkMode
                       ? 'bg-pink-900/30 text-pink-300 hover:bg-pink-800/40'
                       : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100'
-                      } px-2 py-0.5 rounded-lg transition-colors`}
+                      } px-2 py-0.5 rounded-lg transition-colors ${removeLiquidityPercent == parseInt(percent) ? 'border border-pink-900/30' : ''}`}
                     onClick={() => {
-                      const rawBalance = quoteToken?.balance.replace(',', '') || '0';
-                      const amount = (parseFloat(rawBalance) * (parseInt(percent) / 100)).toString();
-                      setTradeType(TradeType.EXACT_OUTPUT)
-                      handleToChange({ target: { value: amount } } as React.ChangeEvent<HTMLInputElement>);
+                      setRemoveLiquidityPercent(parseInt(percent));
                     }}
                   >
                     {label}
@@ -222,11 +220,10 @@ const RemoveLiquidityForm: React.FC = () => {
              
              
               >{pairState && pairState.userQuoteLiquidity}</span>
-              {toAmount && (
-                <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
-                  <span>≈ ${(parseFloat(toAmount) * parseFloat(quoteToken ? quoteToken?.price.replace('$', '') : '0')).toFixed(2)}</span>
-                </div>
-              )}
+           
+           <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
+                  <span>≈ {(parseFloat(pairState.userQuoteLiquidity) * (removeLiquidityPercent / 100)).toFixed(6)} {quoteToken && quoteToken.symbol}</span>
+              </div>
             </div>
 
             <button
@@ -411,22 +408,22 @@ const RemoveLiquidityForm: React.FC = () => {
         <div className="px-3 pb-3">
           <motion.button
             onClick={() => handleRemoveLiquidity(walletProvider)}
-            className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${swapMode == SWAP_MODE.POOLS && !canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
-            whileHover={ swapMode == SWAP_MODE.POOLS && canSwap ? { scale: 1.02 } : undefined}
-            whileTap={ swapMode == SWAP_MODE.POOLS && canSwap ? { scale: 0.98 } : undefined}
-            disabled={(!canSwap || isSwapping) && swapMode == SWAP_MODE.POOLS}
+            className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${swapMode == SWAP_MODE.REMOVE_LIQUIDITY && !canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
+            whileHover={ swapMode == SWAP_MODE.REMOVE_LIQUIDITY && canSwap ? { scale: 1.02 } : undefined}
+            whileTap={ swapMode == SWAP_MODE.REMOVE_LIQUIDITY && canSwap ? { scale: 0.98 } : undefined}
+            disabled={(!canSwap || isSwapping) && swapMode == SWAP_MODE.REMOVE_LIQUIDITY}
             style={{
               background: `linear-gradient(135deg, #ff1356, #ff4080)`
             }}
           >
             {/* Background animation - only show when enabled */}
-            {canSwap && swapMode == SWAP_MODE.POOLS && (
+            {canSwap && swapMode == SWAP_MODE.REMOVE_LIQUIDITY && (
               <div className="absolute inset-0 bg-white opacity-20">
                 <div className="h-full w-1/3 bg-white/40 blur-xl transform -skew-x-30 -translate-x-full animate-shimmer"></div>
               </div>
             )}
 
-            <span>{swapMode == SWAP_MODE.POOLS && isSwapping ? "Removing Liquidity..." : "Remove Liquidity"}</span>
+            <span>{swapMode == SWAP_MODE.REMOVE_LIQUIDITY && isSwapping ? "Removing Liquidity..." : "Remove Liquidity"}</span>
             <Zap className="w-4 h-4" />
           </motion.button>
 

@@ -50,6 +50,8 @@ interface SwapContextProps {
   baseReserveAmount: CurrencyAmount<Token> | null;
   quoteReserveAmount: CurrencyAmount<Token> | null;
   priceImpactWarningSeverity: number;
+  removeLiquidityPercent: number;
+  setRemoveLiquidityPercent: (percent: number) => void;
 
   pairState: TPairState;
   setPairState: (pairState: TPairState) => void;
@@ -68,6 +70,7 @@ interface SwapContextProps {
   setCanAggregatorSwap: (canAggregatorSwap: boolean) => void;
   handleAddLiquidity: (walletProvider: any) => void;
   handleRemoveLiquidity: (walletProvider: any) => void;
+  fetchLiquidityInfo: (walletProvider: any) => void;
 }
 
 // Context varsayılan değeri
@@ -88,6 +91,8 @@ const defaultContext: SwapContextProps = {
   priceImpactWarningSeverity: 0,
   loading: false,
   aggregatorPairs: [],
+  removeLiquidityPercent: 100,
+  setRemoveLiquidityPercent: () => { },
   handleAggregatorSwap: () => { },
   setAggregatorPairs: () => { },
   setLoading: () => { },
@@ -104,6 +109,7 @@ const defaultContext: SwapContextProps = {
   setPairState: () => { },
   handleAddLiquidity: () => { },
   handleRemoveLiquidity: () => { },
+  fetchLiquidityInfo: () => { },
 };
 
 // Context oluşturma
@@ -275,6 +281,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [swapResult, setSwapResult] = useState<SwapResult | null>(null);
   const [aggregatorPairs, setAggregatorPairs] = useState<TCustomPair[]>([]);
   const [pairState, setPairState] = useState<TPairState>(initialPairState);
+  const[removeLiquidityPercent,setRemoveLiquidityPercent] = useState<number>(100);
   // Input değişiklikleri için handler'lar
   const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const regex = /^[0-9]*\.?[0-9]*$/;
@@ -643,11 +650,13 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   }
 
   useEffect(() => {
+    console.log("ersan swapMode", swapMode)
     if (swapMode == SWAP_MODE.SIMPLESWAP) {
       fetchSwapPairInfo();
     } else if (swapMode == SWAP_MODE.AGGREGATOR) {
       fetchAggregatorInfo();
-    } else if (swapMode == SWAP_MODE.POOLS) {
+    } else if ( [SWAP_MODE.POOLS,SWAP_MODE.ADD_LIQUIDITY,SWAP_MODE.REMOVE_LIQUIDITY].includes(swapMode)) {
+      console.log("ersan fetchLiquidityInfo")
       fetchLiquidityInfo(null);
     }
   }, [baseToken, quoteToken, fromAmount, toAmount, tradeType]);
@@ -1220,7 +1229,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       return;
     }
 
-    if (tradeType == TradeType.EXACT_INPUT && !fromAmount) {
+    if ([SWAP_MODE.POOLS,SWAP_MODE.ADD_LIQUIDITY].includes(swapMode) && tradeType == TradeType.EXACT_INPUT && !fromAmount) {
       setSwapResult({
         type: SwapStatusType.INVALID_AMOUNT,
         message: "Invalid Amount",
@@ -1229,7 +1238,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       setCanSwap(false)
       return;
     }
-    if (tradeType == TradeType.EXACT_OUTPUT && !toAmount) {
+    if ([SWAP_MODE.POOLS,SWAP_MODE.ADD_LIQUIDITY].includes(swapMode) && tradeType == TradeType.EXACT_OUTPUT && !toAmount) {
       setSwapResult({
         type: SwapStatusType.INVALID_AMOUNT,
         message: "Invalid Amount",
@@ -1238,6 +1247,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       setCanSwap(false)
       return;
     }
+
+
 
     let WRAPPED_TOKEN = WETH9[Number(chainId)].address;
 
@@ -1255,7 +1266,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       account: account ? ethers.getAddress(account) as `0x${string}` : KEWL_DEPLOYER_ADDRESS
     })
 
-
+    console.log("ersan _pairInfo", _pairInfo)
 
     if (!_pairInfo || !_pairInfo.valid) {
       setPairState({
@@ -1317,7 +1328,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     let multicallParams = [
       {
         target: _pairInfo.pair,
-        callData: abiInterfaceParam.encodeFunctionData('balanceOf', [account ? account : ZeroAddress])
+        callData: abiInterfaceParam.encodeFunctionData('balanceOf', [account ? account : KEWL_DEPLOYER_ADDRESS])
       },
       {
         target: _pairInfo.pair,
@@ -1404,7 +1415,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
 
 
-    const inputAmount = tradeType == TradeType.EXACT_INPUT ? fromAmount : toAmount
+    const inputAmount =  tradeType == TradeType.EXACT_INPUT ? fromAmount : toAmount
     const inputToken =
       tradeType === TradeType.EXACT_INPUT
         ? _baseAddress === lpbaseToken.address
@@ -1683,6 +1694,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
   function handleRemoveLiquidity(){
     //remove liquidity
+    console.log("ersan remove liquidity")
   }
 
 
@@ -1697,6 +1709,9 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     swapResult,
     loading,
     pairState,
+    removeLiquidityPercent,
+    handleRemoveLiquidity,
+    setRemoveLiquidityPercent,
     setPairState,
     setLoading,
     setFromAmount,
@@ -1718,6 +1733,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     setCanAggregatorSwap,
     handleBundleSwap,
     handleAddLiquidity,
+    fetchLiquidityInfo,
     // Diğer değerler...
   };
 

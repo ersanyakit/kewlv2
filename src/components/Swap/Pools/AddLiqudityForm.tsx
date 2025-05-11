@@ -79,15 +79,13 @@ const AddLiqudityForm: React.FC = () => {
 
 
 
-  useEffect(() => {
-    setSwapMode(SWAP_MODE.POOLS);
-}, []);
+ 
 
   useEffect(() => {
 
     console.log("ersan baseToken", baseToken);
     console.log("ersan quoteToken", quoteToken);
-
+    setSwapMode(SWAP_MODE.ADD_LIQUIDITY);
   }, [baseToken, quoteToken, pairState,canSwap]);
 
 
@@ -413,22 +411,22 @@ const AddLiqudityForm: React.FC = () => {
         <div className="px-3 pb-3">
           <motion.button
             onClick={() => handleAddLiquidity(walletProvider)}
-            className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${swapMode == SWAP_MODE.POOLS && !canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
-            whileHover={ swapMode == SWAP_MODE.POOLS && canSwap ? { scale: 1.02 } : undefined}
-            whileTap={ swapMode == SWAP_MODE.POOLS && canSwap ? { scale: 0.98 } : undefined}
-            disabled={(!canSwap || isSwapping) && swapMode == SWAP_MODE.POOLS}
+            className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${swapMode == SWAP_MODE.ADD_LIQUIDITY && !canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
+            whileHover={ swapMode == SWAP_MODE.ADD_LIQUIDITY && canSwap ? { scale: 1.02 } : undefined}
+            whileTap={ swapMode == SWAP_MODE.ADD_LIQUIDITY && canSwap ? { scale: 0.98 } : undefined}
+            disabled={(!canSwap || isSwapping) && swapMode == SWAP_MODE.ADD_LIQUIDITY}
             style={{
               background: `linear-gradient(135deg, #ff1356, #ff4080)`
             }}
           >
             {/* Background animation - only show when enabled */}
-            {canSwap && swapMode == SWAP_MODE.POOLS && (
+            {canSwap && swapMode == SWAP_MODE.ADD_LIQUIDITY && (
               <div className="absolute inset-0 bg-white opacity-20">
                 <div className="h-full w-1/3 bg-white/40 blur-xl transform -skew-x-30 -translate-x-full animate-shimmer"></div>
               </div>
             )}
 
-            <span>{swapMode == SWAP_MODE.POOLS && isSwapping ? "Adding Liquidity..." : "Add Liquidity"}</span>
+            <span>{swapMode == SWAP_MODE.ADD_LIQUIDITY && isSwapping ? "Adding Liquidity..." : "Add Liquidity"}</span>
             <Zap className="w-4 h-4" />
           </motion.button>
 
