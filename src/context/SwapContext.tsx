@@ -7,10 +7,10 @@ import { AbiCoder, ethers, formatEther, parseEther, ZeroAddress } from 'ethers';
 import { fetchBalances, getContractByName } from '../constants/contracts/contracts';
 import { KEWL_DEPLOYER_ADDRESS, TContractType } from '../constants/contracts/addresses';
 import JSBI from 'jsbi';
-import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_MEDIUM, warningSeverity, warningSeverityText } from '../constants/entities/utils/calculateSlippageAmount';
+import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_MEDIUM, calculateSlippageAmount, warningSeverity, warningSeverityText } from '../constants/entities/utils/calculateSlippageAmount';
 import moment from 'moment';
 import { toHex } from '../constants/entities/utils/computePriceImpact';
-import { erc20Abi, getContract } from 'viem';
+import { erc20Abi, getContract, zeroAddress } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
 import { getExchangeByRouterAndWETH, getRoutersByChainId } from '../constants/contracts/exchanges';
 import { sqrt } from '../constants/entities/utils/sqrt';
@@ -306,6 +306,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
     if (swapMode == SWAP_MODE.AGGREGATOR) {
       setAggregatorPairs([]);
+      
     }
   }
 
@@ -1194,12 +1195,14 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
   const fetchLiquidityInfo = async (walletProvider: any) => {
     setLoading(true)
+    setCanSwap(false)
     if (!chainId) {
       setSwapResult({
         type: SwapStatusType.INVALID_CHAIN,
         message: "Invalid Chain",
       })
       setLoading(false)
+      setCanSwap(false)
       return;
     }
     if (baseToken == null || quoteToken == null) {
@@ -1208,6 +1211,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         message: "Invalid Token",
       })
       setLoading(false)
+      setCanSwap(false)
       return;
     }
 
@@ -1217,6 +1221,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         message: "Invalid Amount",
       })
       setLoading(false)
+      setCanSwap(false)
       return;
     }
     if (tradeType == TradeType.EXACT_OUTPUT && !toAmount) {
@@ -1225,6 +1230,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         message: "Invalid Amount",
       })
       setLoading(false)
+      setCanSwap(false)
       return;
     }
 
@@ -1264,6 +1270,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         noLiquidity: true,
       });
       setLoading(false)
+      setCanSwap(true)
       return null;
     }
 
@@ -1296,6 +1303,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         noLiquidity: true,
       });
       setLoading(false)
+      setCanSwap(true)
       return
     }
 
@@ -1342,6 +1350,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         message: "Account Not Connected",
       })
       setLoading(false)
+      setCanSwap(true)
       return;
     }
 
@@ -1472,6 +1481,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       noLiquidity: false,
     }));
     setLoading(false)
+    setCanSwap(true)
 
   }
 
@@ -1501,7 +1511,91 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       })
       return;
     }
+    setIsSwapping(true)
 
+    let WRAPPED_TOKEN = WETH9[Number(chainId)].address;
+
+    let _baseAddress = baseToken.address == ZeroAddress ? WRAPPED_TOKEN : baseToken.address;
+    let _quoteAddress = quoteToken.address == ZeroAddress ? WRAPPED_TOKEN : quoteToken.address;
+
+    let dexContract = await getContractByName(TContractType.DEX, Number(chainId));
+
+    const [signerAccount] = await dexContract.wallet.getAddresses();
+
+    const etherIn = baseToken.address == ZeroAddress
+    const etherOut = quoteToken.address == ZeroAddress
+
+
+    const ZERO_PERCENT = new Percent('0')
+    const DEFAULT_ADD_SLIPPAGE_TOLERANCE = new Percent(INITIAL_ALLOWED_SLIPPAGE, 10_000)
+
+
+    const tokenA = new Token(baseToken.chainId, _baseAddress, baseToken.decimals)
+    const tokenB = new Token(quoteToken.chainId, _quoteAddress, quoteToken.decimals)
+
+    const [baseAsset, quoteAsset] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
+
+    const amountADesired = ethers.parseUnits(fromAmount, baseAsset.decimals);
+    const amountBDesired = ethers.parseUnits(toAmount, quoteAsset.decimals);
+
+    let reserve0: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(baseAsset, amountADesired.toString());
+    let reserve1: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(quoteAsset, amountBDesired.toString());
+
+
+    const amountAMin = calculateSlippageAmount(reserve0, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[0].toString()
+    const amountBMin = calculateSlippageAmount(reserve1, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[0].toString();
+    const addressTo = signerAccount
+    const deadline = moment().utc().unix() + (30 * 60)
+
+
+
+    let functionName = etherIn || etherOut ? 'addLiquidityETH' : 'addLiquidity'
+
+    let depositOverrides = {
+      value: etherIn || etherOut ? (baseToken.address === ZeroAddress ? amountADesired : amountBDesired ): undefined
+    }
+
+    var swapParameters : any []= []
+    if(etherIn || etherOut){
+      let tokenAddress = baseToken.address === ZeroAddress ? quoteToken.address : baseToken.address
+      let _amountTokenDesired = baseToken.address === ZeroAddress ? amountBDesired : amountADesired
+      let _amountTokenMin = baseToken.address === ZeroAddress ? amountBMin : amountAMin
+      let _amountETHMin = baseToken.address === ZeroAddress ? amountAMin : amountBMin
+      swapParameters = [tokenAddress, _amountTokenDesired, _amountTokenMin, _amountETHMin, account, deadline]
+    }else{
+      swapParameters = [baseToken.address, quoteToken.address, amountADesired, amountBDesired, amountAMin, amountBMin, addressTo, deadline]
+    }
+
+    try{
+      const tx: any = await dexContract.wallet.writeContract({
+        chain: dexContract.client.chain,
+        address: dexContract.caller.address as `0x${string}`,
+        abi: dexContract.abi,
+        functionName: functionName,
+        args: swapParameters,
+        account: signerAccount,
+        value: depositOverrides.value
+      })
+  
+      const receipt = await waitForTransactionReceipt(dexContract.wallet, {
+        hash: tx,
+      });
+      console.log("receipt", receipt)
+      setSwapResult({
+        type: SwapStatusType.SUCCESS,
+        message: "Liquidity Added",
+      })
+    } catch (error) {
+      console.log("error", error)
+      setSwapResult({
+        type: SwapStatusType.ACCOUNT_NOT_CONNECTED,
+        message: "Account Not Connected",
+      })
+    }finally{
+      setIsSwapping(false)
+      resetSwap()
+    }
+   
 
 
    

@@ -70,6 +70,7 @@ const AddLiqudityForm: React.FC = () => {
     toggleDetails,
     setToggleDetails,
     handleFromChange,
+    handleAddLiquidity,
     handleSwap,
     handleToChange } = useSwapContext();
   const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
@@ -84,11 +85,8 @@ const AddLiqudityForm: React.FC = () => {
     console.log("ersan baseToken", baseToken);
     console.log("ersan quoteToken", quoteToken);
 
-  }, [baseToken, quoteToken, pairState]);
+  }, [baseToken, quoteToken, pairState,canSwap]);
 
-  function handleAddLiquidity(walletProvider: unknown): void {
-    throw new Error('Function not implemented.');
-  }
 
   return (
 
@@ -410,7 +408,7 @@ const AddLiqudityForm: React.FC = () => {
         <div className="px-3 pb-3">
           <motion.button
             onClick={() => handleAddLiquidity(walletProvider)}
-            className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${!canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
+            className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${swapMode == SWAP_MODE.POOLS && !canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
             whileHover={ swapMode == SWAP_MODE.POOLS && canSwap ? { scale: 1.02 } : undefined}
             whileTap={ swapMode == SWAP_MODE.POOLS && canSwap ? { scale: 0.98 } : undefined}
             disabled={(!canSwap || isSwapping) && swapMode == SWAP_MODE.POOLS}
