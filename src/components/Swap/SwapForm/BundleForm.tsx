@@ -55,6 +55,7 @@ const BundleForm: React.FC = () => {
     setFavoriteOnly,
     selectToken,
     reloadTokens,
+    setSwapMode,
     handleSwapTokens,
     setSelectingTokenIndex,
     setTradeType,
@@ -802,7 +803,9 @@ const BundleForm: React.FC = () => {
   }, [selectableFanTokens, tokenFilter]);
 
 
-
+  useEffect(() => {
+    setSwapMode(SWAP_MODE.COLLECTOR);
+}, []);
   const toggleSelection = (tokenAddress: string) => {
     const updatedFanTokens = selectableFanTokens.map(token => {
       if (token.address.toLowerCase() === tokenAddress.toLowerCase()) {

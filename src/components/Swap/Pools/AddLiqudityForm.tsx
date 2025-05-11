@@ -51,7 +51,7 @@ const AddLiqudityForm: React.FC = () => {
     reloadTokens,
     handleSwapTokens,
     setTradeType,
-
+    setSwapMode,
   } = useTokenContext();
 
   const {
@@ -79,6 +79,9 @@ const AddLiqudityForm: React.FC = () => {
 
 
 
+  useEffect(() => {
+    setSwapMode(SWAP_MODE.POOLS);
+}, []);
 
   useEffect(() => {
 
@@ -115,6 +118,7 @@ const AddLiqudityForm: React.FC = () => {
                     onClick={() => {
                       const rawBalance = baseToken?.balance.replace(',', '') || '0';
                       const amount = (parseFloat(rawBalance) * (parseInt(percent) / 100)).toString();
+                      setTradeType(TradeType.EXACT_INPUT)
                       handleFromChange({ target: { value: amount } } as React.ChangeEvent<HTMLInputElement>);
                     }}
                   >
@@ -200,6 +204,7 @@ const AddLiqudityForm: React.FC = () => {
                     onClick={() => {
                       const rawBalance = quoteToken?.balance.replace(',', '') || '0';
                       const amount = (parseFloat(rawBalance) * (parseInt(percent) / 100)).toString();
+                      setTradeType(TradeType.EXACT_OUTPUT)
                       handleToChange({ target: { value: amount } } as React.ChangeEvent<HTMLInputElement>);
                     }}
                   >

@@ -1542,8 +1542,11 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     let reserve1: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(quoteAsset, amountBDesired.toString());
 
 
-    const amountAMin = calculateSlippageAmount(reserve0, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[0].toString()
-    const amountBMin = calculateSlippageAmount(reserve1, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[0].toString();
+    const amountAIndex = tradeType === TradeType.EXACT_OUTPUT ? 1 : 0;
+    const amountBIndex = tradeType === TradeType.EXACT_OUTPUT ? 1 : 0;
+
+    const amountAMin = calculateSlippageAmount(reserve0, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[amountAIndex].toString()
+    const amountBMin = calculateSlippageAmount(reserve1, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[amountBIndex].toString();
     const addressTo = signerAccount
     const deadline = moment().utc().unix() + (30 * 60)
 

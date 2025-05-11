@@ -50,6 +50,7 @@ const FushionForm: React.FC = () => {
         selectToken,
         reloadTokens,
         handleSwapTokens,
+        setSwapMode,
         setSelectingTokenIndex,
         setTradeType,
 
@@ -91,8 +92,11 @@ const FushionForm: React.FC = () => {
 
     useEffect(() => {
 
-        console.log("ersan baseToken", baseToken);
-        console.log("ersan quoteToken", quoteToken);
+        setSwapMode(SWAP_MODE.AGGREGATOR);
+
+    }, []);
+
+    useEffect(() => {
 
     }, [baseToken, quoteToken]);
 

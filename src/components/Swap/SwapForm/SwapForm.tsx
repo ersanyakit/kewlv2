@@ -36,7 +36,6 @@ const SwapForm: React.FC = () => {
     baseToken,
     swapMode,
     quoteToken,
-    selectingTokenIndex,
     tokenFilter,
     favoriteOnly,
     filteredTokens,
@@ -48,7 +47,7 @@ const SwapForm: React.FC = () => {
     selectToken,
     reloadTokens,
     handleSwapTokens,
-    setSelectingTokenIndex,
+    setSwapMode,
     setTradeType,
 
   } = useTokenContext();
@@ -75,12 +74,12 @@ const SwapForm: React.FC = () => {
 
 
 
-
+  useEffect(() => {
+    setSwapMode(SWAP_MODE.SIMPLESWAP);
+}, []);
 
   useEffect(() => {
 
-    console.log("ersan baseToken", baseToken);
-    console.log("ersan quoteToken", quoteToken);
 
   }, [baseToken, quoteToken]);
 
