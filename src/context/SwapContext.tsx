@@ -1945,15 +1945,18 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     if(account == ""){
         return;
     }
+    if(tokens.length == 0){
+        return;
+    }
     
     let dexContract = await getContractByName(TContractType.DEX, chainId,walletProvider);
 
-    let addressList = tokens
-    .filter((item: any) => item.address !== ZeroAddress)
-    .map((item: any) => item.address);
+    let filteredTokensList = tokens.filter((item: any) => item.address !== ZeroAddress)
+    
+    let addressList = filteredTokensList.map((item: any) => item.address);
 
     const [signerAccount] = await dexContract.wallet.getAddresses();
-    const _tradeStats: any = await dexContract.client.readContract({
+    const [individualTrades,totaltrades]: any = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
       functionName: 'getTradeStatsForMultipleTokens',
@@ -1961,9 +1964,10 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       account: account ? ethers.getAddress(account) as `0x${string}` : KEWL_DEPLOYER_ADDRESS
     })
 
-    let combinedList = tokens.map((token: any, index: number) => {
-      const [total, individual] = _tradeStats[index] || [null, null]; // hata önleyici
-    
+    console.log("individual",individualTrades)
+    console.log("totaltrades",totaltrades)
+    let combinedList = filteredTokensList.map((token: any, index: number) => {
+      const [total, individual] = [individualTrades[index],totaltrades[index]]// hata önleyici
       return {
         token:token,
         totalTrades:ethers.formatUnits(total,token.decimals),

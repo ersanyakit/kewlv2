@@ -119,8 +119,7 @@ const TokenList: React.FC<TokenListProps> = ({ isDarkMode }) => {
         </div>
       </div>
       <div className='w-full flex flex-1 items-start justify-center gap-2'>
-        <div className={`w-full px-3 py-2 overflow-y-scroll max-h-[calc(68dvh-300px)] ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'
-          }`}>
+        <div className={`w-full px-3 py-2 overflow-y-scroll max-h-[calc(68dvh-300px)] ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'}`}>
           {filteredTokens.map(token => (
             <motion.div
               key={token.symbol}
@@ -193,7 +192,7 @@ const TokenList: React.FC<TokenListProps> = ({ isDarkMode }) => {
           ))}
         </div>
       </div>
-      <div className='w-full flex flex flex-row items-center justify-center gap-2'>
+      <div className='w-full flex  flex-row items-center justify-center gap-2'>
         <div className={`w-full p-4 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-100'
           } transition-colors duration-300`}>
           <h4 className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'
