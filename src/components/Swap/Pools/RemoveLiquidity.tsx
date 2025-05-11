@@ -83,10 +83,10 @@ const RemoveLiquidityForm: React.FC = () => {
 
   useEffect(() => {
     setSwapMode(SWAP_MODE.REMOVE_LIQUIDITY);
-}, []);
+  }, []);
 
   useEffect(() => {
-    if(baseToken && quoteToken){
+    if (baseToken && quoteToken) {
       fetchLiquidityInfo(walletProvider)
     }
   }, [swapMode]);
@@ -133,17 +133,17 @@ const RemoveLiquidityForm: React.FC = () => {
           <div className={`flex items-center justify-between relative z-10 ${isDarkMode ? 'bg-gray-700/50' : 'bg-white/50'} p-2 rounded-xl`}>
             <div className="flex-grow">
               <span
-        
-           
+
+
                 className={`w-full select-none text-2xl font-light ${isDarkMode ? 'text-gray-100 placeholder-gray-500' : 'text-gray-800 placeholder-gray-300'} focus:outline-none bg-transparent transition-colors`}
-              
-               
+
+
               >{pairState && pairState.userBaseLiquidity}</span>
 
               <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
-                  <span>≈ {(parseFloat(pairState.userBaseLiquidity) * (removeLiquidityPercent / 100)).toFixed(6)} {baseToken && baseToken.symbol}</span>
+                <span>≈ {(parseFloat(pairState.userBaseLiquidity) * (removeLiquidityPercent / 100)).toFixed(6)} {baseToken && baseToken.symbol}</span>
               </div>
-            
+
             </div>
 
             <button
@@ -217,12 +217,12 @@ const RemoveLiquidityForm: React.FC = () => {
             <div className="flex-grow">
               <span
                 className={`w-full select-none text-2xl font-light ${isDarkMode ? 'text-gray-100 placeholder-gray-500' : 'text-gray-800 placeholder-gray-300'} focus:outline-none bg-transparent transition-colors`}
-             
-             
+
+
               >{pairState && pairState.userQuoteLiquidity}</span>
-           
-           <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
-                  <span>≈ {(parseFloat(pairState.userQuoteLiquidity) * (removeLiquidityPercent / 100)).toFixed(6)} {quoteToken && quoteToken.symbol}</span>
+
+              <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} flex items-center`}>
+                <span>≈ {(parseFloat(pairState.userQuoteLiquidity) * (removeLiquidityPercent / 100)).toFixed(6)} {quoteToken && quoteToken.symbol}</span>
               </div>
             </div>
 
@@ -409,8 +409,8 @@ const RemoveLiquidityForm: React.FC = () => {
           <motion.button
             onClick={() => handleRemoveLiquidity(walletProvider)}
             className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${swapMode == SWAP_MODE.REMOVE_LIQUIDITY && !canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
-            whileHover={ swapMode == SWAP_MODE.REMOVE_LIQUIDITY && canSwap ? { scale: 1.02 } : undefined}
-            whileTap={ swapMode == SWAP_MODE.REMOVE_LIQUIDITY && canSwap ? { scale: 0.98 } : undefined}
+            whileHover={swapMode == SWAP_MODE.REMOVE_LIQUIDITY && canSwap ? { scale: 1.02 } : undefined}
+            whileTap={swapMode == SWAP_MODE.REMOVE_LIQUIDITY && canSwap ? { scale: 0.98 } : undefined}
             disabled={(!canSwap || isSwapping) && swapMode == SWAP_MODE.REMOVE_LIQUIDITY}
             style={{
               background: `linear-gradient(135deg, #ff1356, #ff4080)`
