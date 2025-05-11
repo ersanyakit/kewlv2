@@ -58,6 +58,8 @@ interface SwapContextProps {
   priceImpactWarningSeverity: number;
   removeLiquidityPercent: number;
   setRemoveLiquidityPercent: (percent: number) => void;
+  userTradingStats: any[];
+  setUserTradingStats: (userTradingStats: any[]) => void;
 
   pairState: TPairState;
   setPairState: (pairState: TPairState) => void;
@@ -77,10 +79,13 @@ interface SwapContextProps {
   handleAddLiquidity: (walletProvider: any) => void;
   handleRemoveLiquidity: (walletProvider: any) => void;
   fetchLiquidityInfo: (walletProvider: any) => void;
+  fetchUseTradeStats: (chainId: string | number, walletProvider: any | undefined, account: string | undefined) => void;
 }
 
 // Context varsayılan değeri
 const defaultContext: SwapContextProps = {
+  userTradingStats: [],
+  setUserTradingStats: () => { },
   canAggregatorSwap: false,
   swapResult: null,
   canSwap: false,
@@ -116,6 +121,7 @@ const defaultContext: SwapContextProps = {
   handleAddLiquidity: () => { },
   handleRemoveLiquidity: () => { },
   fetchLiquidityInfo: () => { },
+  fetchUseTradeStats: () => { },
 };
 
 // Context oluşturma
@@ -296,6 +302,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [aggregatorPairs, setAggregatorPairs] = useState<TCustomPair[]>([]);
   const [pairState, setPairState] = useState<TPairState>(initialPairState);
   const [removeLiquidityPercent, setRemoveLiquidityPercent] = useState<number>(100);
+  const [userTradingStats, setUserTradingStats] = useState<any[]>([]);
   // Input değişiklikleri için handler'lar
   const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const regex = /^[0-9]*\.?[0-9]*$/;
@@ -846,6 +853,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       setCanAggregatorSwap(false);
     }
   }, [aggregatorPairs])
+
+ 
 
   const handleAggregatorSwap = async (walletProvider: any) => {
     console.log("handleAggregatorSwap")
@@ -1927,12 +1936,51 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     }
   }
 
+ 
+    
+  const fetchUseTradeStats = async (chainId: string | number, walletProvider: any | undefined, account: string | undefined) => {
+    if(!account){
+        return;
+    }
+    if(account == ""){
+        return;
+    }
+    
+    let dexContract = await getContractByName(TContractType.DEX, chainId,walletProvider);
 
+    let addressList = tokens
+    .filter((item: any) => item.address !== ZeroAddress)
+    .map((item: any) => item.address);
+
+    const [signerAccount] = await dexContract.wallet.getAddresses();
+    const _tradeStats: any = await dexContract.client.readContract({
+      address: dexContract.caller.address,
+      abi: dexContract.abi,
+      functionName: 'getTradeStatsForMultipleTokens',
+      args: [addressList,account],
+      account: account ? ethers.getAddress(account) as `0x${string}` : KEWL_DEPLOYER_ADDRESS
+    })
+
+    let combinedList = tokens.map((token: any, index: number) => {
+      const [total, individual] = _tradeStats[index] || [null, null]; // hata önleyici
+    
+      return {
+        token:token,
+        totalTrades:ethers.formatUnits(total,token.decimals),
+        individualTrades:ethers.formatUnits(individual,token.decimals)
+      };
+    });
+    setUserTradingStats(combinedList)
+    console.log("tradeStats",combinedList)
+     
+}
 
   // Context değeri
   const value: SwapContextProps = {
     isSwapping,
     canSwap,
+    userTradingStats,
+    setUserTradingStats,
     fromAmount,
     toAmount,
     tradeInfo,
@@ -1965,6 +2013,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     handleBundleSwap,
     handleAddLiquidity,
     fetchLiquidityInfo,
+    fetchUseTradeStats,
     // Diğer değerler...
   };
 
