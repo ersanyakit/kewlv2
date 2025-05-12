@@ -104,9 +104,7 @@ export default function TradeTerminal() {
       <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-7 gap-4">
         {/* Left Column - Token List Component */}
         <div className="order-2 sm:order-1 lg:col-span-2">
-          <TokenList
-            isDarkMode={isDarkMode}
-          />
+          <TokenList/>
         </div>
 
         <div className="order-1 sm:order-2 lg:col-span-3 flex flex-col gap-4">
@@ -136,11 +134,7 @@ export default function TradeTerminal() {
         </div> 
 
         <div className="order-3 sm:order-3 lg:col-span-2">
-          <TransactionHistory
-            transactions={recentTransactions}
-            tokens={tokens}
-            isDarkMode={isDarkMode}
-          />
+          <TransactionHistory/>
         </div>  
       </div>
     </div>

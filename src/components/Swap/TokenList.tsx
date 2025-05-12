@@ -1,14 +1,12 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Search, Star, CheckCircle, RefreshCcw, XCircle } from 'lucide-react';
 import { useTokenContext, Token } from '../../context/TokenContext';
 import TokenShape from '../UI/TokenShape';
 
-interface TokenListProps {
-  isDarkMode: boolean;
-}
 
-const TokenList: React.FC<TokenListProps> = ({ isDarkMode }) => {
+
+const TokenList: React.FC = () => {
   const {
     tokens,
     baseToken,
@@ -19,11 +17,15 @@ const TokenList: React.FC<TokenListProps> = ({ isDarkMode }) => {
     setFavoriteOnly,
     setBaseToken,
     reloadTokens,
+    isDarkMode
   } = useTokenContext();
 
   const handleSelectToken = (token: Token) => {
     setBaseToken(token);
   };
+
+  useEffect(() => {
+  }, [isDarkMode]);
 
   return (<motion.div
     className={`${isDarkMode
@@ -140,7 +142,6 @@ const TokenList: React.FC<TokenListProps> = ({ isDarkMode }) => {
               whileTap={{
                 scale: 0.97,
                 boxShadow: "none",
-                backgroundColor: isDarkMode ? "rgba(255,255,255,0.05)" : "rgba(0,0,0,0.05)"
               }}
               transition={{ type: "spring", stiffness: 400, damping: 17 }}
               onClick={() => {
