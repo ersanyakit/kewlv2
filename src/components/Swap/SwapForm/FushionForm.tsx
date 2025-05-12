@@ -272,11 +272,16 @@ const FushionForm: React.FC = () => {
                             return (
                                 <motion.div
                                     key={dex.pair.pair.toString()}
-                                    className={`rounded-xl ${isDarkMode
+                                    className={`cursor-pointer rounded-xl ${isDarkMode
                                         ? dex.isSelected ? 'bg-[#ff1356]/15 border border-[#ff4080]/30' : 'bg-gray-700/50 border border-gray-600/30'
-                                        : dex.isSelected ? 'bg-[#ff1356]/5 border border-[#ff1356]/20' : 'bg-white/70 border border-gray-200/70'
+                                        : dex.isSelected ? 'bg-pink-50 border border-pink-200' : 'bg-white/70 border border-gray-200/70'
                                         } transition-all duration-200 ${dex.isSelected ? 'shadow-sm' : ''}`}
-                                    whileHover={{ scale: 1.005, boxShadow: dex.isSelected ? "0 4px 12px rgba(255, 19, 86, 0.07)" : "0 2px 8px rgba(0, 0, 0, 0.03)" }}
+                                        whileHover={{
+                                            scale: 1.03,
+                                            boxShadow: isDarkMode
+                                              ? "0 4px 8px rgba(0,0,0,0.25)"
+                                              : "0 4px 8px rgba(0,0,0,0.1)"
+                                          }}
                                     whileTap={{ scale: 0.995 }}
                                     onClick={() => toggleDexSelection(index)}
                                 >
@@ -336,7 +341,7 @@ const FushionForm: React.FC = () => {
                                         </div>
 
                                         <div className="flex items-center">
-                                            {/* Updated checkbox with correct brand gradient */}
+                                         
                                             <motion.div
                                                 className={`relative w-5 h-5 rounded-full flex items-center justify-center cursor-pointer shadow-sm overflow-hidden 
                         ${dex.isSelected

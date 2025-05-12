@@ -67,9 +67,11 @@ const TransactionHistory: React.FC = () => {
             userTradingStats.tradingStats.map((statItem: any) => (
               <motion.div
                 key={statItem.token.address}
-                className={`flex flex-col select-none justify-between p-2 rounded-xl transition-all duration-300 mb-2 cursor-pointer 
-            
-                hover:bg-pink-50 hover:border hover:border-pink-200 
+                className={`flex flex-col select-none justify-between p-2 border-transparent rounded-xl transition-all duration-300 mb-2 cursor-pointer 
+              ${isDarkMode 
+                  ? 'hover:bg-pink-900/30 hover:border hover:border-pink-800/50' 
+                  : 'hover:bg-pink-50 hover:border hover:border-pink-200'
+                }
               `}
                 whileHover={{
                   scale: 1.03,
