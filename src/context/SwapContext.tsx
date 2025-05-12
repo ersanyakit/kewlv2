@@ -1977,7 +1977,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
     console.log("individual",individualTrades)
     console.log("totaltrades",totaltrades)
-    var totalReward = parseEther("200")
+    var totalReward = chainId === 88888 ? parseEther("200") : parseEther("0.1")
     var individualReward : any = 0
     let combinedList = filteredTokensList.map((token: any, index: number) => {
       const [total, individual] = [individualTrades[index],totaltrades[index]]
