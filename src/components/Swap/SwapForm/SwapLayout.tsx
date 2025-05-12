@@ -5,16 +5,19 @@ import { Combine, MinusCircle, PieChart, PlusCircle, Replace, ReplaceAll } from 
 import FushionForm from './FushionForm';
 import SwapForm from './SwapForm';
 import BundleForm from './BundleForm';
+import { useAppKitNetwork } from '@reown/appkit/react';
 
 
 // memo ile render performansını optimize etme
 const SwapLayout: React.FC = () => {
     const { isDarkMode,swapMode,setSwapMode } = useTokenContext();
     const [activeTab, setActiveTab] = useState<'swap' | 'fushion' | 'collector'>('fushion');
+    const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
 
 
-
-
+    useEffect(() => {
+        console.log(chainId);
+    }, [chainId]);
 
 
     return (
@@ -60,8 +63,10 @@ const SwapLayout: React.FC = () => {
                         <Replace className="w-4 h-4 mr-1.5" />
                         Swap
                     </button>
-                    <button
-                        className={`flex-1 py-2 text-sm font-medium rounded-xl flex items-center justify-center mx-2 ${activeTab === 'collector'
+
+                    {chainId && chainId ===88888 && (
+                        <button
+                            className={`flex-1 py-2 text-sm font-medium rounded-xl flex items-center justify-center mx-2 ${activeTab === 'collector'
                                 ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white'
                                 : isDarkMode
                                     ? 'text-gray-300 hover:bg-gray-700/50'
@@ -74,6 +79,7 @@ const SwapLayout: React.FC = () => {
                         <Combine className="w-4 h-4 mr-1.5" />
                         Bundle
                     </button>
+                    )}
                 </div>
                 {activeTab === 'fushion' && (
                     <FushionForm/>

@@ -22,7 +22,7 @@ export function getChainName(chainId: number): string {
     42161: "arbitrum",
     146: "sonic",
   };
-  return chains[chainId] || chains[88888];
+  return chains[chainId] || chains[146];
 }
 
 export function getChainDefaultAssetsURI(chainId: number): string {
@@ -42,8 +42,8 @@ const metadata = {
 export const appkitOptions: AppKitOptions = {
   adapters: [new EthersAdapter()],
   metadata: metadata,
-  networks: [chiliz, avalanche, arbitrum, sonic],
-  defaultNetwork: chiliz,
+  networks: [sonic,chiliz, avalanche, arbitrum],
+  defaultNetwork: sonic,
   chainImages: {
     88888: "/assets/chains/chz.svg",
     146: "/assets/chains/sonic.svg"
