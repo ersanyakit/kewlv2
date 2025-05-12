@@ -199,12 +199,12 @@ const TokenList: React.FC<TokenListProps> = ({ isDarkMode }) => {
             } mb-2 transition-colors duration-300`}>Token Information</h4>
           <div className={`${isDarkMode ? 'bg-gray-700/50' : 'bg-gray-50'
             } rounded-xl transition-colors duration-300`}>
-            <div className="grid grid-cols-2 gap-2 text-xs">
+            <div className="grid grid-cols-2 mt-2 p-2 text-xs">
             <div>
                 <div className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'
                   } transition-colors duration-300`}>Name</div>
                 <div className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'
-                  } transition-colors duration-300`}>{baseToken && baseToken.name}</div>
+                  } transition-colors duration-300 truncate`}>{baseToken && baseToken.name}</div>
               </div>
               <div>
                 <div className={`${isDarkMode ? 'text-gray-400' : 'text-gray-500'
