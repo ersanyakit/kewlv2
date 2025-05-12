@@ -30,7 +30,7 @@ const TokenShape: React.FC<TokenShapeProps> = memo(({
   // Basitleştirilmiş JSX, minimum animasyon ve transition
   return (
     <div 
-      className={`relative rounded-full shadow ${sizeClasses[size]} flex items-center justify-center cursor-pointer overflow-hidden`}
+      className={`relative  rounded-full shadow ${sizeClasses[size]} flex items-center justify-center cursor-pointer overflow-hidden`}
       onClick={onClick}
       style={bgStyle}
     >

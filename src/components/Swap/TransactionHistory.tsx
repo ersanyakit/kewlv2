@@ -142,7 +142,7 @@ const TransactionHistory: React.FC = () => {
         </div>
       </div>
 
-      <div className="w-full flex flex-col p-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}">
+      <div className={`w-full flex flex-col p-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
         <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-800'} mb-2`}>
           Claim Rewards
         </h3>
