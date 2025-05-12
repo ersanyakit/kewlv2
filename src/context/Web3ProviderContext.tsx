@@ -42,8 +42,8 @@ const metadata = {
 export const appkitOptions: AppKitOptions = {
   adapters: [new EthersAdapter()],
   metadata: metadata,
-  networks: [sonic,chiliz, avalanche, arbitrum],
-  defaultNetwork: sonic,
+  networks: [chiliz,sonic, avalanche, arbitrum],
+  defaultNetwork: chiliz,
   chainImages: {
     88888: "/assets/chains/chz.svg",
     146: "/assets/chains/sonic.svg"
