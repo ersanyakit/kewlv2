@@ -1,12 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { Info, Shield, Award, Compass, Sparkles, RefreshCw } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface FooterProps {
   isDarkMode: boolean;
 }
 
 const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
+  const navigate = useNavigate();
+
   return (
     <motion.div 
       className={`w-full max-w-6xl mx-auto ${
@@ -32,10 +35,12 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
         
         {/* Orta Kısım - Hızlı Bağlantılar */}
         <div className="flex space-x-4 text-xs mb-4 md:mb-0">
-          <a href="#" className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center`}>
+          <span onClick={()=>{
+            navigate('/about')
+          }}  className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center cursor-pointer`}>
             <Info className="w-3 h-3 mr-1" />
             About Us
-          </a>
+          </span>
           <a href="#" className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center`}>
             <Shield className="w-3 h-3 mr-1" />
             Security

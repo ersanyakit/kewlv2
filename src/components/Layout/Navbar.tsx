@@ -32,7 +32,7 @@ const Navbar: React.FC<NavbarProps> = () => {
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.1, type: "spring", stiffness: 100 }}
     >
-      <div className="flex items-center">
+      <a href='/' className="flex items-center">
         {/* Logo */}
         <div className="mr-2 sm:mr-3 flex items-center">
           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#ff1356] to-[#ff4080] rounded-full shadow-md overflow-hidden relative">
@@ -47,7 +47,7 @@ const Navbar: React.FC<NavbarProps> = () => {
           <h1 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-transparent bg-clip-text">KEWL</h1>
           <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} transition-colors duration-300 hidden sm:block`}>Intelligent Asset Swapping for the Next Generation of DeFi.</p>
         </div>
-      </div>
+      </a>
       
       {/* Desktop Navigation */}
       <div className="hidden sm:flex items-center space-x-3">
