@@ -10,7 +10,7 @@ import JSBI from 'jsbi';
 import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_MEDIUM, calculateSlippageAmount, warningSeverity, warningSeverityText } from '../constants/entities/utils/calculateSlippageAmount';
 import moment from 'moment';
 import { toHex } from '../constants/entities/utils/computePriceImpact';
-import { erc20Abi, getContract, zeroAddress } from 'viem';
+import { erc20Abi, getContract, parseUnits, zeroAddress } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
 import { getExchangeByRouterAndWETH, getRoutersByChainId } from '../constants/contracts/exchanges';
 import { sqrt } from '../constants/entities/utils/sqrt';
@@ -311,10 +311,10 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [pairState, setPairState] = useState<TPairState>(initialPairState);
   const [removeLiquidityPercent, setRemoveLiquidityPercent] = useState<number>(100);
 
- 
-  
+
+
   const [userTradingStats, setUserTradingStats] = useState<UserTradingStats | null>(null);
-    // Input değişiklikleri için handler'lar
+  // Input değişiklikleri için handler'lar
   const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const regex = /^[0-9]*\.?[0-9]*$/;
     let value = e.target.value.replace(",", ".")
@@ -865,7 +865,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     }
   }, [aggregatorPairs])
 
- 
+
 
   const handleAggregatorSwap = async (walletProvider: any) => {
     console.log("handleAggregatorSwap")
@@ -1582,7 +1582,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     }
     setIsSwapping(true)
 
-    let WRAPPED_TOKEN =  ethers.getAddress(WETH9[Number(chainId)].address);
+    let WRAPPED_TOKEN = ethers.getAddress(WETH9[Number(chainId)].address);
 
     let _baseAddress = baseToken.address == ZeroAddress ? WRAPPED_TOKEN : baseToken.address;
     let _quoteAddress = quoteToken.address == ZeroAddress ? WRAPPED_TOKEN : quoteToken.address;
@@ -1605,12 +1605,12 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     const [baseAsset, quoteAsset] = tokenA.sortsBefore(tokenB) ? [tokenA, tokenB] : [tokenB, tokenA]
 
     const [baseInputAmount, quoteInputAmount] = tokenA.sortsBefore(tokenB)
-  ? [fromAmount, toAmount]
-  : [toAmount, fromAmount];
+      ? [fromAmount, toAmount]
+      : [toAmount, fromAmount];
 
     const amountADesired = ethers.parseUnits(baseInputAmount, baseAsset.decimals);
     const amountBDesired = ethers.parseUnits(quoteInputAmount, quoteAsset.decimals);
-   
+
 
     let reserve0: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(baseAsset, amountADesired.toString());
     let reserve1: CurrencyAmount<Token> = CurrencyAmount.fromRawAmount(quoteAsset, amountBDesired.toString());
@@ -1703,9 +1703,9 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       value: etherIn || etherOut ? (baseAsset.address === WRAPPED_TOKEN ? amountADesired : amountBDesired) : undefined
     }
 
-  
 
-    
+
+
 
     var swapParameters: any[] = []
     if (etherIn || etherOut) {
@@ -1715,24 +1715,24 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       const _amountTokenMin = baseAsset.address == tokenAddress ? amountAMin : amountBMin;
       const _amountETHMin = baseAsset.address == tokenAddress ? amountBMin : amountAMin;
 
-      console.log("tokenAddress",tokenAddress)
-      console.log("_amountTokenDesired",_amountTokenDesired)
-      console.log("_amountTokenMin",_amountTokenMin)
-      console.log("_amountETHMin",_amountETHMin)
+      console.log("tokenAddress", tokenAddress)
+      console.log("_amountTokenDesired", _amountTokenDesired)
+      console.log("_amountTokenMin", _amountTokenMin)
+      console.log("_amountETHMin", _amountETHMin)
 
       swapParameters = [tokenAddress, _amountTokenDesired, _amountTokenMin, _amountETHMin, account, deadline]
     } else {
 
-      console.log("baseAsset",baseAsset.symbol,amountADesired,baseInputAmount)
-      console.log("quoteAsset",quoteAsset.symbol,amountBDesired,quoteInputAmount)
-      console.log("_amountTokenDesired",(amountADesired))
-      console.log("_amountTokenMin",(amountBDesired))
-      console.log("amountAMin",(amountAMin))
-      console.log("amountBMin",(amountBMin))
+      console.log("baseAsset", baseAsset.symbol, amountADesired, baseInputAmount)
+      console.log("quoteAsset", quoteAsset.symbol, amountBDesired, quoteInputAmount)
+      console.log("_amountTokenDesired", (amountADesired))
+      console.log("_amountTokenMin", (amountBDesired))
+      console.log("amountAMin", (amountAMin))
+      console.log("amountBMin", (amountBMin))
 
       swapParameters = [baseAsset.address, quoteAsset.address, amountADesired, amountBDesired, amountAMin, amountBMin, addressTo, deadline]
     }
-    
+
 
     try {
       const tx: any = await dexContract.wallet.writeContract({
@@ -1947,61 +1947,60 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     }
   }
 
- 
-    
+
+
   const fetchUseTradeStats = async (chainId: string | number, walletProvider: any | undefined, account: string | undefined) => {
-    if(!account){
-        return;
+    if (tokens.length == 0) {
+      return;
     }
-    if(account == ""){
-        return;
-    }
-    if(tokens.length == 0){
-        return;
-    }
-    
-    let dexContract = await getContractByName(TContractType.DEX, chainId,walletProvider);
+    var totalReward = chainId === 88888 ? parseEther("200") : parseEther("0.1")
+    var individualReward: any = 0
 
     let filteredTokensList = tokens.filter((item: any) => item.address !== ZeroAddress)
-    
-    let addressList = filteredTokensList.map((item: any) => item.address);
+    var combinedList: any = []
 
+
+
+    let dexContract = await getContractByName(TContractType.DEX, chainId, walletProvider);
+    let addressList = filteredTokensList.map((item: any) => item.address);
+    let accountAddress = account ? ethers.getAddress(account) as `0x${string}` : ETHER_ADDRESS
     const [signerAccount] = await dexContract.wallet.getAddresses();
-    const [individualTrades,totaltrades]: any = await dexContract.client.readContract({
+    const [individualTrades, totaltrades]: any = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
       functionName: 'getTradeStatsForMultipleTokens',
-      args: [addressList,account],
+      args: [addressList, accountAddress],
       account: account ? ethers.getAddress(account) as `0x${string}` : KEWL_DEPLOYER_ADDRESS
     })
 
-    console.log("individual",individualTrades)
-    console.log("totaltrades",totaltrades)
-    var totalReward = chainId === 88888 ? parseEther("200") : parseEther("0.1")
-    var individualReward : any = 0
-    let combinedList = filteredTokensList.map((token: any, index: number) => {
-      const [total, individual] = [individualTrades[index],totaltrades[index]]
+ 
 
-      if(token.address == WETH9[Number(chainId)].address){
+    combinedList = filteredTokensList.map((token: any, index: number) => {
+      const [total, individual] = [individualTrades[index], totaltrades[index]]
+
+      if (token.address == WETH9[Number(chainId)].address) {
         const rewardInEther = (BigInt(individual) * BigInt(totalReward)) / BigInt(total);
-         individualReward = ethers.formatUnits(rewardInEther.toString(), 18); 
+        individualReward = ethers.formatUnits(rewardInEther.toString(), 18);
       }
 
       return {
-        token:token,
-        totalTrades:ethers.formatUnits(total,token.decimals),
-        individualTrades:ethers.formatUnits(individual,token.decimals)
+        token: token,
+        totalTrades: ethers.formatUnits(total, token.decimals),
+        individualTrades: ethers.formatUnits(individual, token.decimals)
       };
     });
+
+
+
     const _userTradingStats: UserTradingStats = {
       totalReward,
       individualReward,
       tradingStats: combinedList,
     };
     setUserTradingStats(_userTradingStats)
-    console.log("tradeStats",combinedList)
-     
-}
+    console.log("tradeStats", combinedList)
+
+  }
 
   // Context değeri
   const value: SwapContextProps = {

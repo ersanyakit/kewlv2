@@ -67,11 +67,18 @@ export async function GetSigner(walletProvider: any) {
 
 export const fetchBalances = async (chainId: string | number,account: string | undefined, walletProvider: any, tokenList: TToken[],setTokenList: (tokenList: TToken[]) => void) => {
     if(!account){
+
+        tokenList.forEach((tokenInfo : any, index : number) => {
+            tokenInfo.address = ethers.getAddress(tokenInfo.address);
+            const tokenAddr = new Token(tokenInfo.chainId, tokenInfo.address, tokenInfo.decimals);
+            tokenList[index]['balance'] = CurrencyAmount.fromRawAmount(tokenAddr,("0")).toSignificant();
+            tokenList[index]['loading'] = false;
+            tokenList[index]['favorite'] = false;
+        });
+        setTokenList(tokenList);
         return;
     }
-    if(account == ""){
-        return;
-    }
+
     
     let dexContract = await getContractByName(TContractType.DEX, chainId,walletProvider);
      
