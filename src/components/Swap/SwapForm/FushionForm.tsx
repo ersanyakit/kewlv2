@@ -18,6 +18,7 @@ import {
     XCircle,
     RefreshCcw,
     Repeat,
+    PlusCircle,
 } from 'lucide-react';
 import { SWAP_MODE, useTokenContext } from '../../../context/TokenContext';
 import TokenShape from '../../UI/TokenShape';
@@ -377,16 +378,16 @@ const FushionForm: React.FC = () => {
                                                 )}
 
                                                 <AnimatePresence>
-                                                    {dex.isSelected && (
+                                               
                                                         <motion.div
                                                             initial={{ scale: 0, opacity: 0 }}
                                                             animate={{ scale: 1, opacity: 1 }}
                                                             exit={{ scale: 0, opacity: 0 }}
                                                             transition={{ type: "spring", stiffness: 400, damping: 15 }}
                                                         >
-                                                            <CheckCircle className="w-4 h-4 text-white" />
+                                                                 {!dex.isSelected   ?  <PlusCircle className="w-4 h-4" /> : <CheckCircle className="w-4 h-4 text-white" />}
                                                         </motion.div>
-                                                    )}
+                                                
                                                 </AnimatePresence>
                                             </motion.div>
                                         </div>
