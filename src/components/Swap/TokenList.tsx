@@ -27,16 +27,14 @@ const TokenList: React.FC = () => {
   useEffect(() => {
   }, [isDarkMode]);
 
-  return (<motion.div
-    className={`${isDarkMode
-      ? 'bg-gray-800/90 border-gray-700/50'
-      : 'bg-white/80 border-white/30'
-      } backdrop-blur-md min-h-[68dvh]  max-h-[68dvh]  rounded-3xl flex h-full flex-col items-start justify-between gap-2 shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden transition-all duration-300`}
-    initial={{ opacity: 0, x: -20 }}
-    animate={{ opacity: 1, x: 0 }}
-    transition={{ delay: 0.2 }}
-  >
-
+  return (                    <motion.div
+    className={`relative ${isDarkMode
+        ? 'bg-gray-800/30 border-gray-700/30'
+        : 'bg-white/40 border-white/20'
+        } backdrop-blur-sm p-0.5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden transition-all duration-300 w-full`}
+    initial={{ y: 20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ delay: 0.3 }}>
  
       <div className='w-full'>
 

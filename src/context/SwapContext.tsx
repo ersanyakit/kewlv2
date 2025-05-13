@@ -1964,7 +1964,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     let dexContract = await getContractByName(TContractType.DEX, chainId, walletProvider);
     let addressList = filteredTokensList.map((item: any) => item.address);
     let accountAddress = account ? ethers.getAddress(account) as `0x${string}` : ETHER_ADDRESS
-    const [signerAccount] = await dexContract.wallet.getAddresses();
+    const [signerAccount] = account ? await dexContract.wallet.getAddresses() : ZeroAddress;
     const [individualTrades, totaltrades]: any = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,

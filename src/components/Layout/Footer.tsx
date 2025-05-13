@@ -45,10 +45,12 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
             <Shield className="w-3 h-3 mr-1" />
             Security
           </a>
-          <a href="#" className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center`}>
+          <span onClick={()=>{
+            navigate('/rewards')
+          }} className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center cursor-pointer`}>
             <Award className="w-3 h-3 mr-1" />
             Rewards
-          </a>
+          </span>
           <a href="#" className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center`}>
             <Compass className="w-3 h-3 mr-1" />
             Explore
@@ -59,7 +61,8 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
         <div className="flex space-x-2">
           {/* Twitter benzeri */}
           <motion.a 
-            href="#" 
+            href="https://x.com/kewlswap"
+            target="_blank"
             className="w-8 h-8 bg-gradient-to-br from-[#ff1356] to-[#ff4080] rounded-full flex items-center justify-center text-white shadow-sm"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
@@ -71,7 +74,8 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
           
           {/* Telegram benzeri */}
           <motion.a 
-            href="#" 
+            target="_blank"
+            href="https://t.me/kewlswap" 
             className="w-8 h-8 bg-gradient-to-br from-[#ff2d6a] to-[#ff4080] rounded-full flex items-center justify-center text-white shadow-sm"
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
@@ -83,7 +87,8 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
           
           {/* Discord benzeri */}
           <motion.a 
-            href="#" 
+          target='_blank'
+            href="https://discord.gg/7yXaMsS9J2" 
             className={`w-8 h-8 ${isDarkMode ? 'bg-gradient-to-br from-indigo-500 to-indigo-700' : 'bg-gradient-to-br from-indigo-400 to-indigo-600'} rounded-full flex items-center justify-center text-white shadow-sm`}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
@@ -98,7 +103,8 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
           
           {/* Github benzeri */}
           <motion.a 
-            href="#" 
+            href="https://github.com/kewlexchange"
+            target='_blank' 
             className={`w-8 h-8 ${isDarkMode ? 'bg-gradient-to-br from-gray-600 to-gray-800' : 'bg-gradient-to-br from-gray-700 to-gray-900'} rounded-full flex items-center justify-center text-white shadow-sm`}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.95 }}
@@ -118,7 +124,9 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
         </div>
         
         <div className="flex space-x-3">
-          <a href="#" className={`${isDarkMode ? 'hover:text-pink-300' : 'hover:text-[#ff1356]'} transition-colors`}>Terms of Service</a>
+          <span onClick={()=>{
+            navigate('/tos')
+          }} className={`${isDarkMode ? 'hover:text-pink-300' : 'hover:text-[#ff1356]'} transition-colors cursor-pointer`}>Terms of Service</span>
           <a href="#" className={`${isDarkMode ? 'hover:text-pink-300' : 'hover:text-[#ff1356]'} transition-colors`}>Privacy Policy</a>
           <a href="#" className={`${isDarkMode ? 'hover:text-pink-300' : 'hover:text-[#ff1356]'} transition-colors`}>Cookies</a>
           <a href="#" className={`${isDarkMode ? 'hover:text-pink-300' : 'hover:text-[#ff1356]'} transition-colors`}>Help</a>

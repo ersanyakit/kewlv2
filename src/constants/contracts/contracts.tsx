@@ -66,6 +66,7 @@ export async function GetSigner(walletProvider: any) {
 }
 
 export const fetchBalances = async (chainId: string | number,account: string | undefined, walletProvider: any, tokenList: TToken[],setTokenList: (tokenList: TToken[]) => void) => {
+    
     if(!account){
 
         tokenList.forEach((tokenInfo : any, index : number) => {

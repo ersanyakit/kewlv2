@@ -89,17 +89,9 @@ export default function TradeTerminal() {
   const y = useMotionValue(0);
   const rotate = useTransform(x, [-100, 100], [-10, 10]);
 
-  // Recent transactions for history
-  const recentTransactions = [
-    { id: 1, from: 'WCHZ', to: 'KEWL', fromAmount: '5,000', toAmount: '0.293', status: 'completed', time: '22 dk önce' },
-    { id: 2, from: 'WCHZ', to: 'WGAL', fromAmount: '0.12', toAmount: '5,183.42', status: 'completed', time: '3 saat önce' },
-    { id: 3, from: 'wCHZ', to: 'PEPPER', fromAmount: '1.5', toAmount: '25,542', status: 'pending', time: 'İşleniyor' }
-  ];
-
-
-
+  
   return (
-    <div className={`${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 text-gray-900'}  flex flex-col px-0 py-4 md:p-4 transition-colors duration-300`}>
+    <div className={`flex flex-col px-0 py-4 md:p-4 transition-colors duration-300`}>
       {/* Main Content - Three Column Grid */}
       <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-7 gap-4">
         {/* Left Column - Token List Component */}

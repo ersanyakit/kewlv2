@@ -39,13 +39,13 @@ const TransactionHistory: React.FC = () => {
 
   return (
     <motion.div
-      className={`${isDarkMode
-        ? 'bg-gray-800/90 border-gray-700/50'
-        : 'bg-white/80 border-white/30'
-        } backdrop-blur-md min-h-[68dvh]  max-h-[68dvh]  rounded-3xl flex h-full flex-col items-start justify-between gap-2 shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden transition-all duration-300`}
-      initial={{ opacity: 0, x: -20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.2 }}>
+    className={`relative ${isDarkMode
+        ? 'bg-gray-800/30 border-gray-700/30'
+        : 'bg-white/40 border-white/20'
+        } backdrop-blur-sm p-0.5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden transition-all duration-300 w-full`}
+    initial={{ y: 20, opacity: 0 }}
+    animate={{ y: 0, opacity: 1 }}
+    transition={{ delay: 0.3 }}>
 
 
       <div className={`w-full p-4 border-b ${isDarkMode ? 'border-gray-700' : 'border-gray-100'}`}>
@@ -148,7 +148,7 @@ const TransactionHistory: React.FC = () => {
         </h3>
         <div className="flex flex-col space-y-3">
           {/* Rewards Card */}
-          <div className={`${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'} rounded-lg p-3 border ${isDarkMode ? 'border-gray-600/50' : 'border-gray-200/70'}`}>
+          <div className={`${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'}  hidden rounded-lg p-3 border ${isDarkMode ? 'border-gray-600/50' : 'border-gray-200/70'}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div className={`h-8 w-8 rounded-full flex items-center justify-center ${isDarkMode ? 'bg-pink-500/10' : 'bg-pink-50'}`}>
@@ -180,7 +180,7 @@ const TransactionHistory: React.FC = () => {
                   ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600'
                   : 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white'
                 : "bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white"
-              }  px-4 py-2 rounded-xl font-medium flex text-center items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300`}
+              }  px-4 py-2 min-h-[100px] rounded-xl font-medium flex text-center items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}>
 
