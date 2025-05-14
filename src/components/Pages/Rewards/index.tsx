@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useTokenContext } from '../../../context/TokenContext';
 import { motion } from 'framer-motion';
 import { useAppKitAccount } from '@reown/appkit/react';
@@ -35,7 +35,10 @@ const Rewards = () => {
     const [getTweet, setTweet] = useState<string>(getRandomTweet());
     const [tweetButtonWaiting, setTweetButtonWaiting] = useState<boolean>(false);
     const [tweetWaitTime, setTweetWaitTime] = useState<number>(5);
-
+    const [inputValue, setInputValue] = useState<string>("");
+    const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
+    const [tweetInfo, setTweetInfo] = React.useState<TweetInfo | null>(null);
+    
     // Zamanlayıcı için state tanımla
     const [countdown, setCountdown] = React.useState({
         hours: 23,
@@ -50,7 +53,6 @@ const Rewards = () => {
     const [hoursPulse, setHoursPulse] = React.useState(false);
     const [minutesPulse, setMinutesPulse] = React.useState(false);
     const [secondsPulse, setSecondsPulse] = React.useState(false);
-    const [tweetInfo, setTweetInfo] = React.useState<TweetInfo | null>(null);
     
     // Toplam 24 saat (saniye cinsinden)
     const totalSeconds = 24 * 60 * 60;
@@ -232,6 +234,27 @@ const Rewards = () => {
             });
         }, 1000);
     };
+
+    // Create a debounced function to handle URL parsing
+    const debouncedHandleInputChange = useCallback((value: string) => {
+        // Clear any existing timeout to prevent multiple executions
+        if (debounceTimeout) {
+            clearTimeout(debounceTimeout);
+        }
+        
+        // Set a new timeout
+        const timeout = setTimeout(() => {
+            // Only parse the URL if we have some input
+            if (value.trim()) {
+                const tweetInfo = parseTweetUrl(value);
+                setTweetInfo(tweetInfo);
+            } else {
+                setTweetInfo(null);
+            }
+        }, 300); // 300ms delay
+        
+        setDebounceTimeout(timeout);
+    }, [debounceTimeout]);
 
     return (
         <div className={` max-w-6xl mx-auto flex flex-col p py-4 transition-colors duration-300`}>
@@ -572,9 +595,11 @@ const Rewards = () => {
                                         whileFocus={{ y: -2 }}
                                     >
                                         <input
+                                            value={inputValue}
                                             onChange={(e) => {
-                                                const tweetInfo = parseTweetUrl(e.target.value);
-                                                setTweetInfo(tweetInfo);
+                                                const value = e.target.value;
+                                                setInputValue(value);
+                                                debouncedHandleInputChange(value);
                                             }}
                                             type="text"
                                             placeholder="https://twitter.com/username/status/123456789"
@@ -598,6 +623,7 @@ const Rewards = () => {
                                     Verify & Claim 1000 $1K
                                 </motion.button>
                                 <p className={`text-sm mt-2 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Enter your Tweet URL to enable claiming</p>
+                                <span>{tweetInfo?.packedId?.toString()}</span>
                             </div>
 
                             {/* Rewards Information */}
