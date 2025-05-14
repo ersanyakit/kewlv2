@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTokenContext } from '../../../context/TokenContext';
 import { motion } from 'framer-motion';
-import { useAppKitAccount } from '@reown/appkit/react';
+import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
 import { useNavigate } from 'react-router-dom';
 import TokenList from '../../Swap/TokenList';
 import ConnectButton from '../../UI/ConnectButton';
 import { generateTweetIntentURL, getRandomTweet, parseTweetUrl, TweetInfo } from './Data/Functions';
+import { useSwapContext } from '../../../context/SwapContext';
 
 const Rewards = () => {
     // Token context'inden verileri al
@@ -30,7 +31,10 @@ const Rewards = () => {
         setTradeType,
 
     } = useTokenContext();
+    const { walletProvider } = useAppKitProvider('eip155');
+
     const { address, isConnected } = useAppKitAccount();
+    const { bountiesInfo, fetchBountiesInfo } = useSwapContext();
     const navigate = useNavigate();
     const [getTweet, setTweet] = useState<string>(getRandomTweet());
     const [tweetButtonWaiting, setTweetButtonWaiting] = useState<boolean>(false);
@@ -98,6 +102,12 @@ const Rewards = () => {
         // Component unmount olduğunda timer'ı temizle
         return () => clearInterval(timer);
     }, []);
+
+    useEffect(() => {
+ 
+            fetchBountiesInfo(walletProvider);
+        
+    }, [address]);
 
     // Rastgele pulse efektleri için useEffect
     React.useEffect(() => {
@@ -217,7 +227,7 @@ const Rewards = () => {
     const handleTweetButtonClick = () => {
         setTweetButtonWaiting(true);
         setTweetWaitTime(10);
-        
+        return
         // Open the tweet intent URL
         window.open(generateTweetIntentURL(getTweet), '_blank');
         

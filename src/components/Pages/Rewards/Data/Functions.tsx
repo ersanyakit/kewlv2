@@ -12,6 +12,9 @@ export const randomUser = (count: number): string => {
         "@alex_dreyfus",
         "@kewlswap",
         "@chiliz",
+        '@SonicLabs',
+        '@MichaelFKong',
+        '@AndreCronjeTech',
     ].join(' ');
 }
 
@@ -213,14 +216,14 @@ export const airdropHashtags: string[] = [
   };
 
 export const getRandomTweet = () => {
-    return `${tweets[Math.floor(Math.random() * tweets.length)]}\n\n ${randomUser(3)}\n\n ${getRandomAirdropHashtag(3)} #1K$\n\nhttps://kewl.exchange `;
+    return `${tweets[Math.floor(Math.random() * tweets.length)]}\n\n${randomUser(3)}\n\n ${getRandomAirdropHashtag(3)} #1K$\n\nhttps://kewl.exchange `;
 };
 
 export const generateTweetIntentURL = (tweetText: string): string => {
    
     const encodedTweetText = encodeURIComponent(tweetText);
   
-    return `https://twitter.com/intent/tweet?text=${encodedTweetText}`;
+    return `https://x.com/intent/tweet?text=${encodedTweetText}`;
   };
 
   export type TweetInfo = {

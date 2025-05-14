@@ -73,6 +73,10 @@ interface SwapContextProps {
   setPairState: (pairState: TPairState) => void;
   handleAggregatorSwap: (walletProvider: any) => void;
 
+  bountiesInfo: any;
+  setBountiesInfo: (bountiesInfo: any) => void;
+  fetchBountiesInfo: (walletProvider: any) => void;
+
   aggregatorPairs: TCustomPair[];
   setAggregatorPairs: (pairs: TCustomPair[]) => void;
   setFromAmount: (amount: string) => void;
@@ -111,6 +115,11 @@ const defaultContext: SwapContextProps = {
   loading: false,
   aggregatorPairs: [],
   removeLiquidityPercent: 100,
+
+  bountiesInfo: null,
+  fetchBountiesInfo: () => { },
+  setBountiesInfo: () => { },
+
   setRemoveLiquidityPercent: () => { },
   handleAggregatorSwap: () => { },
   setAggregatorPairs: () => { },
@@ -162,6 +171,60 @@ export enum SwapStatusType {
   INVALID_PATH = "INVALID_PATH",
   INVALID_TRADE_TYPE = "INVALID_TRADE_TYPE",
 }
+
+export enum BOUNTY_TYPE {
+  TWEET,
+  VOLUME,
+  LIQUIDITY,
+  BALANCE,
+  CUSTOM
+}
+
+export interface BountyInfo {
+  valid: boolean;
+  canUserClaim: boolean;
+  bountyId: bigint;
+  bountyType: BOUNTY_TYPE;
+  rewardAmount: bigint;
+  tokenAmount: bigint;
+  totalClaims: bigint;
+  createdAt: bigint;
+  nextReward: bigint;
+  userAvailableReward: bigint;
+  userTotalReward: bigint;
+  userLastClaimDate: bigint;
+  verifyParam: bigint; // lp kLast parametresi
+  bountyName: string;
+  bountyDescription: string;
+  bountyToken: `0x${string}`; // ethers v6 tipi için
+}
+
+export interface BountyUserInfo {
+  valid: boolean;
+  registered: boolean;
+  userId: bigint;
+  lastaccess: bigint;
+  total: bigint;
+  wallet: `0x${string}`;
+  referral: `0x${string}`;
+  avatar: string;
+  cover: string;
+  name: string;
+  bio: string;
+  twitter: string;
+  telegram: string;
+  instagram: string;
+  youtube: string;
+  facebook: string;
+  discord: string;
+  tiktok: string;
+  website: string;
+  geohash: string;
+  followers: `0x${string}`[];   // array of addresses
+  followings: `0x${string}`[];
+  referrals: `0x${string}`[];
+}
+
 export interface SwapError {
   type: SwapStatusType;
   message: string;
@@ -310,6 +373,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [aggregatorPairs, setAggregatorPairs] = useState<TCustomPair[]>([]);
   const [pairState, setPairState] = useState<TPairState>(initialPairState);
   const [removeLiquidityPercent, setRemoveLiquidityPercent] = useState<number>(100);
+  const [bountiesInfo, setBountiesInfo] = useState<any>(null);
 
 
 
@@ -490,6 +554,38 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       })
       setCanSwap(false);
     }
+  }
+
+
+  const fetchBountiesInfo = async (walletProvider: any) => {
+    
+
+    let userAccount = account ? account : ethers.ZeroAddress;
+
+    
+    
+
+    //    function fetchBountiesInfo(address _account) external view returns (BountyInfo[] memory _bounties, BountyUserInfo memory bountyUserInfo) {
+
+    let dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+
+    //const [signerAccount] = await dexContract.wallet.getAddresses();
+
+
+    const [_bounties,_bountyUserInfo] = await dexContract.client.readContract({
+      address: dexContract.caller.address,
+      abi: dexContract.abi,
+      functionName: 'fetchBountiesInfo',
+      args: [userAccount],
+    }) as [BountyInfo[], BountyUserInfo];
+
+    let _bountiesInfo = {
+      bounties: _bounties,
+      bountyUserInfo: _bountyUserInfo
+    }
+    console.log("bountiesInfo", userAccount, _bountiesInfo)
+
+    setBountiesInfo(_bountiesInfo)
   }
 
   const handleSwap = async (walletProvider: any) => {
@@ -2041,6 +2137,10 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     handleAddLiquidity,
     fetchLiquidityInfo,
     fetchUseTradeStats,
+
+    bountiesInfo,
+    setBountiesInfo,
+    fetchBountiesInfo,
     // Diğer değerler...
   };
 
