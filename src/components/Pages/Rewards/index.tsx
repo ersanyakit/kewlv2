@@ -55,7 +55,7 @@ const Rewards = () => {
     }
     useEffect(() => {
         initBountiesInfo()
-    }, [address]);
+    }, [address,isConnected]);
 
     
     // Geri sayım zamanlayıcısı effect'i
