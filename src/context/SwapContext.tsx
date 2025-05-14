@@ -10,7 +10,7 @@ import JSBI from 'jsbi';
 import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_MEDIUM, calculateSlippageAmount, warningSeverity, warningSeverityText } from '../constants/entities/utils/calculateSlippageAmount';
 import moment from 'moment';
 import { toHex } from '../constants/entities/utils/computePriceImpact';
-import { erc20Abi, getContract, parseUnits, zeroAddress } from 'viem';
+import { Address, decodeEventLog, erc20Abi, getContract, parseAbiItem, parseUnits, zeroAddress } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
 import { getExchangeByRouterAndWETH, getRoutersByChainId } from '../constants/contracts/exchanges';
 import { sqrt } from '../constants/entities/utils/sqrt';
@@ -23,6 +23,20 @@ interface UserTradingStats {
     totalTrades: string;
     individualTrades: string;
   }[];
+}
+
+export enum BOUNTY_TYPE {
+  TWEET = "TWEET",
+  VOLUME = "VOLUME",
+  BALANCE = "BALANCE",
+  LIQUIDITY = "LIQUIDITY",
+  CUSTOM = "CUSTOM",
+}
+
+export interface BountyClaimParam {
+  bountyId: bigint;  // ethers v6'daki BigNumber yerine native bigint önerilir
+  taskId: any;
+  params: string;
 }
 
 const initialPairState: TPairState = {
@@ -72,10 +86,15 @@ interface SwapContextProps {
   pairState: TPairState;
   setPairState: (pairState: TPairState) => void;
   handleAggregatorSwap: (walletProvider: any) => void;
+  fetchClaimedRewards: (walletProvider: any) => void;
 
   bountiesInfo: any;
   setBountiesInfo: (bountiesInfo: any) => void;
   fetchBountiesInfo: (walletProvider: any) => void;
+
+  claimedRewards: any[];
+  setClaimedRewards: (claimedRewards: any[]) => void;
+  handleClaimedRewards: (walletProvider: any, claimedRewards: BountyClaimParam) => void;
 
   aggregatorPairs: TCustomPair[];
   setAggregatorPairs: (pairs: TCustomPair[]) => void;
@@ -116,9 +135,17 @@ const defaultContext: SwapContextProps = {
   aggregatorPairs: [],
   removeLiquidityPercent: 100,
 
-  bountiesInfo: null,
+  bountiesInfo: {
+    loaded: false,
+    bounties: [],
+    bountyUserInfo: null,
+    totalClaimed: 0n,
+  },
   fetchBountiesInfo: () => { },
   setBountiesInfo: () => { },
+
+  claimedRewards: [],
+  setClaimedRewards: () => { },
 
   setRemoveLiquidityPercent: () => { },
   handleAggregatorSwap: () => { },
@@ -139,6 +166,8 @@ const defaultContext: SwapContextProps = {
   handleRemoveLiquidity: () => { },
   fetchLiquidityInfo: () => { },
   fetchUseTradeStats: () => { },
+  fetchClaimedRewards: () => { },
+  handleClaimedRewards: () => { },
 };
 
 // Context oluşturma
@@ -172,13 +201,7 @@ export enum SwapStatusType {
   INVALID_TRADE_TYPE = "INVALID_TRADE_TYPE",
 }
 
-export enum BOUNTY_TYPE {
-  TWEET,
-  VOLUME,
-  LIQUIDITY,
-  BALANCE,
-  CUSTOM
-}
+
 
 export interface BountyInfo {
   valid: boolean;
@@ -373,7 +396,13 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [aggregatorPairs, setAggregatorPairs] = useState<TCustomPair[]>([]);
   const [pairState, setPairState] = useState<TPairState>(initialPairState);
   const [removeLiquidityPercent, setRemoveLiquidityPercent] = useState<number>(100);
-  const [bountiesInfo, setBountiesInfo] = useState<any>(null);
+  const [bountiesInfo, setBountiesInfo] = useState<any>({
+    loaded: false,
+    bounties: [],
+    bountyUserInfo: null
+  });
+  const [claimedRewards, setClaimedRewards] = useState<any[]>([]);
+  
 
 
 
@@ -557,33 +586,37 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   }
 
 
-  const fetchBountiesInfo = async (walletProvider: any) => {
-    
 
+  const fetchBountiesInfo = async (walletProvider: any) => {
+    setBountiesInfo({
+      loaded: false,
+      bounties: [],
+      bountyUserInfo: null,
+      totalClaimed: 0n,
+    })
     let userAccount = account ? account : ethers.ZeroAddress;
 
-    
-    
-
-    //    function fetchBountiesInfo(address _account) external view returns (BountyInfo[] memory _bounties, BountyUserInfo memory bountyUserInfo) {
 
     let dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
 
-    //const [signerAccount] = await dexContract.wallet.getAddresses();
 
-
-    const [_bounties,_bountyUserInfo] = await dexContract.client.readContract({
+    const [_bounties, _bountyUserInfo] = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
       functionName: 'fetchBountiesInfo',
       args: [userAccount],
     }) as [BountyInfo[], BountyUserInfo];
 
+    const totalUserReward = _bounties.reduce((acc, bounty) => {
+      return acc + BigInt(bounty.userTotalReward);
+    }, 0n);
+
     let _bountiesInfo = {
+      loaded: true,
       bounties: _bounties,
-      bountyUserInfo: _bountyUserInfo
+      bountyUserInfo: _bountyUserInfo,
+      totalClaimed: formatEther(totalUserReward),
     }
-    console.log("bountiesInfo", userAccount, _bountiesInfo)
 
     setBountiesInfo(_bountiesInfo)
   }
@@ -2043,13 +2076,77 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     }
   }
 
+  const fetchClaimedRewards = async (walletProvider: any) => {
+    const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
 
+
+    const latestBlock = await dexContract.client.getBlockNumber();
+    const fromBlock = latestBlock > 5000n ? latestBlock - 5000n : 0n;
+
+    const eventSignature = parseAbiItem('event RewardClaimed(address indexed user, uint8 bountyType, uint256 amount, uint256 timestamp)');
+    const rewardClaimedAbi = {
+      type: 'event',
+      name: 'RewardClaimed',
+      inputs: [
+        { indexed: true, name: 'user', type: 'address' },
+        { indexed: false, name: 'bountyType', type: 'uint256' },
+        { indexed: false, name: 'rewardAmount', type: 'uint256' },
+        { indexed: false, name: 'timestamp', type: 'uint256' },
+      ],
+    };
+
+    const logs = await dexContract.client.getLogs({
+      address: dexContract.address,
+      event: eventSignature,
+      fromBlock: fromBlock,
+      toBlock: 'latest',
+    });
+    const BOUNTY_TYPE_ARRAY = Object.values(BOUNTY_TYPE)
+    const simplifiedLogs = logs.map(log => {
+      const parsed = decodeEventLog({
+        abi: dexContract.abi,
+        data: log.data,
+        topics: log.topics,
+      });
+    
+      type RewardClaimedEvent = {
+        user: Address;
+        bountyType: number;
+        amount: bigint;
+        timestamp: bigint;
+      };
+      
+      const { user, bountyType, amount, timestamp } = parsed.args as unknown as RewardClaimedEvent;
+      const date = new Date(Number(timestamp) * 1000); // milisaniyeye çevir
+      
+const formatted = date.toLocaleString('en-US', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  hour12: false, // 24 saat formatı için
+  timeZone: 'UTC', // ya da 'Asia/Istanbul' gibi bir timezone
+});
+      return {
+        user,
+        bountyType,
+        amount: amount,
+        timestamp:formatted,
+        proof:log.transactionHash,
+        rewardType:BOUNTY_TYPE_ARRAY[bountyType]
+      };
+    });
+    setClaimedRewards(simplifiedLogs)
+
+  }
 
   const fetchUseTradeStats = async (chainId: string | number, walletProvider: any | undefined, account: string | undefined) => {
     if (tokens.length == 0) {
       return;
     }
-    var totalReward : any = 0
+    var totalReward: any = 0
     var individualReward: any = 0
 
     let filteredTokensList = tokens.filter((item: any) => item.address !== ZeroAddress)
@@ -2069,7 +2166,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       account: account ? ethers.getAddress(account) as `0x${string}` : KEWL_DEPLOYER_ADDRESS
     })
 
- 
+
 
     combinedList = filteredTokensList.map((token: any, index: number) => {
       const [total, individual] = [individualTrades[index], totaltrades[index]]
@@ -2098,6 +2195,49 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
   }
 
+   const handleClaimedRewards = async (walletProvider: any, claimedRewards: BountyClaimParam) => {
+    const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+    const [signerAccount] = await dexContract.wallet.getAddresses()
+
+    try {
+      const simulate = await dexContract.client.simulateContract({
+        chain: dexContract.client.chain,
+        address: dexContract.caller.address as `0x${string}`,
+        abi: dexContract.abi,
+        functionName: "claimReward",
+        args: [claimedRewards],
+        account: signerAccount,
+        value: 0n
+      });
+    
+      // Eğer simülasyon başarılıysa, işlemi gönder:
+      const tx = await dexContract.wallet.writeContract({
+        chain: dexContract.client.chain,
+        address: dexContract.caller.address as `0x${string}`,
+        abi: dexContract.abi,
+        functionName: "claimReward",
+        args: [claimedRewards],
+        account: signerAccount,
+        value: 0n
+      });
+      const receipt = await waitForTransactionReceipt(dexContract.wallet, {
+        hash: tx,
+      });
+  
+      console.log("receipt", receipt)
+    
+      console.log("Transaction sent:", tx);
+    } catch (err) {
+      console.error("Simulation failed, not sending transaction:", err);
+      // İstersen kullanıcıya toast, alert, vs. göster
+    } finally {
+      await fetchBountiesInfo(walletProvider)
+      await fetchClaimedRewards(walletProvider)
+    }
+
+  
+
+  }
   // Context değeri
   const value: SwapContextProps = {
     isSwapping,
@@ -2141,6 +2281,11 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     bountiesInfo,
     setBountiesInfo,
     fetchBountiesInfo,
+    fetchClaimedRewards,
+
+    claimedRewards,
+    setClaimedRewards,
+    handleClaimedRewards,
     // Diğer değerler...
   };
 
@@ -2152,3 +2297,4 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 };
 
 export default SwapContext;
+

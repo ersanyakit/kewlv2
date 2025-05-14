@@ -6,35 +6,21 @@ import { useNavigate } from 'react-router-dom';
 import TokenList from '../../Swap/TokenList';
 import ConnectButton from '../../UI/ConnectButton';
 import { generateTweetIntentURL, getRandomTweet, parseTweetUrl, TweetInfo } from './Data/Functions';
-import { useSwapContext } from '../../../context/SwapContext';
+import { BountyClaimParam, useSwapContext } from '../../../context/SwapContext';
+import moment from 'moment';
+import { formatEther } from 'viem';
+import { ethers } from 'ethers';
+import RecentClaim from './RecentClaim';
 
 const Rewards = () => {
     // Token context'inden verileri al
     const {
         isDarkMode,
-        slippageTolerance,
-        baseToken,
-        swapMode,
-        quoteToken,
-        tokenFilter,
-        favoriteOnly,
-        filteredTokens,
-        tradeType,
-        openTokenSelector,
-        setOpenTokenSelector,
-        setTokenFilter,
-        setFavoriteOnly,
-        selectToken,
-        reloadTokens,
-        handleSwapTokens,
-        setSwapMode,
-        setTradeType,
-
     } = useTokenContext();
     const { walletProvider } = useAppKitProvider('eip155');
 
     const { address, isConnected } = useAppKitAccount();
-    const { bountiesInfo, fetchBountiesInfo } = useSwapContext();
+    const { bountiesInfo, fetchBountiesInfo, handleClaimedRewards } = useSwapContext();
     const navigate = useNavigate();
     const [getTweet, setTweet] = useState<string>(getRandomTweet());
     const [tweetButtonWaiting, setTweetButtonWaiting] = useState<boolean>(false);
@@ -42,9 +28,9 @@ const Rewards = () => {
     const [inputValue, setInputValue] = useState<string>("");
     const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
     const [tweetInfo, setTweetInfo] = React.useState<TweetInfo | null>(null);
-    
+
     // Zamanlayıcı için state tanımla
-    const [countdown, setCountdown] = React.useState({
+    const [countdown, setCountdown] = useState({
         hours: 23,
         minutes: 59,
         seconds: 59
@@ -60,57 +46,98 @@ const Rewards = () => {
     
     // Toplam 24 saat (saniye cinsinden)
     const totalSeconds = 24 * 60 * 60;
-    
-    // Geri sayım zamanlayıcısı effect'i
-    React.useEffect(() => {
-        const timer = setInterval(() => {
-            setCountdown(prev => {
-                let newHours = prev.hours;
-                let newMinutes = prev.minutes;
-                let newSeconds = prev.seconds - 1;
-                
-                if (newSeconds < 0) {
-                    newSeconds = 59;
-                    newMinutes -= 1;
-                }
-                
-                if (newMinutes < 0) {
-                    newMinutes = 59;
-                    newHours -= 1;
-                }
-                
-                // Zamanlayıcı sıfırlandığında tekrar başlat
-                if (newHours < 0) {
-                    newHours = 23;
-                    newMinutes = 59;
-                    newSeconds = 59;
-                }
-                
-                // Progress bar için kalan toplam saniye hesapla
-                const remainingSeconds = (newHours * 3600) + (newMinutes * 60) + newSeconds;
-                const newProgress = (remainingSeconds / totalSeconds) * 100;
-                setProgress(newProgress);
-                
-                return {
-                    hours: newHours,
-                    minutes: newMinutes,
-                    seconds: newSeconds
-                };
-            });
-        }, 1000);
-        
-        // Component unmount olduğunda timer'ı temizle
-        return () => clearInterval(timer);
-    }, []);
 
+    // Add this state variable near your other state declarations
+    const [isClaimLoading, setIsClaimLoading] = useState<boolean>(false);
+
+    const initBountiesInfo = async () => {
+        await fetchBountiesInfo(walletProvider);
+    }
     useEffect(() => {
- 
-            fetchBountiesInfo(walletProvider);
-        
+        initBountiesInfo()
     }, [address]);
 
+    
+    // Geri sayım zamanlayıcısı effect'i
+
+    useEffect(() => {
+        if (bountiesInfo.loaded && bountiesInfo.bounties.length > 0) {
+            const twitterBounty = bountiesInfo.bounties[0]
+
+            // Calculate the target timestamp when claim will be available
+            let targetTimestamp;
+            if (twitterBounty.canUserClaim) {
+                // If never claimed before, can claim immediately
+                targetTimestamp = moment().utc().unix();
+            } else {
+                // Next claim time is lastClaimTime + nextClaimTime
+                targetTimestamp = Number(twitterBounty.nextReward);
+            }
+
+            // Calculate initial countdown values
+            const updateCountdown = () => {
+                const currentTime = moment().utc().unix();
+                const secondsRemaining = Math.max(0, targetTimestamp - currentTime);
+
+                if (secondsRemaining <= 0) {
+                    // Countdown complete, claim is available
+                    setCountdown({
+                        hours: 0,
+                        minutes: 0,
+                        seconds: 0
+                    });
+                    setProgress(0);
+                    return true; // Return true to indicate countdown is complete
+                }
+
+                // Calculate hours, minutes, seconds
+                const duration = moment.duration(secondsRemaining, 'seconds');
+                setCountdown({
+                    hours: duration.hours(),
+                    minutes: duration.minutes(),
+                    seconds: duration.seconds()
+                });
+
+                // Calculate progress percentage
+                const newProgress = (secondsRemaining / totalSeconds) * 100;
+                setProgress(Math.min(100, newProgress)); // Ensure it doesn't exceed 100%
+
+                return false; // Countdown still in progress
+            };
+
+            // Do initial update
+            const isComplete = updateCountdown();
+
+            // Only set interval if countdown is not already complete
+            let timer: NodeJS.Timeout | null = null;
+            if (!isComplete) {
+                timer = setInterval(() => {
+                    const isComplete = updateCountdown();
+                    if (isComplete && timer) {
+                        clearInterval(timer);
+                    }
+                }, 1000);
+            }
+
+            // Cleanup when component unmounts or bountiesInfo changes
+            return () => {
+                if (timer) {
+                    clearInterval(timer);
+                }
+            };
+        }
+    }, [bountiesInfo, totalSeconds]);
+
+    useEffect(() => {
+        // You could add logic here to trigger an action when countdown hits zero
+        const isCountdownComplete = countdown.hours === 0 && countdown.minutes === 0 && countdown.seconds === 0;
+        if (isCountdownComplete) {
+            console.log("Countdown complete! Reward is available to claim");
+        }
+    }, [countdown]);
+
     // Rastgele pulse efektleri için useEffect
-    React.useEffect(() => {
+    useEffect(() => {
         // Rastgele bir pulse efekti tetikler
         const triggerRandomPulse = () => {
             const random = Math.floor(Math.random() * 3); // 0, 1, veya 2
@@ -135,93 +162,9 @@ const Rewards = () => {
         return () => clearInterval(pulseInterval);
     }, []);
 
-    // Recent Claims için state
-    const [claims, setClaims] = React.useState([
-        { id: 1, date: 'Jul 28, 2023', wallet: '0x1a2b...7e8f', tweet: 'https://twitter.com/user1/status/1687452123456', amount: '1000 $1K', isNew: false },
-        { id: 2, date: 'Jul 27, 2023', wallet: '0xdead...beef', tweet: 'https://twitter.com/crypto_lover/status/1687045723459', amount: '1000 $1K', isNew: false },
-        { id: 3, date: 'Jul 25, 2023', wallet: '0x3c4d...9e0f', tweet: 'https://twitter.com/blockchain_jane/status/1686578912435', amount: '1000 $1K', isNew: false },
-        { id: 4, date: 'Jul 24, 2023', wallet: '0x7a9b...1c3d', tweet: 'https://twitter.com/crypto_max/status/1686231475678', amount: '1000 $1K', isNew: false },
-        { id: 5, date: 'Jul 23, 2023', wallet: '0xf1e2...d3c4', tweet: 'https://twitter.com/web3_enthusiast/status/1685867234987', amount: '1000 $1K', isNew: false },
-    ]);
-    
-    // Rastgele wallet adresi oluşturma
-    const generateWallet = () => {
-        const chars = '0123456789abcdef';
-        let wallet = '0x';
-        for (let i = 0; i < 4; i++) {
-            wallet += chars[Math.floor(Math.random() * chars.length)];
-        }
-        wallet += '...';
-        for (let i = 0; i < 4; i++) {
-            wallet += chars[Math.floor(Math.random() * chars.length)];
-        }
-        return wallet;
-    };
-    
-    // Rastgele tweet ID'si oluşturma
-    const generateTweetId = () => {
-        return Math.floor(Math.random() * 9000000000) + 1000000000;
-    };
-    
-    // Rastgele kullanıcı adı oluşturma
-    const generateUsername = () => {
-        const prefixes = ['crypto', 'web3', 'nft', 'defi', 'token', 'eth', 'btc', 'blockchain', 'meta'];
-        const suffixes = ['fan', 'lover', 'trader', 'whale', 'guru', 'dev', 'master', 'pro', 'king', 'queen'];
-        
-        const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
-        const suffix = suffixes[Math.floor(Math.random() * suffixes.length)];
-        const number = Math.floor(Math.random() * 1000);
-        
-        return `${prefix}_${suffix}${number > 100 ? number : ''}`;
-    };
-    
-    // Bugünden gün çıkarma fonksiyonu
-    const getDateString = (daysAgo: number) => {
-        const date = new Date();
-        date.setDate(date.getDate() - daysAgo);
-        const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        return `${monthNames[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
-    };
-    
-    // Belirli aralıklarla yeni claim ekle
-    useEffect(() => {
-        const addNewClaim = () => {
-            const username = generateUsername();
-            const newClaim = {
-                id: Date.now(),
-                date: getDateString(0), // bugün
-                wallet: generateWallet(),
-                tweet: `https://twitter.com/${username}/status/${generateTweetId()}`,
-                amount: '1000 $1K',
-                isNew: true // yeni eklenen claim için flag
-            };
-            
-            // Yeni claim'i listenin başına ekle ve 10 claim sınırını koru
-            setClaims(prev => {
-                const updatedClaims = [newClaim, ...prev];
-                if (updatedClaims.length > 10) {
-                    updatedClaims.pop(); // En eski claim'i çıkar
-                }
-                return updatedClaims;
-            });
-            
-            // 2 saniye sonra "isNew" flag'ini kaldır
-            setTimeout(() => {
-                setClaims(prev => 
-                    prev.map(claim => 
-                        claim.id === newClaim.id ? {...claim, isNew: false} : claim
-                    )
-                );
-            }, 2000);
-        };
-        
-        // Rastgele aralıklarla (3-8 saniye) yeni claim ekle
-        const interval = setInterval(() => {
-            addNewClaim();
-        }, Math.floor(Math.random() * 500) + 3000);
-        
-        return () => clearInterval(interval);
-    }, []);
+
+
+
 
     // Add a function to handle the tweet button click
     const handleTweetButtonClick = () => {
@@ -230,7 +173,7 @@ const Rewards = () => {
         return
         // Open the tweet intent URL
         window.open(generateTweetIntentURL(getTweet), '_blank');
-        
+
         // Start countdown timer
         const interval = setInterval(() => {
             setTweetWaitTime(prevTime => {
@@ -251,20 +194,44 @@ const Rewards = () => {
         if (debounceTimeout) {
             clearTimeout(debounceTimeout);
         }
-        
+
         // Set a new timeout
         const timeout = setTimeout(() => {
             // Only parse the URL if we have some input
             if (value.trim()) {
-                const tweetInfo = parseTweetUrl(value);
-                setTweetInfo(tweetInfo);
+                const _tweetInfo = parseTweetUrl(value);
+                setTweetInfo(_tweetInfo);
             } else {
                 setTweetInfo(null);
             }
         }, 300); // 300ms delay
-        
+
         setDebounceTimeout(timeout);
     }, [debounceTimeout]);
+
+    const handleClaimTwitter = async () => {
+        if (!tweetInfo || !tweetInfo.valid || isClaimLoading) {
+            return;
+        }
+
+        setIsClaimLoading(true);
+
+        try {
+            const claimRewardParam: BountyClaimParam = {
+                bountyId: 0n,
+                taskId: tweetInfo.tweetId,
+                params: tweetInfo.username || "",
+            };
+
+            await handleClaimedRewards(walletProvider, claimRewardParam);
+            // Optional: Add success handling here
+        } catch (error) {
+            console.error("Error claiming reward:", error);
+            // Optional: Add error handling here
+        } finally {
+            setIsClaimLoading(false);
+        }
+    };
 
     return (
         <div className={` max-w-6xl mx-auto flex flex-col p py-4 transition-colors duration-300`}>
@@ -318,11 +285,11 @@ const Rewards = () => {
                             
                             <div className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-900/50' : 'bg-white/70'} mb-3`}>
                                 <div className="flex justify-between mb-1">
-                                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Claimed</span>
-                                    <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>1,000 $1K</span>
+                                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Earned</span>
+                                    <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}> {parseFloat(bountiesInfo.totalClaimed).toFixed(2)} $1K</span>
                                 </div>
-                                <div className="flex justify-between">
-                                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Earned This Week</span>
+                                <div className="flex justify-between hidden">
+                                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Claimable Reward</span>
                                     <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>1,000 $1K</span>
                                 </div>
                             </div>
@@ -544,21 +511,20 @@ const Rewards = () => {
                                         <motion.button
                                             disabled={tweetButtonWaiting}
                                             onClick={handleTweetButtonClick}
-                                            className={`w-full py-3 rounded-xl font-medium ${
-                                                tweetButtonWaiting 
-                                                    ? 'bg-gray-500 cursor-not-allowed' 
-                                                    : 'bg-gradient-to-r from-[#ff1356] to-[#ff4080]'
-                                            } text-white`}
+                                            className={`w-full py-3 rounded-xl font-medium ${tweetButtonWaiting
+                                                ? 'bg-gray-500 cursor-not-allowed'
+                                                : 'bg-gradient-to-r from-[#ff1356] to-[#ff4080]'
+                                                } text-white`}
                                             whileHover={!tweetButtonWaiting ? {
-                                                scale: 1.02,
-                                                boxShadow: "0 5px 15px rgba(255, 19, 86, 0.3)",
-                                                transition: { duration: 0.2 }
+                                        scale: 1.02,
+                                        boxShadow: "0 5px 15px rgba(255, 19, 86, 0.3)",
+                                        transition: { duration: 0.2 }
                                             } : {}}
                                             whileTap={!tweetButtonWaiting ? { scale: 0.98 } : {}}
-                                            initial={{ boxShadow: "0 0px 0px rgba(255, 19, 86, 0)" }}
-                                            transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                        >
-                                            <div className="flex items-center justify-center gap-2">
+                                    initial={{ boxShadow: "0 0px 0px rgba(255, 19, 86, 0)" }}
+                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                >
+                                    <div className="flex items-center justify-center gap-2">
                                                 {tweetButtonWaiting ? (
                                                     <>
                                                         <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -569,14 +535,14 @@ const Rewards = () => {
                                                     </>
                                                 ) : (
                                                     <>
-                                                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                                                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
-                                                        </svg>
-                                                        Tweet Now
+                                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+                                            <path d="M23.953 4.57a10 10 0 01-2.825.775 4.958 4.958 0 002.163-2.723c-.951.555-2.005.959-3.127 1.184a4.92 4.92 0 00-8.384 4.482C7.69 8.095 4.067 6.13 1.64 3.162a4.822 4.822 0 00-.666 2.475c0 1.71.87 3.213 2.188 4.096a4.904 4.904 0 01-2.228-.616v.06a4.923 4.923 0 003.946 4.827 4.996 4.996 0 01-2.212.085 4.936 4.936 0 004.604 3.417 9.867 9.867 0 01-6.102 2.105c-.39 0-.779-.023-1.17-.067a13.995 13.995 0 007.557 2.209c9.053 0 13.998-7.496 13.998-13.985 0-.21 0-.42-.015-.63A9.935 9.935 0 0024 4.59z" />
+                                        </svg>
+                                        Tweet Now
                                                     </>
                                                 )}
-                                            </div>
-                                        </motion.button>
+                                    </div>
+                                </motion.button>
                                     )
                                 }
 
@@ -622,27 +588,40 @@ const Rewards = () => {
                                 </div>
 
                                 <motion.button
-                                    className="w-full py-3 rounded-xl font-medium text-white opacity-60 bg-gradient-to-r from-[#ff1356] to-[#ff4080] cursor-not-allowed"
-                                    initial={{ opacity: 0.6 }}
+                                    className={`w-full py-3 rounded-xl font-medium text-white bg-gradient-to-r from-[#ff1356] to-[#ff4080] 
+    ${(tweetInfo?.valid && !isClaimLoading) ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                    animate={{ opacity: (tweetInfo?.valid && !isClaimLoading) ? 1 : 0.6 }}
+                                    onClick={handleClaimTwitter}
                                     whileHover={{
-                                        opacity: 0.7,
+                                        opacity: (tweetInfo?.valid && !isClaimLoading) ? 0.9 : 0.6,
                                         transition: { duration: 0.3 }
                                     }}
-                                    disabled={!tweetInfo?.valid}
+                                    disabled={!tweetInfo?.valid || isClaimLoading}
                                 >
-                                    Verify & Claim 1000 $1K
+                                    {isClaimLoading ? (
+                                        <div className="flex items-center justify-center gap-2">
+                                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            Verifying...
+                                        </div>
+                                    ) : (
+                                        "Verify & Claim 1000 $1K"
+                                    )}
                                 </motion.button>
                                 <p className={`text-sm mt-2 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Enter your Tweet URL to enable claiming</p>
-                                <span>{tweetInfo?.packedId?.toString()}</span>
+                                <span>{tweetInfo?.valid ? "yes" : "no"},{tweetInfo?.tweetId},{tweetInfo?.username}</span>
                             </div>
 
                             {/* Rewards Information */}
                             <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-100/60'}`}>
-                                <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Reward Details</h3>
+                                <h3 className={`text-lg font-semibold mb-4 ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Available Rewards</h3>
 
                                 <div className="space-y-4">
-                                    {/* Reward Card */}
-                                    <motion.div
+                                    {
+                                        bountiesInfo.bounties.map((bounty: any) => (
+                                            <motion.div key={`bountyExtra${bounty.bountyId}`}
                                         className={`flex items-center justify-between p-3 rounded-lg ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/70'}`}
                                         whileHover={{
                                             y: -3,
@@ -662,8 +641,8 @@ const Rewards = () => {
                                                 </svg>
                                             </motion.div>
                                             <div>
-                                                <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>First Tweet Reward</p>
-                                                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Earn tokens by sharing on Twitter</p>
+                                                        <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{bounty.bountyName}</p>
+                                                        <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{bounty.bountyDescription}</p>
                                             </div>
                                         </div>
                                         <motion.div
@@ -671,9 +650,12 @@ const Rewards = () => {
                                             whileHover={{ scale: 1.05 }}
                                             transition={{ type: "spring", stiffness: 400, damping: 17 }}
                                         >
-                                            1000 $1K
+                                                    {parseFloat(ethers.formatEther(bounty.userAvailableReward)).toFixed(2)} $1K
                                         </motion.div>
                                     </motion.div>
+                                        ))
+                                    }
+
 
                                     {/* Reward Card */}
                                     <motion.div
@@ -698,7 +680,7 @@ const Rewards = () => {
                                             </motion.div>
                                             <div>
                                                 <p className={`font-medium ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Weekly Engagement</p>
-                                                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Tweet with 5+ likes</p>
+                                                <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>More Rewards Coming Soon</p>
                                             </div>
                                         </div>
                                         <div className={`font-semibold text-gray-400`}>Coming Soon</div>
@@ -718,7 +700,7 @@ const Rewards = () => {
                                             whileHover={{ scale: 1.05 }}
                                             transition={{ type: "spring", stiffness: 400, damping: 17 }}
                                         >
-                                            1000 $1K
+                                            UNLIMITED $1K
                                         </motion.span>
                                     </div>
                                 </motion.div>
@@ -728,72 +710,8 @@ const Rewards = () => {
                 </div>
 
                 <div className="order-3 sm:order-3 lg:col-span-2">
-                    {/* Right Column - Claim History */}
-                    <motion.div
-                        className={`relative ${isDarkMode
-                            ? 'bg-gray-800/30 border-gray-700/30'
-                            : 'bg-white/40 border-white/20'
-                            } backdrop-blur-sm p-0.5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden transition-all duration-300 w-full`}
-                        initial={{ y: 20, opacity: 0 }}
-                        animate={{ y: 0, opacity: 1 }}
-                        transition={{ delay: 0.4 }}
-                    >
-                        <div className="p-4">
-                        <h3 className={`font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-800'} pb-5 transition-colors duration-300`}>Recent Claims</h3>
-                            
-                            <div className="space-y-3 max-h-[600px] overflow-y-auto scrollbar-hide pt-2 pr-1">
-                                {claims.map((claim) => (
-                                <motion.div
-                                        key={claim.id}
-                                    className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/70'} border ${isDarkMode ? 'border-gray-700/50' : 'border-gray-200/50'}`}
-                                    initial={claim.isNew ? { x: 0, opacity: 0, borderColor: '#ff4080' } : { opacity: 1 }}
-                                    animate={claim.isNew 
-                                        ? { 
-                                            x: 0, 
-                                            opacity: 1, 
-                                            borderColor: isDarkMode ? 'rgba(75, 85, 99, 0.5)' : 'rgba(229, 231, 235, 0.5)',
-                                            transition: { duration: 0.4 } 
-                                        } 
-                                        : { opacity: 1 }
-                                    }
-                                    whileHover={{ y: -2, boxShadow: "0 4px 12px rgba(0, 0, 0, 0.05)" }}
-                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <motion.div 
-                                            className="w-6 h-6 rounded-full bg-gradient-to-r from-[#ff1356]/20 to-[#ff4080]/20 flex items-center justify-center"
-                                            animate={claim.isNew ? {
-                                                backgroundColor: ['rgba(255, 19, 86, 0.4)', 'rgba(255, 19, 86, 0.2)'],
-                                                scale: [1.2, 1],
-                                                transition: { duration: 0.8 }
-                                            } : {}}
-                                        >
-                                            <svg className="w-4 h-4 text-[#ff4080]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                            </svg>
-                                        </motion.div>
-                                            <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{claim.date}</span>
-                                            <motion.span 
-                                                className="ml-auto text-sm font-semibold text-[#ff4080]"
-                                                animate={claim.isNew ? {
-                                                    scale: [1.1, 1],
-                                                    transition: { duration: 0.5 }
-                                                } : {}}
-                                            >
-                                                {claim.amount}
-                                            </motion.span>
-                                    </div>
-                                    <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} truncate mb-1`}>
-                                            <span className="font-medium">Wallet:</span> {claim.wallet}
-                                    </div>
-                                    <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} truncate`}>
-                                            <span className="font-medium">Tweet:</span> {claim.tweet}
-                                    </div>
-                                </motion.div>
-                                ))}
-                            </div>
-                        </div>
-                    </motion.div>
+                    <RecentClaim />
+
                 </div>
             </div>
 
