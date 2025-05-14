@@ -1953,7 +1953,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     if (tokens.length == 0) {
       return;
     }
-    var totalReward = chainId === 88888 ? parseEther("200") : parseEther("0.1")
+    var totalReward : any = 0
     var individualReward: any = 0
 
     let filteredTokensList = tokens.filter((item: any) => item.address !== ZeroAddress)
@@ -1979,7 +1979,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       const [total, individual] = [individualTrades[index], totaltrades[index]]
 
       if (token.address == WETH9[Number(chainId)].address) {
-        const rewardInEther = (BigInt(individual) * BigInt(totalReward)) / BigInt(total);
+        const rewardInEther = individual;
         individualReward = ethers.formatUnits(rewardInEther.toString(), 18);
       }
 

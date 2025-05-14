@@ -9,7 +9,7 @@ import { publicClient } from '../../context/Web3ProviderContext';
 import { useSwapContext } from '../../context/SwapContext';
 import { useTokenContext } from '../../context/TokenContext';
 import { ethers } from 'ethers';
-
+import { useNavigate } from 'react-router-dom';
 
 
 const TransactionHistory: React.FC = () => {
@@ -18,7 +18,7 @@ const TransactionHistory: React.FC = () => {
   const { walletProvider } = useAppKitProvider('eip155');
   const { address, isConnected } = useAppKitAccount();
   const { isDarkMode, tokens, nativeToken } = useTokenContext()
-
+  const navigate = useNavigate()
 
 
 
@@ -55,7 +55,7 @@ const TransactionHistory: React.FC = () => {
       </div>
 
       <div className=' w-full flex flex-1 items-start justify-center gap-2'>
-        <div className={`w-full px-3 py-2 overflow-y-scroll  scrollbar-hide max-h-[calc(68dvh-240px)] ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'}`}>
+        <div className={`w-full px-3 py-2 overflow-y-scroll  scrollbar-hide max-h-[calc(68dvh-260px)] ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'}`}>
           {!userTradingStats || userTradingStats.tradingStats.length === 0 ? (
             <div className="flex items-center justify-center h-full min-h-[200px] w-full">
               <div className="flex flex-col items-center">
@@ -144,11 +144,11 @@ const TransactionHistory: React.FC = () => {
 
       <div className={`w-full flex flex-col p-3 border-t ${isDarkMode ? 'border-gray-700' : 'border-gray-200'}`}>
         <h3 className={`text-sm font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-800'} mb-2`}>
-          Claim Rewards
+          Real Time Trading Rewards
         </h3>
         <div className="flex flex-col space-y-3">
           {/* Rewards Card */}
-          <div className={`${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'}  hidden rounded-lg p-3 border ${isDarkMode ? 'border-gray-600/50' : 'border-gray-200/70'}`}>
+          <div className={`${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50'}   rounded-lg p-3 border ${isDarkMode ? 'border-gray-600/50' : 'border-gray-200/70'}`}>
             <div className="flex items-center justify-between">
               <div className="flex items-center">
                 <div className={`h-8 w-8 rounded-full flex items-center justify-center ${isDarkMode ? 'bg-pink-500/10' : 'bg-pink-50'}`}>
@@ -157,35 +157,38 @@ const TransactionHistory: React.FC = () => {
                   </svg>
                 </div>
                 <div className="ml-0">
-                  <p className={`text-sm font-small ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Available:</p>
+                  <p className={`text-sm font-small ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Rewards:</p>
                 </div>
               </div>
               <div className="text-right">
                 <div className="flex items-center">
                   <p className={`text-lg font-bold ${isDarkMode ? 'text-pink-300' : 'text-pink-600'}`}>{userTradingStats && parseFloat(userTradingStats.individualReward).toFixed(6)}</p>
-                  <p className={`ml-1 text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>{nativeToken && nativeToken.symbol}</p>
+                  <p className={`ml-1 text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>1K</p>
                 </div>
               </div>
+              
             </div>
+            
           </div>
-
-
-
           <motion.button
             onClick={() => {
-              console.log("Claim Rewards")
+              navigate('/rewards')
             }}
             className={`${isConnected
                 ? isDarkMode
                   ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600'
                   : 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white'
                 : "bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white"
-              }  px-4 py-2 min-h-[100px] rounded-xl font-medium flex text-center items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300`}
+              }  px-4 py-2 rounded-xl font-medium flex text-center items-center justify-center shadow-md hover:shadow-lg transition-shadow duration-300`}
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}>
 
             Claim Rewards
           </motion.button>
+
+
+
+      
 
           <div className={`text-xs text-center ${isDarkMode ? 'text-gray-500' : 'text-gray-500'}`}>
             Based on your trading participation
