@@ -162,7 +162,7 @@ const TransactionHistory: React.FC = () => {
               </div>
               <div className="text-right">
                 <div className="flex items-center">
-                  <p className={`text-lg font-bold ${isDarkMode ? 'text-pink-300' : 'text-pink-600'}`}>{userTradingStats && parseFloat(userTradingStats.individualReward).toFixed(6)}</p>
+                  <p className={`text-lg font-bold ${isDarkMode ? 'text-pink-300' : 'text-pink-600'}`}>{userTradingStats && parseFloat(userTradingStats.individualReward).toFixed(2)}</p>
                   <p className={`ml-1 text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'}`}>1K</p>
                 </div>
               </div>
