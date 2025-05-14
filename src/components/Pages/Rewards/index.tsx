@@ -170,7 +170,7 @@ const Rewards = () => {
     const handleTweetButtonClick = () => {
         setTweetButtonWaiting(true);
         setTweetWaitTime(10);
-        return
+        
         // Open the tweet intent URL
         window.open(generateTweetIntentURL(getTweet), '_blank');
 
