@@ -2138,7 +2138,7 @@ const formatted = date.toLocaleString('en-US', {
         rewardType:BOUNTY_TYPE_ARRAY[bountyType]
       };
     });
-    setClaimedRewards(simplifiedLogs)
+    setClaimedRewards(simplifiedLogs.reverse())
 
   }
 

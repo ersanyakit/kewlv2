@@ -3,12 +3,10 @@ import { useTokenContext } from '../../../context/TokenContext';
 import { motion } from 'framer-motion';
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
 import { useNavigate } from 'react-router-dom';
-import TokenList from '../../Swap/TokenList';
 import ConnectButton from '../../UI/ConnectButton';
 import { generateTweetIntentURL, getRandomTweet, parseTweetUrl, TweetInfo } from './Data/Functions';
 import { BountyClaimParam, useSwapContext } from '../../../context/SwapContext';
 import moment from 'moment';
-import { formatEther } from 'viem';
 import { ethers } from 'ethers';
 import RecentClaim from './RecentClaim';
 
