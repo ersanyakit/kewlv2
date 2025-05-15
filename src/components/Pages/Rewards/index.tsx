@@ -19,7 +19,7 @@ const Rewards = () => {
     const { walletProvider } = useAppKitProvider('eip155');
 
     const { address, isConnected } = useAppKitAccount();
-    const { bountiesInfo, setBountiesInfo, fetchBountiesInfo, handleClaimedRewards, isClaimLoading, setIsClaimLoading } = useSwapContext();
+    const { bountiesInfo, setBountiesInfo, fetchBountiesInfo, handleClaimedRewards, isClaimLoading, setIsClaimLoading,claimModal,setClaimModal } = useSwapContext();
     const navigate = useNavigate();
     const [getTweet, setTweet] = useState<string>(getRandomTweet());
     const [tweetButtonWaiting, setTweetButtonWaiting] = useState<boolean>(false);
@@ -48,13 +48,6 @@ const Rewards = () => {
     const totalSeconds = 24 * 60 * 60;
 
     
-
-
-        type ModalState = 
-    | { visible: false }
-    | { visible: true; status: 'success' | 'error' };
-
-    const [modal, setModal] = useState<ModalState>({ visible: false });
 
     const [claimedAmount, setClaimedAmount] = useState<string>("");
 
@@ -180,10 +173,13 @@ const Rewards = () => {
 
 
     const displayError = (error: string) => {
-        setClaimedAmount(error);
-        setModal({ visible: true, status: 'error' }); // veya 'error'
-        console.log(error);
+        setClaimModal({
+            status: 'error',
+            message: error,
+            visible: true,
+          });
     }
+
     const handleClaimTradingRewards = async () => {
         if (!bountiesInfo) {
             displayError("Invalid bounties info");
@@ -227,7 +223,7 @@ const Rewards = () => {
 
             // Show success modal with claimed amount
             setClaimedAmount(parseFloat(ethers.formatEther(tradingBounty.userAvailableReward)).toFixed(2) + " $1K");
-            setModal({ visible: true, status: 'success' }); // veya 'error'
+            
 
             // Clear the input field after successful claim
             setInputValue("");
@@ -277,7 +273,6 @@ const Rewards = () => {
 
             // Show success modal with claimed amount
             setClaimedAmount(parseFloat(ethers.formatEther(tradingBounty.userAvailableReward)).toFixed(2) + " $1K");
-            setModal({ visible: true, status: 'success' }); // veya 'error'
 
             // Clear the input field after successful claim
             setInputValue("");
@@ -361,7 +356,6 @@ const Rewards = () => {
 
             // Show success modal with claimed amount
             setClaimedAmount("1000 $1K");
-            setModal({ visible: true, status: 'success' }); // veya 'error'
 
             // Clear the input field after successful claim
             setInputValue("");
@@ -377,7 +371,11 @@ const Rewards = () => {
 
     // Add this function to close the modal
     const closeSuccessModal = () => {
-        setModal({ visible: false}); // veya 'error'
+        setClaimModal({
+            status: 'none',
+            visible: false,
+            message: '',
+          });
     };
 
     return (
@@ -1154,7 +1152,7 @@ const Rewards = () => {
                 </div>
             </div>
 
-            {modal.visible && (
+            {claimModal.visible && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -1198,9 +1196,15 @@ const Rewards = () => {
                                     transition={{ delay: 0.2, type: "spring", damping: 10, stiffness: 200 }}
                                     className="mx-auto w-20 h-20 rounded-full bg-gradient-to-r from-[#ff1356] to-[#ff4080] flex items-center justify-center mb-6"
                                 >
-                                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
-                                    </svg>
+                                    {claimModal.status === 'success' ? (
+                                        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    ) : (
+                                        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    )}
                                 </motion.div>
 
                                 <motion.h3
@@ -1210,7 +1214,7 @@ const Rewards = () => {
                                     className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
                                         }`}
                                 >
-                                    {modal.status === 'success' ? 'Reward Claimed!' : 'Unexpected error encountered.'}
+                                    {claimModal.status === 'success' ? 'Reward Claimed!' : 'Unexpected error encountered.'}
                                 </motion.h3>
 
                                 <motion.p
@@ -1220,7 +1224,7 @@ const Rewards = () => {
                                     className={`mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'
                                         }`}
                                 >
-                                    {modal.status === 'success' ? 'You\'ve successfully claimed your reward' : 'Error'}
+                                    {claimModal.status === 'success' ? 'You\'ve successfully claimed your reward' : 'Error'}
                                 </motion.p>
 
                                 <motion.div
@@ -1234,11 +1238,17 @@ const Rewards = () => {
                                 >
                                     <p className={`text-sm mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'
                                         }`}>
-                                        {modal.status === 'success' ? 'You received' : 'Error'}
+                                        {claimModal.status === 'success' ? 'You received' : 'Error'}
                                     </p>
-                                    <p className="text-3xl font-bold bg-gradient-to-r from-[#ff1356] to-[#ff4080] bg-clip-text text-transparent">
-                                        {modal.status === 'success' ? claimedAmount : claimedAmount}
-                                    </p>
+                                    {claimModal.status === 'success' ? (
+                                        <p className="text-3xl font-bold bg-gradient-to-r from-[#ff1356] to-[#ff4080] bg-clip-text text-transparent">
+                                            {claimedAmount}
+                                        </p>
+                                    ) : (
+                                        <div className="rounded-lg text-left max-h-[200px] overflow-y-auto text-sm">
+                                            {claimModal.message}
+                                        </div>
+                                    )}
                                 </motion.div>
 
                                 <motion.button

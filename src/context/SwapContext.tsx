@@ -10,7 +10,7 @@ import JSBI from 'jsbi';
 import { ALLOWED_PRICE_IMPACT_HIGH, ALLOWED_PRICE_IMPACT_MEDIUM, calculateSlippageAmount, warningSeverity, warningSeverityText } from '../constants/entities/utils/calculateSlippageAmount';
 import moment from 'moment';
 import { toHex } from '../constants/entities/utils/computePriceImpact';
-import { Address, decodeEventLog, erc20Abi, getContract, parseAbiItem, parseUnits, zeroAddress } from 'viem';
+import { Address, BaseError, ContractFunctionExecutionError, ContractFunctionRevertedError, decodeEventLog, erc20Abi, getContract, parseAbiItem, parseUnits, UserRejectedRequestError, zeroAddress } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
 import { getExchangeByRouterAndWETH, getRoutersByChainId } from '../constants/contracts/exchanges';
 import { sqrt } from '../constants/entities/utils/sqrt';
@@ -39,6 +39,14 @@ export interface BountyClaimParam {
   bountyId: bigint;  // ethers v6'daki BigNumber yerine native bigint önerilir
   taskId: any;
   params: string;
+}
+
+export type ClaimStatus = 'none' | 'success' | 'error';
+
+export interface ClaimModalState {
+  status: ClaimStatus;
+  message?: string;
+  visible: boolean;
 }
 
 const initialPairState: TPairState = {
@@ -94,6 +102,8 @@ interface SwapContextProps {
 
   isClaimLoading: boolean;
   setIsClaimLoading: (isClaimLoading: boolean) => void;
+  claimModal: ClaimModalState;
+  setClaimModal: (claimModal: ClaimModalState) => void;
 
   bountiesInfo: any;
   setBountiesInfo: (bountiesInfo: any) => void;
@@ -145,6 +155,12 @@ const defaultContext: SwapContextProps = {
   removeLiquidityPercent: 100,
   claimedRewardsLoading: false,
   setClaimedRewardsLoading: () => { },
+  claimModal: {
+    status: 'none',
+    message: '',
+    visible: false,
+  },
+  setClaimModal: () => { },
 
   bountiesInfo: {
     loaded: false,
@@ -415,7 +431,11 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const [claimedRewards, setClaimedRewards] = useState<any[]>([]);
   const [claimedRewardsLoading, setClaimedRewardsLoading] = useState<boolean>(false);
   const [isClaimLoading, setIsClaimLoading] = useState<boolean>(false);
-  
+  const [claimModal, setClaimModal] = useState<ClaimModalState>({
+    status: 'none',
+    message: '',
+    visible: false,
+  });
 
 
 
@@ -2216,37 +2236,84 @@ const formatted = date.toLocaleString('en-US', {
     const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
     const [signerAccount] = await dexContract.wallet.getAddresses()
 
-    try {
-      const simulate = await dexContract.client.simulateContract({
-        chain: dexContract.client.chain,
-        address: dexContract.caller.address as `0x${string}`,
-        abi: dexContract.abi,
-        functionName: "claimReward",
-        args: [claimedRewards],
-        account: signerAccount,
-        value: 0n
-      });
-    
-      // Eğer simülasyon başarılıysa, işlemi gönder:
-      const tx = await dexContract.wallet.writeContract({
-        chain: dexContract.client.chain,
-        address: dexContract.caller.address as `0x${string}`,
-        abi: dexContract.abi,
-        functionName: "claimReward",
-        args: [claimedRewards],
-        account: signerAccount,
-        value: 0n
-      });
-      const receipt = await waitForTransactionReceipt(dexContract.wallet, {
-        hash: tx,
-      });
-  
-      console.log("receipt", receipt)
-    
-      console.log("Transaction sent:", tx);
+
+      try{
+          await dexContract.client.simulateContract({
+            chain: dexContract.client.chain,
+            address: dexContract.caller.address as `0x${string}`,
+            abi: dexContract.abi,
+            functionName: "claimReward",
+            args: [claimedRewards],
+            account: signerAccount,
+            value: 0n
+          });
+
+          // Eğer simülasyon başarılıysa, işlemi gönder:
+          const tx = await dexContract.wallet.writeContract({
+            chain: dexContract.client.chain,
+            address: dexContract.caller.address as `0x${string}`,
+            abi: dexContract.abi,
+            functionName: "claimReward",
+            args: [claimedRewards],
+            account: signerAccount,
+            value: 0n
+          });
+          const receipt = await waitForTransactionReceipt(dexContract.wallet, {
+            hash: tx,
+          });
+          setClaimModal({
+            message: 'Reward claimed successfully',
+            status: 'success',
+            visible: true,
+          });
+      
+          console.log("receipt", receipt)
+        
+          console.log("Transaction sent:", tx);
     } catch (err) {
-      console.error("Simulation failed, not sending transaction:", err);
-      // İstersen kullanıcıya toast, alert, vs. göster
+      if (err instanceof BaseError) {
+        const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
+        if (revertError instanceof ContractFunctionRevertedError) {
+          const errorName = revertError.data?.errorName ?? ''
+          // do something with `errorName`
+          setClaimModal({
+            status: 'error',
+            message: errorName,
+            visible: true,
+          });
+        }else if (revertError instanceof ContractFunctionExecutionError){
+            setClaimModal({
+              status: 'error',
+              message: 'Contract function execution error',
+              visible: true,
+            });
+        } else if(revertError instanceof UserRejectedRequestError){
+          setClaimModal({
+            status: 'error',
+            message: 'User rejected the request',
+            visible: true,
+          });
+        }else{
+          setClaimModal({
+            status: 'error',
+            message: err.message,
+            visible: true,
+          });
+        }
+      }else{
+        const errorMessage =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+          ? err
+          : 'An unknown error occurred';
+    
+        setClaimModal({
+          status: 'error',
+          message: errorMessage,
+          visible: true,
+        });
+      }
     } finally {
       setIsClaimLoading(false)
       await fetchBountiesInfo(walletProvider)
@@ -2310,6 +2377,8 @@ const formatted = date.toLocaleString('en-US', {
 
     isClaimLoading,
     setIsClaimLoading,
+    claimModal,
+    setClaimModal,
     // Diğer değerler...
   };
 
