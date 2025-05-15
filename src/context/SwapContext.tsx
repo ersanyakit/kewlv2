@@ -92,6 +92,9 @@ interface SwapContextProps {
   claimedRewardsLoading: boolean;
   setClaimedRewardsLoading: (loading: boolean) => void;
 
+  isClaimLoading: boolean;
+  setIsClaimLoading: (isClaimLoading: boolean) => void;
+
   bountiesInfo: any;
   setBountiesInfo: (bountiesInfo: any) => void;
   fetchBountiesInfo: (walletProvider: any) => void;
@@ -126,6 +129,8 @@ const defaultContext: SwapContextProps = {
   canSwap: false,
   isSwapping: false,
   fromAmount: '',
+  isClaimLoading: false,
+  setIsClaimLoading: () => { },
   toAmount: '',
   tradeInfo: null,
   toggleDetails: false,
@@ -409,6 +414,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   });
   const [claimedRewards, setClaimedRewards] = useState<any[]>([]);
   const [claimedRewardsLoading, setClaimedRewardsLoading] = useState<boolean>(false);
+  const [isClaimLoading, setIsClaimLoading] = useState<boolean>(false);
   
 
 
@@ -2206,6 +2212,7 @@ const formatted = date.toLocaleString('en-US', {
   }
 
    const handleClaimedRewards = async (walletProvider: any, claimedRewards: BountyClaimParam) => {
+    setIsClaimLoading(true)
     const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
     const [signerAccount] = await dexContract.wallet.getAddresses()
 
@@ -2241,8 +2248,10 @@ const formatted = date.toLocaleString('en-US', {
       console.error("Simulation failed, not sending transaction:", err);
       // İstersen kullanıcıya toast, alert, vs. göster
     } finally {
+      setIsClaimLoading(false)
       await fetchBountiesInfo(walletProvider)
       await fetchClaimedRewards(walletProvider)
+    
     }
 
   
@@ -2298,6 +2307,9 @@ const formatted = date.toLocaleString('en-US', {
     handleClaimedRewards,
     claimedRewardsLoading,
     setClaimedRewardsLoading,
+
+    isClaimLoading,
+    setIsClaimLoading,
     // Diğer değerler...
   };
 

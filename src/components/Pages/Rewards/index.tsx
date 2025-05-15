@@ -19,7 +19,7 @@ const Rewards = () => {
     const { walletProvider } = useAppKitProvider('eip155');
 
     const { address, isConnected } = useAppKitAccount();
-    const { bountiesInfo, setBountiesInfo, fetchBountiesInfo, handleClaimedRewards } = useSwapContext();
+    const { bountiesInfo, setBountiesInfo, fetchBountiesInfo, handleClaimedRewards, isClaimLoading, setIsClaimLoading } = useSwapContext();
     const navigate = useNavigate();
     const [getTweet, setTweet] = useState<string>(getRandomTweet());
     const [tweetButtonWaiting, setTweetButtonWaiting] = useState<boolean>(false);
@@ -47,11 +47,15 @@ const Rewards = () => {
     // Toplam 24 saat (saniye cinsinden)
     const totalSeconds = 24 * 60 * 60;
 
-    // Add this state variable near your other state declarations
-    const [isClaimLoading, setIsClaimLoading] = useState<boolean>(false);
+    
 
-    // Add these state variables near your other state declarations
-    const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
+
+        type ModalState = 
+    | { visible: false }
+    | { visible: true; status: 'success' | 'error' };
+
+    const [modal, setModal] = useState<ModalState>({ visible: false });
+
     const [claimedAmount, setClaimedAmount] = useState<string>("");
 
     const initBountiesInfo = async () => {
@@ -176,13 +180,11 @@ const Rewards = () => {
 
 
     const displayError = (error: string) => {
-        setIsClaimLoading(false);
         setClaimedAmount(error);
-        setShowSuccessModal(true);
+        setModal({ visible: true, status: 'error' }); // veya 'error'
         console.log(error);
     }
     const handleClaimTradingRewards = async () => {
-        setIsClaimLoading(true);
         if (!bountiesInfo) {
             displayError("Invalid bounties info");
             return;
@@ -213,7 +215,6 @@ const Rewards = () => {
         }
 
 
-        console.log("Claim Trading Rewards");
 
         try {
             const claimRewardParam: BountyClaimParam = {
@@ -226,7 +227,7 @@ const Rewards = () => {
 
             // Show success modal with claimed amount
             setClaimedAmount(parseFloat(ethers.formatEther(tradingBounty.userAvailableReward)).toFixed(2) + " $1K");
-            setShowSuccessModal(true);
+            setModal({ visible: true, status: 'success' }); // veya 'error'
 
             // Clear the input field after successful claim
             setInputValue("");
@@ -236,12 +237,12 @@ const Rewards = () => {
             console.error("Error claiming reward:", error);
             // Optional: Add error handling here
         } finally {
-            setIsClaimLoading(false);
+            
         }
     }
 
     const handleClaimBounty = async (tradingBounty:any) => {
-        setIsClaimLoading(true);
+ 
         if (!tradingBounty) {
             displayError("Invalid bounties info");
             return;
@@ -277,7 +278,7 @@ const Rewards = () => {
 
             // Show success modal with claimed amount
             setClaimedAmount(parseFloat(ethers.formatEther(tradingBounty.userAvailableReward)).toFixed(2) + " $1K");
-            setShowSuccessModal(true);
+            setModal({ visible: true, status: 'success' }); // veya 'error'
 
             // Clear the input field after successful claim
             setInputValue("");
@@ -287,7 +288,7 @@ const Rewards = () => {
             console.error("Error claiming reward:", error);
             // Optional: Add error handling here
         } finally {
-            setIsClaimLoading(false);
+           
         }
     }
 
@@ -339,7 +340,14 @@ const Rewards = () => {
             return;
         }
 
-        setIsClaimLoading(true);
+        if(bountiesInfo?.bountyUserInfo?.registered){
+            if(tweetInfo.username?.toString().toLocaleLowerCase() != bountiesInfo?.bountyUserInfo?.twitter?.toString().toLocaleLowerCase()){
+                displayError("Invalid Action!");
+                return;
+            }
+        }
+
+     
 
         try {
             const claimRewardParam: BountyClaimParam = {
@@ -352,7 +360,7 @@ const Rewards = () => {
 
             // Show success modal with claimed amount
             setClaimedAmount("1000 $1K");
-            setShowSuccessModal(true);
+            setModal({ visible: true, status: 'success' }); // veya 'error'
 
             // Clear the input field after successful claim
             setInputValue("");
@@ -361,13 +369,13 @@ const Rewards = () => {
             console.error("Error claiming reward:", error);
             // Optional: Add error handling here
         } finally {
-            setIsClaimLoading(false);
+           
         }
     };
 
     // Add this function to close the modal
     const closeSuccessModal = () => {
-        setShowSuccessModal(false);
+        setModal({ visible: false}); // veya 'error'
     };
 
     return (
@@ -424,6 +432,16 @@ const Rewards = () => {
                                 <div className="flex justify-between mb-1">
                                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Earned</span>
                                     <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}> {parseFloat(bountiesInfo.totalClaimed).toFixed(2)} $1K</span>
+                                </div>
+                                <div className="flex justify-between mb-1">
+                                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Username</span>
+                                    <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}> {bountiesInfo?.bountyUserInfo?.twitter}</span>
+                                </div>
+                                <div className="flex justify-between mb-1">
+                                    <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Last Access</span>
+                                    <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}> 
+                                    {bountiesInfo?.bountyUserInfo?.lastaccess ? moment.unix(Number(bountiesInfo?.bountyUserInfo?.lastaccess)).format('DD/MM/YYYY HH:mm:ss'): '—'}
+                                    </span>
                                 </div>
                                 <div className="flex justify-between hidden">
                                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Claimable Reward</span>
@@ -1134,7 +1152,7 @@ const Rewards = () => {
                 </div>
             </div>
 
-            {showSuccessModal && (
+            {modal.visible && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -1190,7 +1208,7 @@ const Rewards = () => {
                                     className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
                                         }`}
                                 >
-                                    Reward Claimed!
+                                    {modal.status === 'success' ? 'Reward Claimed!' : 'Unexpected error encountered.'}
                                 </motion.h3>
 
                                 <motion.p
@@ -1200,7 +1218,7 @@ const Rewards = () => {
                                     className={`mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'
                                         }`}
                                 >
-                                    You've successfully claimed your reward
+                                    {modal.status === 'success' ? 'You\'ve successfully claimed your reward' : 'Error'}
                                 </motion.p>
 
                                 <motion.div
@@ -1214,10 +1232,10 @@ const Rewards = () => {
                                 >
                                     <p className={`text-sm mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'
                                         }`}>
-                                        You received
+                                        {modal.status === 'success' ? 'You received' : 'Error'}
                                     </p>
                                     <p className="text-3xl font-bold bg-gradient-to-r from-[#ff1356] to-[#ff4080] bg-clip-text text-transparent">
-                                        {claimedAmount}
+                                        {modal.status === 'success' ? claimedAmount : claimedAmount}
                                     </p>
                                 </motion.div>
 
