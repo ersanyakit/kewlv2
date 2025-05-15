@@ -15,16 +15,7 @@ const RecentClaim: React.FC = () => {
         // Fetch initially on component mount
         fetchClaimedRewards(walletProvider);
         
-        // Set up interval to fetch every minute (60000ms)
-        const intervalId = setInterval(() => {
-            console.log("Auto-refreshing claimed rewards data");
-            fetchClaimedRewards(walletProvider);
-        }, 60000);
         
-        // Clean up the interval when the component unmounts
-        return () => {
-            clearInterval(intervalId);
-        };
     }, [walletProvider]); // Add walletProvider to dependencies if it could change
 
     useEffect(() => {
