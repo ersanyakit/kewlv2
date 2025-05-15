@@ -134,7 +134,7 @@ const RecentClaim: React.FC = () => {
   
     // Memoize the loadData function with stable dependencies
     const loadData = useCallback(async () => {
-        if (!walletProvider) return;
+        //if (!walletProvider) return;
         
         // Only update loading state if it's not already loading
         if (!isLoading) {
