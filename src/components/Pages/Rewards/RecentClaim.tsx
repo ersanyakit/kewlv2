@@ -178,9 +178,57 @@ const RecentClaim: React.FC = () => {
             transition={{ delay: 0.4 }}
         >
             <div className="p-4">
-                <h3 className={`font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-800'} pb-5 transition-colors duration-300`}>
-                    Recent Claims
-                </h3>
+            <div className="flex items-center justify-between pb-5">
+                    <h3 className={`font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-800'} transition-colors duration-300`}>
+                        Recent Claims
+                    </h3>
+                    <motion.button
+                        onClick={()=>{
+                            loadData();
+                        }}
+                        disabled={claimedRewardsLoading}
+                        className={`p-2 rounded-full ${
+                            isDarkMode 
+                                ? 'hover:bg-gray-700/50 active:bg-gray-600/50' 
+                                : 'hover:bg-gray-100/50 active:bg-gray-200/50'
+                        } transition-all duration-150`}
+                        whileHover={{ 
+                            scale: 1.1,
+                            boxShadow: "0 0 8px rgba(0,0,0,0.1)"
+                        }}
+                        whileTap={{ 
+                            scale: 0.85,
+                            boxShadow: "0 0 2px rgba(0,0,0,0.1)"
+                        }}
+                        animate={claimedRewardsLoading ? { rotate: 360 } : { rotate: 0 }}
+                        transition={{ 
+                            rotate: { 
+                                duration: 1, 
+                                repeat: claimedRewardsLoading ? Infinity : 0,
+                                ease: "linear" 
+                            },
+                            scale: {
+                                type: "spring",
+                                stiffness: 400,
+                                damping: 17
+                            }
+                        }}
+                    >
+                        <svg 
+                            className={`w-4 h-4 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+                            fill="none" 
+                            stroke="currentColor" 
+                            viewBox="0 0 24 24"
+                        >
+                            <path 
+                                strokeLinecap="round" 
+                                strokeLinejoin="round" 
+                                strokeWidth={2} 
+                                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
+                            />
+                        </svg>
+                    </motion.button>
+                </div>
                 
                 <div className="space-y-3 max-h-[600px] overflow-y-auto scrollbar-hide pt-2 pr-1">
                     {renderedContent}
