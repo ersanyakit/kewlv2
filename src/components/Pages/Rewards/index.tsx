@@ -48,6 +48,10 @@ const Rewards = () => {
     // Add this state variable near your other state declarations
     const [isClaimLoading, setIsClaimLoading] = useState<boolean>(false);
 
+    // Add these state variables near your other state declarations
+    const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
+    const [claimedAmount, setClaimedAmount] = useState<string>("");
+
     const initBountiesInfo = async () => {
         setBountiesInfo({
             loaded: false,
@@ -228,13 +232,25 @@ const Rewards = () => {
             };
 
             await handleClaimedRewards(walletProvider, claimRewardParam);
-            // Optional: Add success handling here
+            
+            // Show success modal with claimed amount
+            setClaimedAmount("1000 $1K");
+            setShowSuccessModal(true);
+            
+            // Clear the input field after successful claim
+            setInputValue("");
+            setTweetInfo(null);
         } catch (error) {
             console.error("Error claiming reward:", error);
             // Optional: Add error handling here
         } finally {
             setIsClaimLoading(false);
         }
+    };
+
+    // Add this function to close the modal
+    const closeSuccessModal = () => {
+        setShowSuccessModal(false);
     };
 
     return (
@@ -719,7 +735,114 @@ const Rewards = () => {
                 </div>
             </div>
 
-
+            {showSuccessModal && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                    onClick={closeSuccessModal}
+                >
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.8, opacity: 0 }}
+                        transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                        className={`relative rounded-2xl p-1 max-w-md w-full shadow-2xl ${
+                            isDarkMode 
+                                ? 'bg-gradient-to-br from-gray-800 to-gray-900' 
+                                : 'bg-gradient-to-br from-white to-gray-50'
+                        }`}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className={`rounded-2xl p-6 ${
+                            isDarkMode 
+                                ? 'bg-gradient-to-br from-gray-800 to-gray-900' 
+                                : 'bg-gradient-to-br from-white to-gray-50'
+                        }`}>
+                            <div className="flex justify-end">
+                                <button 
+                                    onClick={closeSuccessModal}
+                                    className={`${
+                                        isDarkMode 
+                                            ? 'text-gray-400 hover:text-white' 
+                                            : 'text-gray-500 hover:text-gray-700'
+                                    } transition-colors`}
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+                            
+                            <div className="text-center py-4">
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ delay: 0.2, type: "spring", damping: 10, stiffness: 200 }}
+                                    className="mx-auto w-20 h-20 rounded-full bg-gradient-to-r from-[#ff1356] to-[#ff4080] flex items-center justify-center mb-6"
+                                >
+                                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                            </svg>
+                                        </motion.div>
+                                
+                                <motion.h3
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.3 }}
+                                    className={`text-2xl font-bold mb-2 ${
+                                        isDarkMode ? 'text-white' : 'text-gray-800'
+                                    }`}
+                                >
+                                    Reward Claimed!
+                                </motion.h3>
+                                
+                                <motion.p
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.4 }}
+                                    className={`mb-6 ${
+                                        isDarkMode ? 'text-gray-300' : 'text-gray-600'
+                                    }`}
+                                >
+                                    You've successfully claimed your reward
+                                </motion.p>
+                                
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                    className={`rounded-xl p-4 mb-6 ${
+                                        isDarkMode 
+                                            ? 'bg-gradient-to-r from-[#ff1356]/20 to-[#ff4080]/20' 
+                                            : 'bg-gradient-to-r from-[#ff1356]/10 to-[#ff4080]/10'
+                                    }`}
+                                >
+                                    <p className={`text-sm mb-1 ${
+                                        isDarkMode ? 'text-gray-400' : 'text-gray-500'
+                                    }`}>
+                                        You received
+                                    </p>
+                                    <p className="text-3xl font-bold bg-gradient-to-r from-[#ff1356] to-[#ff4080] bg-clip-text text-transparent">
+                                        {claimedAmount}
+                                    </p>
+                                </motion.div>
+                                
+                                <motion.button
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.6 }}
+                                    onClick={closeSuccessModal}
+                                    className="w-full py-3 rounded-xl font-medium text-white bg-gradient-to-r from-[#ff1356] to-[#ff4080] hover:opacity-90 transition-opacity"
+                                >
+                                    Awesome!
+                                </motion.button>
+                            </div>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
 
         </div>
     );
