@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useTokenContext } from "../../../context/TokenContext";
 import { useEffect, useState, useCallback, useMemo, memo, useRef } from "react";
 import { useSwapContext } from "../../../context/SwapContext";
-import { useAppKitProvider } from "@reown/appkit/react";
+import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
 import { formatEther } from "ethers";
 
 // Move static components outside to prevent recreation on each render
@@ -107,6 +107,7 @@ const ClaimItem = memo(({ claim, isDarkMode }: { claim: any, isDarkMode: boolean
 const RecentClaim: React.FC = () => {
     const { fetchClaimedRewards, claimedRewards } = useSwapContext();
     const { walletProvider } = useAppKitProvider('eip155');
+    const { address, isConnected } = useAppKitAccount();
     const { isDarkMode } = useTokenContext();
     const [isLoading, setIsLoading] = useState(true);
     
@@ -134,48 +135,16 @@ const RecentClaim: React.FC = () => {
   
     // Memoize the loadData function with stable dependencies
     const loadData = useCallback(async () => {
-        //if (!walletProvider) return;
-        
-        // Only update loading state if it's not already loading
-        if (!isLoading) {
-            setIsLoading(true);
-        }
-        
-        try {
-            await fetchClaimedRewards(walletProvider);
-        } catch (error) {
-            console.error("Error fetching claimed rewards:", error);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [walletProvider, fetchClaimedRewards, isLoading]);
+      setIsLoading(true);
+      await fetchClaimedRewards(walletProvider);
+      setIsLoading(false);
+    }, []);
   
     useEffect(() => {
-        // Only set up interval if walletProvider exists and has changed
-        if (walletProvider && walletProvider !== prevWalletProviderRef.current) {
-            // Clear any existing interval
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
-            
-            // Initial load
-            loadData();
-            
-            // Set up new interval
-            intervalRef.current = setInterval(loadData, 300000); // 5 minutes
-            
-            // Update ref
-            prevWalletProviderRef.current = walletProvider;
-        }
-        
-        // Cleanup function
-        return () => {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-            }
-        };
-    }, [walletProvider, loadData]);
+       loadData();
+    }, []);
 
+  
     // Memoize the rendered content with stable dependencies
     const renderedContent = useMemo(() => {
         // Only re-render if claimedRewards has actually changed
