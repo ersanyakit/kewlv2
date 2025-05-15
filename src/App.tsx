@@ -8,6 +8,7 @@ import { Web3ProviderContext } from './context/Web3ProviderContext';
 import { SwapProvider } from './context/SwapContext';
 import Rewards from './components/Pages/Rewards';
 import TosPage from './components/Pages/TosPage';
+import Assets from './components/Pages/Assets';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
                 <Route path="/swap" element={<TradeTerminal />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/rewards" element={<Rewards />} />
+                <Route path="/assets" element={<Assets />} />
                 <Route path="/tos" element={<TosPage />} />
               </Routes>
             </Layout>

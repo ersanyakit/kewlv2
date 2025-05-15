@@ -41,10 +41,12 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
             <Info className="w-3 h-3 mr-1" />
             About Us
           </span>
-          <a href="#" className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center`}>
+          <span onClick={()=>{
+            navigate('/assets')
+          }}   className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center cursor-pointer`}>
             <Shield className="w-3 h-3 mr-1" />
-            Security
-          </a>
+            Assets
+          </span>
           <span onClick={()=>{
             navigate('/rewards')
           }} className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center cursor-pointer`}>
