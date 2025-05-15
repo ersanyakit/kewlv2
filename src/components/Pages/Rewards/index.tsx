@@ -433,7 +433,7 @@ const Rewards = () => {
                                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Total Earned</span>
                                     <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}> {parseFloat(bountiesInfo.totalClaimed).toFixed(2)} $1K</span>
                                 </div>
-                                <div className="flex justify-between mb-1">
+                                <div className="flex justify-between mb-1 hidden">
                                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Username</span>
                                     <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}> {bountiesInfo?.bountyUserInfo?.twitter}</span>
                                 </div>
