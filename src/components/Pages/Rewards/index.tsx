@@ -4,7 +4,7 @@ import { motion } from 'framer-motion';
 import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
 import { useNavigate } from 'react-router-dom';
 import ConnectButton from '../../UI/ConnectButton';
-import { generateTweetIntentURL, getRandomTweet, parseTweetUrl, TweetInfo } from './Data/Functions';
+import { decodeTweetId, generateTweetIntentURL, getRandomTweet, parseTweetUrl, TweetInfo } from './Data/Functions';
 import { BOUNTY_TYPE, BOUNTY_TYPE_ARRAY, BountyClaimParam, useSwapContext } from '../../../context/SwapContext';
 import moment from 'moment';
 import { ethers } from 'ethers';
@@ -23,7 +23,9 @@ const Rewards = () => {
     const navigate = useNavigate();
     const [getTweet, setTweet] = useState<string>(getRandomTweet());
     const [tweetButtonWaiting, setTweetButtonWaiting] = useState<boolean>(false);
-    const [tweetWaitTime, setTweetWaitTime] = useState<number>(5);
+    const [tweetWaitTime, setTweetWaitTime] = useState<number>(10);
+    const [canClaimTweet,setCanClaimTweet] = useState<boolean>(false);
+
     const [inputValue, setInputValue] = useState<string>("");
     const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
     const [tweetInfo, setTweetInfo] = React.useState<TweetInfo | null>(null);
@@ -307,47 +309,49 @@ const Rewards = () => {
                 if (newTime <= 0) {
                     clearInterval(interval);
                     setTweetButtonWaiting(false);
-                    return 5;
+                    setCanClaimTweet(true);
+                    return 10;
                 }
                 return newTime;
             });
         }, 1000);
     };
-
-    // Create a debounced function to handle URL parsing
-    const debouncedHandleInputChange = useCallback((value: string) => {
-        // Clear any existing timeout to prevent multiple executions
-        if (debounceTimeout) {
-            clearTimeout(debounceTimeout);
-        }
-
-        // Set a new timeout
-        const timeout = setTimeout(() => {
-            // Only parse the URL if we have some input
-            if (value.trim()) {
-                const _tweetInfo = parseTweetUrl(value);
-                setTweetInfo(_tweetInfo);
-            } else {
-                setTweetInfo(null);
-            }
-        }, 300); // 300ms delay
-
-        setDebounceTimeout(timeout);
-    }, [debounceTimeout]);
+ 
 
     const handleClaimTwitter = async () => {
+
+       
+        const tweetInfo = parseTweetUrl(inputValue);
+       // setTweetInfo(tweetInfo);
+      
         if (!tweetInfo || !tweetInfo.valid || isClaimLoading) {
             return;
         }
+        if(!tweetInfo.tweetId){
+            displayError("Invalid Tweet ID");
+            return;
+        }
+        const tweetTimestamp = Number(decodeTweetId(tweetInfo.tweetId).timestamp);
+        const now = Date.now(); // milisaniye
 
+        const tweetTimeMs = tweetTimestamp; // tweet timestamp saniyeyse, milisaniyeye çevir
+
+        const isExpired = now > tweetTimeMs + 5 * 60 * 1000; // 10 dakika sonra geçersiz
+        console.log(tweetTimestamp,now,tweetTimeMs,isExpired);
+
+        if (isExpired) {
+            displayError("Tweet has expired (10-minute validity).");
+            return;
+        }
+
+    
         if(bountiesInfo?.bountyUserInfo?.registered){
             if(tweetInfo.username?.toString().toLocaleLowerCase() != bountiesInfo?.bountyUserInfo?.twitter?.toString().toLocaleLowerCase()){
                 displayError("Invalid Action!");
                 return;
             }
         }
-
-     
+         
 
         try {
             const claimRewardParam: BountyClaimParam = {
@@ -369,6 +373,7 @@ const Rewards = () => {
             console.error("Error claiming reward:", error);
             // Optional: Add error handling here
         } finally {
+            setCanClaimTweet(false);
            
         }
     };
@@ -407,6 +412,7 @@ const Rewards = () => {
                                                     {address?.substring(2, 4).toUpperCase()}
                                                 </span>
                                             ) : (
+                                            
                                                 <svg className="w-8 h-8 text-[#ff4080]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                                 </svg>
@@ -705,7 +711,7 @@ const Rewards = () => {
                                 </div>
     
                                 {/* Step 1: Tweet Creation Area */}
-                                <div className={`mb-8 p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-100/60'}`}>
+                                <div className={`mb-8 p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-100/60'} ${canClaimTweet ? 'hidden' : ''}`}>
                                     <div className="flex items-center mb-3">
                                         <motion.div
                                             className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold bg-gradient-to-r from-[#ff1356] to-[#ff4080]`}
@@ -792,7 +798,7 @@ const Rewards = () => {
                                 </div>
     
                                 {/* Step 2: Claim Rewards */}
-                                <div className={`mb-8 p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-100/60'}`}>
+                                <div className={`mb-8 p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-100/60'} ${canClaimTweet ? '' : 'hidden'}`}>
                                     <div className="flex items-center mb-3">
                                         <motion.div
                                             className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold bg-gradient-to-r from-[#ff1356] to-[#ff4080]`}
@@ -817,7 +823,7 @@ const Rewards = () => {
                                                 onChange={(e) => {
                                                     const value = e.target.value;
                                                     setInputValue(value);
-                                                    debouncedHandleInputChange(value);
+                                      
                                                 }}
                                                 type="text"
                                                 placeholder="https://twitter.com/username/status/123456789"
@@ -831,14 +837,14 @@ const Rewards = () => {
     
                                     <motion.button
                                         className={`w-full py-3 rounded-xl font-medium text-white bg-gradient-to-r from-[#ff1356] to-[#ff4080] 
-        ${(tweetInfo?.valid && !isClaimLoading) ? 'cursor-pointer' : 'cursor-not-allowed'}`}
-                                        animate={{ opacity: (tweetInfo?.valid && !isClaimLoading) ? 1 : 0.6 }}
+        ${(  !isClaimLoading) ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+                                        animate={{ opacity: (!isClaimLoading) ? 1 : 0.6 }}
                                         onClick={handleClaimTwitter}
                                         whileHover={{
-                                            opacity: (tweetInfo?.valid && !isClaimLoading) ? 0.9 : 0.6,
+                                            opacity: ( !isClaimLoading) ? 0.9 : 0.6,
                                             transition: { duration: 0.3 }
                                         }}
-                                        disabled={!tweetInfo?.valid || isClaimLoading}
+                                        disabled={isClaimLoading}
                                     >
                                         {isClaimLoading ? (
                                             <div className="flex items-center justify-center gap-2">
@@ -853,7 +859,6 @@ const Rewards = () => {
                                         )}
                                     </motion.button>
                                     <p className={`text-sm mt-2 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Enter your Tweet URL to enable claiming</p>
-                                    <span>{tweetInfo?.valid ? "yes" : "no"},{tweetInfo?.tweetId},{tweetInfo?.username}</span>
                                 </div>
     
                          

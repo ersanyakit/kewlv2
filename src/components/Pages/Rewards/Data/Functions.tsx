@@ -267,6 +267,13 @@ export interface DecodedTweetID {
   
   // Function to decode tweet ID
   
+  export interface TweetIdComponents {
+    timestamp: number;
+    machineId: number;
+    sequence: number;
+    tweetId: bigint;
+  }
+  
   // Function to decode tweet ID
   export const decodeTweetId = (inputTweetId: string | number | bigint): TweetIdComponents => {
     // Ensure tweetId is of type BigInt
