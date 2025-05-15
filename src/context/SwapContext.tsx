@@ -597,14 +597,16 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     let userAccount = account ? account : ethers.ZeroAddress;
 
 
+
     let dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+    const [signerAccount] = await dexContract.wallet.getAddresses();
 
 
     const [_bounties, _bountyUserInfo] = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
       functionName: 'fetchBountiesInfo',
-      args: [userAccount],
+      args: [signerAccount],
     }) as [BountyInfo[], BountyUserInfo];
 
     const totalUserReward = _bounties.reduce((acc, bounty) => {
@@ -618,6 +620,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       totalClaimed: formatEther(totalUserReward),
     }
 
+    console.log("ersan _bountiesInfo", _bountiesInfo,account)
     setBountiesInfo(_bountiesInfo)
   }
 

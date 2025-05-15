@@ -18,7 +18,7 @@ const Rewards = () => {
     const { walletProvider } = useAppKitProvider('eip155');
 
     const { address, isConnected } = useAppKitAccount();
-    const { bountiesInfo, fetchBountiesInfo, handleClaimedRewards } = useSwapContext();
+    const { bountiesInfo,setBountiesInfo, fetchBountiesInfo, handleClaimedRewards } = useSwapContext();
     const navigate = useNavigate();
     const [getTweet, setTweet] = useState<string>(getRandomTweet());
     const [tweetButtonWaiting, setTweetButtonWaiting] = useState<boolean>(false);
@@ -49,6 +49,12 @@ const Rewards = () => {
     const [isClaimLoading, setIsClaimLoading] = useState<boolean>(false);
 
     const initBountiesInfo = async () => {
+        setBountiesInfo({
+            loaded: false,
+            bounties: [],
+            bountyUserInfo: null,
+            totalClaimed: 0n,
+          })
         await fetchBountiesInfo(walletProvider);
     }
     useEffect(() => {
