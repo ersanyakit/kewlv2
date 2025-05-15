@@ -173,6 +173,70 @@ const Rewards = () => {
 
 
 
+    const displayError = (error: string) => {
+        setIsClaimLoading(false);
+        setClaimedAmount(error);
+        setShowSuccessModal(true);
+        console.log(error);
+    }
+    const handleClaimTradingRewards = async () => {
+        setIsClaimLoading(true);
+        if(!bountiesInfo){
+            displayError("Invalid bounties info");
+            return;
+        }
+        if(!bountiesInfo.bounties){
+            displayError("Invalid bounties info");
+            return;
+        }
+        if(bountiesInfo.bounties.length == 0){
+            displayError("Invalid bounties info");
+            return;
+        }
+        if(!address){   
+            displayError("Invalid account");
+            return;
+        }
+
+        
+        var tradingBounty = bountiesInfo.bounties[1];
+        if(tradingBounty.userAvailableReward == 0n){
+            displayError("No rewards to claim");
+            return;
+        }
+
+        if(!tradingBounty.canUserClaim){
+            displayError("Reward already claimed");
+            return;
+        }
+
+   
+        console.log("Claim Trading Rewards");
+    
+        try {
+            const claimRewardParam: BountyClaimParam = {
+                bountyId: tradingBounty.bountyId,
+                taskId: 0n,
+                params: "",
+            };
+
+            await handleClaimedRewards(walletProvider, claimRewardParam);
+            
+            // Show success modal with claimed amount
+            setClaimedAmount(parseFloat(ethers.formatEther(tradingBounty.userAvailableReward)).toFixed(2) + " $1K");
+            setShowSuccessModal(true);
+            
+            // Clear the input field after successful claim
+            setInputValue("");
+            setTweetInfo(null);
+        } catch (error) {
+            displayError("Error claiming reward:" + error);
+            console.error("Error claiming reward:", error);
+            // Optional: Add error handling here
+        } finally {
+            setIsClaimLoading(false);
+        }
+    }
 
     // Add a function to handle the tweet button click
     const handleTweetButtonClick = () => {
@@ -314,7 +378,39 @@ const Rewards = () => {
                                 </div>
                             </div>
                             
-                            {!isConnected && <ConnectButton />}
+                            {!isConnected ? <ConnectButton /> : <motion.button
+                                                        
+                              className={`w-full py-3 rounded-xl font-medium ${tweetButtonWaiting
+                                  ? 'bg-gray-500 cursor-not-allowed'
+                                  : 'bg-gradient-to-r from-[#ff1356] to-[#ff4080]'
+                                  } text-white`}
+                              whileHover={!tweetButtonWaiting ? {
+                          scale: 1.02,
+                          boxShadow: "0 5px 15px rgba(255, 19, 86, 0.3)",
+                          transition: { duration: 0.2 }
+                              } : {}}
+                              whileTap={!tweetButtonWaiting ? { scale: 0.98 } : {}}
+                      initial={{ boxShadow: "0 0px 0px rgba(255, 19, 86, 0)" }}
+                      transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                      disabled={isClaimLoading}
+                      onClick={() => {
+                        handleClaimTradingRewards()
+                     }}
+                      >
+                          {isClaimLoading ? (
+                              <div className="flex items-center justify-center gap-2">
+                                  <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  Verifying...
+                              </div>
+                          ) : (
+                              "Claim Trading Rewards"
+                          )}
+                          
+                            
+                            </motion.button>}
                         </div>
                     </motion.div>
                     

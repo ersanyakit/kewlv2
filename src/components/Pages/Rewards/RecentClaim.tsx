@@ -74,7 +74,7 @@ const RecentClaim: React.FC = () => {
                                     transition: { duration: 0.5 }
                                 } : {}}
                             >
-                                {formatEther(claim.amount)}
+                                {parseFloat(formatEther(claim.amount)).toFixed(2)}
                             </motion.span>
                     </div>
                     <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} truncate`}>
