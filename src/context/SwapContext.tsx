@@ -87,6 +87,8 @@ interface SwapContextProps {
   setPairState: (pairState: TPairState) => void;
   handleAggregatorSwap: (walletProvider: any) => void;
   fetchClaimedRewards: (walletProvider: any) => void;
+  claimedRewardsLoading: boolean;
+  setClaimedRewardsLoading: (loading: boolean) => void;
 
   bountiesInfo: any;
   setBountiesInfo: (bountiesInfo: any) => void;
@@ -134,6 +136,8 @@ const defaultContext: SwapContextProps = {
   loading: false,
   aggregatorPairs: [],
   removeLiquidityPercent: 100,
+  claimedRewardsLoading: false,
+  setClaimedRewardsLoading: () => { },
 
   bountiesInfo: {
     loaded: false,
@@ -402,6 +406,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     bountyUserInfo: null
   });
   const [claimedRewards, setClaimedRewards] = useState<any[]>([]);
+  const [claimedRewardsLoading, setClaimedRewardsLoading] = useState<boolean>(false);
   
 
 
@@ -2080,6 +2085,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   }
 
   const fetchClaimedRewards = async (walletProvider: any) => {
+    setClaimedRewardsLoading(true);
     const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
 
 
@@ -2142,7 +2148,7 @@ const formatted = date.toLocaleString('en-US', {
       };
     });
     setClaimedRewards(simplifiedLogs.reverse())
-
+    setClaimedRewardsLoading(false);
   }
 
   const fetchUseTradeStats = async (chainId: string | number, walletProvider: any | undefined, account: string | undefined) => {
@@ -2289,6 +2295,8 @@ const formatted = date.toLocaleString('en-US', {
     claimedRewards,
     setClaimedRewards,
     handleClaimedRewards,
+    claimedRewardsLoading,
+    setClaimedRewardsLoading,
     // Diğer değerler...
   };
 

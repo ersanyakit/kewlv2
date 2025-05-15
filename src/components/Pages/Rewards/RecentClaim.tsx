@@ -107,9 +107,8 @@ const ClaimItem = memo(({ claim, isDarkMode }: { claim: any, isDarkMode: boolean
 const RecentClaim: React.FC = () => {
     const { fetchClaimedRewards, claimedRewards } = useSwapContext();
     const { walletProvider } = useAppKitProvider('eip155');
-    const { address, isConnected } = useAppKitAccount();
     const { isDarkMode } = useTokenContext();
-    const [isLoading, setIsLoading] = useState(true);
+    const { claimedRewardsLoading, setClaimedRewardsLoading } = useSwapContext();
     
     // Use refs to track previous values and prevent unnecessary re-renders
     const prevWalletProviderRef = useRef(walletProvider);
@@ -135,9 +134,7 @@ const RecentClaim: React.FC = () => {
   
     // Memoize the loadData function with stable dependencies
     const loadData = useCallback(async () => {
-      setIsLoading(true);
       await fetchClaimedRewards(walletProvider);
-      setIsLoading(false);
     }, []);
   
     useEffect(() => {
@@ -152,7 +149,7 @@ const RecentClaim: React.FC = () => {
             prevClaimedRewardsRef.current = claimedRewards;
         }
 
-        if (isLoading) {
+        if (claimedRewardsLoading) {
             return <LoadingSkeleton isDarkMode={isDarkMode} />;
         }
         
@@ -163,7 +160,7 @@ const RecentClaim: React.FC = () => {
         return claimedRewards.map((claim) => (
             <ClaimItem key={claim.proof} claim={claim} isDarkMode={isDarkMode} />
         ));
-    }, [isLoading, claimedRewards, isDarkMode, areClaimsEqual]);
+    }, [claimedRewardsLoading, claimedRewards, isDarkMode, areClaimsEqual]);
 
     // Memoize the container styles to prevent unnecessary re-renders
     const containerStyles = useMemo(() => ({
