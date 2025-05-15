@@ -27,7 +27,7 @@ const Rewards = () => {
     const [inputValue, setInputValue] = useState<string>("");
     const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
     const [tweetInfo, setTweetInfo] = React.useState<TweetInfo | null>(null);
-    const [activeView, setActiveView] = useState<string>("airdrop");
+    const [activeView, setActiveView] = useState<string>("rewards");
 
     // Zamanlayıcı için state tanımla
     const [countdown, setCountdown] = useState({
@@ -627,16 +627,17 @@ const Rewards = () => {
                                 ? 'bg-gray-800/70 border-gray-700/50'
                                 : 'bg-white/80 border-white/30'
                             } backdrop-blur-lg p-1.5 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.06)] border flex space-x-1 transition-all duration-300`}>
-                            <button
-                                className={`text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'airdrop'
+                           
+                           <button
+                                className={`text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'rewards'
                                     ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white shadow-lg'
                                     : isDarkMode
                                         ? 'text-gray-300 hover:bg-gray-700/50'
                                         : 'text-gray-600 hover:bg-white/50'}`}
-                                onClick={() => setActiveView('airdrop')}
+                                onClick={() => setActiveView('rewards')}
                             >
-                                <Bird className="w-4 h-4 mr-1.5" />
-                                Instant
+                                <Gem className="w-4 h-4 mr-1.5" />
+                                Rewards
                             </button>
 
                             <button
@@ -651,17 +652,20 @@ const Rewards = () => {
                                 Jackpot
                             </button>
 
+                            
+
                             <button
-                                className={`text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'rewards'
+                                className={`text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'airdrop'
                                     ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white shadow-lg'
                                     : isDarkMode
                                         ? 'text-gray-300 hover:bg-gray-700/50'
                                         : 'text-gray-600 hover:bg-white/50'}`}
-                                onClick={() => setActiveView('rewards')}
+                                onClick={() => setActiveView('airdrop')}
                             >
-                                <Gem className="w-4 h-4 mr-1.5" />
-                                Rewards
+                                <Bird className="w-4 h-4 mr-1.5" />
+                                Instant
                             </button>
+
 
                         </div>
                     </motion.div>
@@ -1072,13 +1076,19 @@ const Rewards = () => {
                                                         <div className={`p-2.5 rounded-lg flex items-center gap-2`}>
 
                                                         <button
-                                                        className={`${BOUNTY_TYPE_ARRAY[bounty.bountyType] === BOUNTY_TYPE.TWEET ? 'hidden' : 'w-full'} px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 ${
+                                                        className={`w-full px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 ${
                                                             bounty.canUserClaim 
                                                                 ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white hover:shadow-lg hover:shadow-[#ff4080]/20 hover:scale-105 active:scale-95'
                                                                 : 'bg-gray-500 text-gray-300 cursor-not-allowed'
                                                         }`}
                                                         disabled={!bounty.canUserClaim}
-                                                        onClick={() => handleClaimBounty(bounty)}
+                                                        onClick={() => {
+                                                            if(BOUNTY_TYPE_ARRAY[bounty.bountyType] === BOUNTY_TYPE.TWEET){
+                                                                setActiveView('airdrop')
+                                                            }else{
+                                                                handleClaimBounty(bounty)
+                                                            }
+                                                        }}
                                                     >
                                                            {isClaimLoading ?(
                                                                 <div className="flex items-center justify-center gap-2">
