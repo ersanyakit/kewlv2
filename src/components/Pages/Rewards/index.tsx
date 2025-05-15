@@ -27,8 +27,6 @@ const Rewards = () => {
     const [canClaimTweet,setCanClaimTweet] = useState<boolean>(false);
 
     const [inputValue, setInputValue] = useState<string>("");
-    const [debounceTimeout, setDebounceTimeout] = useState<NodeJS.Timeout | null>(null);
-    const [tweetInfo, setTweetInfo] = React.useState<TweetInfo | null>(null);
     const [activeView, setActiveView] = useState<string>("rewards");
 
     // Zamanlayıcı için state tanımla
@@ -233,7 +231,6 @@ const Rewards = () => {
 
             // Clear the input field after successful claim
             setInputValue("");
-            setTweetInfo(null);
         } catch (error) {
             displayError("Error claiming reward:" + error);
             console.error("Error claiming reward:", error);
@@ -284,7 +281,7 @@ const Rewards = () => {
 
             // Clear the input field after successful claim
             setInputValue("");
-            setTweetInfo(null);
+         
         } catch (error) {
             displayError("Error claiming reward:" + error);
             console.error("Error claiming reward:", error);
@@ -368,7 +365,7 @@ const Rewards = () => {
 
             // Clear the input field after successful claim
             setInputValue("");
-            setTweetInfo(null);
+         
         } catch (error) {
             console.error("Error claiming reward:", error);
             // Optional: Add error handling here
