@@ -32,6 +32,8 @@ export enum BOUNTY_TYPE {
   LIQUIDITY = "LIQUIDITY",
   CUSTOM = "CUSTOM",
 }
+export const BOUNTY_TYPE_ARRAY = Object.values(BOUNTY_TYPE)
+
 
 export interface BountyClaimParam {
   bountyId: bigint;  // ethers v6'daki BigNumber yerine native bigint önerilir
@@ -2110,7 +2112,6 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       fromBlock: fromBlock,
       toBlock: 'latest',
     });
-    const BOUNTY_TYPE_ARRAY = Object.values(BOUNTY_TYPE)
     const simplifiedLogs = logs.map(log => {
       const parsed = decodeEventLog({
         abi: dexContract.abi,
