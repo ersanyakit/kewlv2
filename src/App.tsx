@@ -21,7 +21,7 @@ function App() {
           <Router>
             <Routes>
               <Route path="/test" element={<TestPage />} />
-            
+              <Route path="/embed" element={<TestPage />} />
             <Route
               path="*"
               element={
