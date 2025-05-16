@@ -58,6 +58,7 @@ const ExchangePage = () => {
       reloadTokens,
       handleSwapTokens,
       setSwapMode,
+      tokens
     } = useTokenContext();
     const { address, isConnected } = useAppKitAccount();
     const navigate = useNavigate();
