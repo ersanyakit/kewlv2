@@ -522,7 +522,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       abi: dexContract.abi,
       functionName: 'getPairInfo',
       args: [_baseAddress, _quoteAddress],
-      account: ethers.getAddress(account) as `0x${string}`,
+      account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
     })
 
     if (!_pairInfo) {
@@ -639,7 +639,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       address: dexContract.caller.address,
       abi: dexContract.abi,
       functionName: 'fetchBountiesInfo',
-      args: [signerAccount],
+      args: [signerAccount ? signerAccount : userAccount],
     }) as [BountyInfo[], BountyUserInfo];
 
     const totalUserReward = _bounties.reduce((acc, bounty) => {
@@ -906,15 +906,15 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
     let dexContract = await getContractByName(TContractType.DEX, Number(chainId));
     const routers = getRoutersByChainId(Number(chainId));
+    console.log("tradingPairs", account)
 
     const _tradingPairs: any = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
       functionName: 'fetchPairs',
       args: [routers, FANTOKENWrapper, _baseToken.address, _quoteToken.address, toHex(tradeAmount)],
-      account: ethers.getAddress(account) as `0x${string}`,
+      account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
     })
-    console.log("tradingPairs", _tradingPairs)
 
     const seenPairs = new Set<string>();
     const _validPairs = _tradingPairs.filter((pair: any) => {
@@ -1241,7 +1241,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       abi: dexContract.abi,
       functionName: 'getReservesByPairAddresses',
       args: [pairsAddressList],
-      account: ethers.getAddress(account) as `0x${string}`,
+      account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
     })
 
     if (pairs.length == 0) {
@@ -1462,7 +1462,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       abi: dexContract.abi,
       functionName: 'getPairInfo',
       args: [_baseAddress, _quoteAddress],
-      account: account ? ethers.getAddress(account) as `0x${string}` : KEWL_DEPLOYER_ADDRESS
+      account: account ? ethers.getAddress(account) as `0x${string}` : undefined
     })
 
     console.log("ersan _pairInfo", _pairInfo)

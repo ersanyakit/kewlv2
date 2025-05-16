@@ -37,8 +37,10 @@ export const getContractByName = async (contractType: TContractType, chainId: st
 
     var wallet : any =  createWalletClient({
             chain: chain as Chain,
-            transport:  custom(window.ethereum!)
+            transport:  walletProvider ?custom(walletProvider) : http()
         });
+
+        console.log("wallet",wallet)
     
 
     let signer;
