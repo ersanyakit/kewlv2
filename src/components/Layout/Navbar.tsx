@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Moon, Sun, Wallet, RefreshCw, Menu, X, Percent, Clock, Shield, Star } from 'lucide-react';
+import { Settings, Moon, Sun, Wallet, RefreshCw, Menu, X, Percent, Clock, Shield, Star, Gem, ReplaceAllIcon } from 'lucide-react';
 import { useTokenContext } from '../../context/TokenContext';
 import ConnectButton from '../UI/ConnectButton';
 import { useNavigate } from 'react-router-dom';
@@ -63,8 +63,40 @@ const Navbar: React.FC<NavbarProps> = () => {
           } p-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2`}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
+          onClick={()=>{
+            navigate("/swap")
+          }}
+          aria-label="Swap"
+        >
+           <ReplaceAllIcon className="w-5 h-5" />
+        </motion.button>
+
+        <motion.button 
+          className={`${
+            isDarkMode 
+              ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600' 
+              : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100 ring-pink-200'
+          } p-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={()=>{
+            navigate("/rewards")
+          }}
+          aria-label="Change Theme"
+        >
+           <Gem className="w-5 h-5" />
+        </motion.button>
+        {/* Theme Toggle Button */}
+        <motion.button 
+          className={`${
+            isDarkMode 
+              ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600' 
+              : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100 ring-pink-200'
+          } p-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           onClick={toggleDarkMode}
-          aria-label="Tema değiştir"
+          aria-label="Change Theme"
         >
           {isDarkMode ? (
             <Sun className="w-5 h-5" />
@@ -82,7 +114,10 @@ const Navbar: React.FC<NavbarProps> = () => {
           } p-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2`}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={toggleSettingsModal}
+          onClick={()=>{
+            navigate("/swap")
+            toggleSettingsModal()
+          }}
           aria-label="Settings"
         >
           <Settings className="w-5 h-5" />
@@ -129,6 +164,38 @@ const Navbar: React.FC<NavbarProps> = () => {
           exit={{ opacity: 0, y: -10 }}
         >
           <div className="flex flex-col space-y-3">
+
+          <motion.button 
+              className={`${
+                isDarkMode 
+                  ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
+                  : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100'
+              } p-2 rounded-xl flex items-center justify-between transition-all duration-300`}
+              onClick={()=>{
+                navigate("/swap")
+                setIsMobileMenuOpen(false);
+              }}
+            >
+              <span>Swap</span>
+              <ReplaceAllIcon className="w-5 h-5" />
+            </motion.button>
+
+          <motion.button 
+              className={`${
+                isDarkMode 
+                  ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
+                  : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100'
+              } p-2 rounded-xl flex items-center justify-between transition-all duration-300`}
+              onClick={()=>{
+                navigate("/rewards")
+                setIsMobileMenuOpen(false);
+              }}
+            >
+              <span>Rewards</span>
+              <Gem className="w-5 h-5" />
+            </motion.button>
+
+
             <motion.button 
               className={`${
                 isDarkMode 
@@ -154,7 +221,10 @@ const Navbar: React.FC<NavbarProps> = () => {
                   ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
                   : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100'
               } p-2 rounded-xl flex items-center justify-between transition-all duration-300`}
-              onClick={toggleSettingsModal}
+              onClick={()=>{
+                navigate("/swap")
+                toggleSettingsModal()
+              }}
             >
               <span>Settings</span>
               <Settings className="w-5 h-5" />
