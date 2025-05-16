@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useTokenContext } from '../../../context/TokenContext';
 import { motion } from 'framer-motion';
-import { useAppKitAccount, useAppKitProvider } from '@reown/appkit/react';
+import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
 import { useNavigate } from 'react-router-dom';
 import ConnectButton from '../../UI/ConnectButton';
 import { decodeTweetId, generateTweetIntentURL, getRandomTweet, parseTweetUrl, TweetInfo } from './Data/Functions';
@@ -18,6 +18,7 @@ const Rewards = () => {
         isDarkMode,
     } = useTokenContext();
     const { walletProvider } = useAppKitProvider('eip155');
+    const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
 
     const { address, isConnected } = useAppKitAccount();
     const { bountiesInfo, setBountiesInfo, fetchBountiesInfo, handleClaimedRewards, isClaimLoading, setIsClaimLoading, claimModal, setClaimModal, fetchJackPotInfo, jackpotInfo } = useSwapContext();
@@ -69,7 +70,7 @@ const Rewards = () => {
             setAccount(address)
         }
         initBountiesInfo()
-    }, [address, isConnected]);
+    }, [address, isConnected,chainId]);
 
 
     // Geri sayım zamanlayıcısı effect'i

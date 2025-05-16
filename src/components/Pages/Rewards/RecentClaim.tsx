@@ -2,7 +2,7 @@ import { motion } from "framer-motion";
 import { useTokenContext } from "../../../context/TokenContext";
 import { useEffect, useState, useCallback, useMemo, memo, useRef } from "react";
 import { useSwapContext } from "../../../context/SwapContext";
-import { useAppKitAccount, useAppKitProvider } from "@reown/appkit/react";
+import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from "@reown/appkit/react";
 import { formatEther } from "ethers";
 
 // Move static components outside to prevent recreation on each render
@@ -109,7 +109,10 @@ const RecentClaim: React.FC = () => {
     const { walletProvider } = useAppKitProvider('eip155');
     const { isDarkMode } = useTokenContext();
     const { claimedRewardsLoading, setClaimedRewardsLoading } = useSwapContext();
-    
+    const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
+    const { address, isConnected } = useAppKitAccount();
+
+
     // Use refs to track previous values and prevent unnecessary re-renders
     const prevWalletProviderRef = useRef(walletProvider);
     const prevClaimedRewardsRef = useRef(claimedRewards);
@@ -135,11 +138,11 @@ const RecentClaim: React.FC = () => {
     // Memoize the loadData function with stable dependencies
     const loadData = useCallback(async () => {
       await fetchClaimedRewards(walletProvider);
-    }, []);
+    }, [chainId,address,isConnected]);
   
     useEffect(() => {
        loadData();
-    }, []);
+    }, [chainId,address,isConnected]);
 
   
     // Memoize the rendered content with stable dependencies
