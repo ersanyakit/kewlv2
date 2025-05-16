@@ -10,7 +10,7 @@ import Rewards from './components/Pages/Rewards';
 import TosPage from './components/Pages/TosPage';
 import Assets from './components/Pages/Assets';
 import EmbeddedSwapPage from './components/Pages/EmbedPages';
-
+import ExchangePage from './components/Pages/ExchangePage';
 function App() {
   return (
     <Web3ProviderContext>
@@ -36,6 +36,7 @@ function App() {
                     <Route path="/rewards" element={<Rewards />} />
                     <Route path="/assets" element={<Assets />} />
                     <Route path="/tos" element={<TosPage />} />
+                    <Route path="/exchange" element={<ExchangePage />} />
                   </Routes>
                 </Layout>
               }
