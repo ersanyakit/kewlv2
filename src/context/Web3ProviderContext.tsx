@@ -4,7 +4,7 @@ import { EthersAdapter } from '@reown/appkit-adapter-ethers';
 import { chiliz, hardhat, avalanche, arbitrum, sonic, Chain, AppKitNetwork } from '@reown/appkit/networks';
 import { AppKitOptions, createAppKit } from '@reown/appkit/react';
 import { ReactNode } from 'react';
-import { createPublicClient, http } from 'viem';
+import { createPublicClient, createWalletClient, http } from 'viem';
 
 
 const projectId = 'd44052dff4e08d391ea2749cd7df8422';
@@ -71,6 +71,11 @@ export const appkitOptions: AppKitOptions = {
 }
 
 export const publicClient = createPublicClient({
+  chain: (appkitOptions.defaultNetwork) as Chain,
+  transport: http()
+})
+
+export const walletClient = createWalletClient({
   chain: (appkitOptions.defaultNetwork) as Chain,
   transport: http()
 })

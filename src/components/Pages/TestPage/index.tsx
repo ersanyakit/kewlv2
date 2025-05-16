@@ -1,11 +1,13 @@
 import React, { useEffect } from 'react';
 import { useTokenContext } from '../../../context/TokenContext';
 import { motion } from 'framer-motion';
-import { useAppKitAccount } from '@reown/appkit/react';
+import { useAppKitAccount,useAppKitNetwork,useAppKitProvider } from '@reown/appkit/react';
 import { useNavigate } from 'react-router-dom';
 import SwapForm from '../../Swap/SwapForm/SwapForm';
 import { useSearchParams } from 'react-router-dom';
 import ConnectButton from '../../UI/ConnectButton';
+import { appkitOptions, getChainById, publicClient, walletClient } from '../../../context/Web3ProviderContext';
+import { AppKitNetwork } from '@reown/appkit/networks';
 
 const TestPage = () => {
     // Token context'inden verileri al
@@ -37,6 +39,11 @@ const TestPage = () => {
     const { address, isConnected } = useAppKitAccount();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
+    const {switchNetwork} = useAppKitNetwork()
+    
+     
+    
+
 
     const base = searchParams.get('base');   // "TBT"
     const quote = searchParams.get('quote'); // "CHZ"
@@ -64,8 +71,9 @@ const TestPage = () => {
                     }
                 }
             }
-
-            
+            if(defaultChainId){
+                switchNetwork(getChainById(parseInt(defaultChainId)) as AppKitNetwork)
+            }
             if(address) {   
                 setAccount(address);
             }
