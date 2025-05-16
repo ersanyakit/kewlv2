@@ -2367,7 +2367,7 @@ const formatted = date.toLocaleString('en-US', {
       account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
     })
 
-    console.log("jackpotInfo", _jackpotInfo)
+    console.log("limit", limit, "jackpotInfo", _jackpotInfo)
 
     setJackpotInfo({
       receivers: _jackpotInfo[0],

@@ -20,15 +20,16 @@ const Rewards = () => {
     const { walletProvider } = useAppKitProvider('eip155');
 
     const { address, isConnected } = useAppKitAccount();
-    const { bountiesInfo, setBountiesInfo, fetchBountiesInfo, handleClaimedRewards, isClaimLoading, setIsClaimLoading,claimModal,setClaimModal,fetchJackPotInfo,jackpotInfo } = useSwapContext();
+    const { bountiesInfo, setBountiesInfo, fetchBountiesInfo, handleClaimedRewards, isClaimLoading, setIsClaimLoading, claimModal, setClaimModal, fetchJackPotInfo, jackpotInfo } = useSwapContext();
     const navigate = useNavigate();
     const [getTweet, setTweet] = useState<string>(getRandomTweet());
     const [tweetButtonWaiting, setTweetButtonWaiting] = useState<boolean>(false);
     const [tweetWaitTime, setTweetWaitTime] = useState<number>(10);
-    const [canClaimTweet,setCanClaimTweet] = useState<boolean>(false);
+    const [canClaimTweet, setCanClaimTweet] = useState<boolean>(false);
 
     const [inputValue, setInputValue] = useState<string>("");
     const [activeView, setActiveView] = useState<string>("rewards");
+    const [jackpotUserCount, setJackpotUserCount] = useState<number>(200);
 
 
     // Zamanlayıcı için state tanımla
@@ -49,7 +50,7 @@ const Rewards = () => {
     // Toplam 24 saat (saniye cinsinden)
     const totalSeconds = 24 * 60 * 60;
 
-    
+
 
     const [claimedAmount, setClaimedAmount] = useState<string>("");
 
@@ -61,10 +62,10 @@ const Rewards = () => {
             totalClaimed: 0n,
         })
         await fetchBountiesInfo(walletProvider);
-        await fetchJackPotInfo(walletProvider,50);
+        await fetchJackPotInfo(walletProvider, jackpotUserCount);
     }
     useEffect(() => {
-        if(address){
+        if (address) {
             setAccount(address)
         }
         initBountiesInfo()
@@ -183,7 +184,7 @@ const Rewards = () => {
             status: 'error',
             message: error,
             visible: true,
-          });
+        });
     }
 
     const handleClaimTradingRewards = async () => {
@@ -229,7 +230,7 @@ const Rewards = () => {
 
             // Show success modal with claimed amount
             setClaimedAmount(parseFloat(ethers.formatEther(tradingBounty.userAvailableReward)).toFixed(2) + " $1K");
-            
+
 
             // Clear the input field after successful claim
             setInputValue("");
@@ -238,17 +239,17 @@ const Rewards = () => {
             console.error("Error claiming reward:", error);
             // Optional: Add error handling here
         } finally {
-            
+
         }
     }
 
-    const handleClaimBounty = async (tradingBounty:any) => {
- 
+    const handleClaimBounty = async (tradingBounty: any) => {
+
         if (!tradingBounty) {
             displayError("Invalid bounties info");
             return;
         }
-        
+
         if (!address) {
             displayError("Invalid account");
             return;
@@ -282,13 +283,13 @@ const Rewards = () => {
 
             // Clear the input field after successful claim
             setInputValue("");
-         
+
         } catch (error) {
             displayError("Error claiming reward:" + error);
             console.error("Error claiming reward:", error);
             // Optional: Add error handling here
         } finally {
-           
+
         }
     }
 
@@ -314,18 +315,18 @@ const Rewards = () => {
             });
         }, 1000);
     };
- 
+
 
     const handleClaimTwitter = async () => {
 
-       
+
         const tweetInfo = parseTweetUrl(inputValue);
-       // setTweetInfo(tweetInfo);
-      
+        // setTweetInfo(tweetInfo);
+
         if (!tweetInfo || !tweetInfo.valid || isClaimLoading) {
             return;
         }
-        if(!tweetInfo.tweetId){
+        if (!tweetInfo.tweetId) {
             displayError("Invalid Tweet ID");
             return;
         }
@@ -335,21 +336,21 @@ const Rewards = () => {
         const tweetTimeMs = tweetTimestamp; // tweet timestamp saniyeyse, milisaniyeye çevir
 
         const isExpired = now > tweetTimeMs + 5 * 60 * 1000; // 10 dakika sonra geçersiz
-        console.log(tweetTimestamp,now,tweetTimeMs,isExpired);
+        console.log(tweetTimestamp, now, tweetTimeMs, isExpired);
 
         if (isExpired) {
             displayError("Tweet has expired (10-minute validity).");
             return;
         }
 
-    
-        if(bountiesInfo?.bountyUserInfo?.registered){
-            if(tweetInfo.username?.toString().toLocaleLowerCase() != bountiesInfo?.bountyUserInfo?.twitter?.toString().toLocaleLowerCase()){
+
+        if (bountiesInfo?.bountyUserInfo?.registered) {
+            if (tweetInfo.username?.toString().toLocaleLowerCase() != bountiesInfo?.bountyUserInfo?.twitter?.toString().toLocaleLowerCase()) {
                 displayError("Invalid Action!");
                 return;
             }
         }
-         
+
 
         try {
             const claimRewardParam: BountyClaimParam = {
@@ -365,13 +366,13 @@ const Rewards = () => {
 
             // Clear the input field after successful claim
             setInputValue("");
-         
+
         } catch (error) {
             console.error("Error claiming reward:", error);
             // Optional: Add error handling here
         } finally {
             setCanClaimTweet(false);
-           
+
         }
     };
 
@@ -381,47 +382,47 @@ const Rewards = () => {
             status: 'none',
             visible: false,
             message: '',
-          });
+        });
     };
 
-    function calculateRewards (
+    function calculateRewards(
         totalReward: bigint,          // Örn: 175_929_873_695_631_402_947_886n
         totalUsers: number,           // Kaç kullanıcıya dağıtılacak
         decayRate: number = 9500,     // 10000 üzerinden
         precision: number = 10000     // Sabit payda
-      ): bigint[] {
-        const P  = BigInt(precision);
-        const R  = BigInt(decayRate);
-      
+    ): bigint[] {
+        const P = BigInt(precision);
+        const R = BigInt(decayRate);
+
         // 1) Her kullanıcının 'a(i)' katsayısını üret (a(0)=P, a(i+1)=a(i)*R/P)
         const factors: bigint[] = [];
-        let   factor           = P;          // ilk kullanıcı tam pay alır (1.0)
-      
+        let factor = P;          // ilk kullanıcı tam pay alır (1.0)
+
         for (let i = 0; i < totalUsers; i++) {
-          factors.push(factor);
-          factor = (factor * R) / P;         // sonraki kullanıcı için azalt
+            factors.push(factor);
+            factor = (factor * R) / P;         // sonraki kullanıcı için azalt
         }
-      
+
         // 2) Toplam katsayı
         const factorSum = factors.reduce((acc, f) => acc + f, 0n);
-      
+
         // 3) Her kullanıcının ödülü = totalReward × a(i) / Σa
         return factors.map(f => (f * totalReward) / factorSum);
-      }
-      
-      /**
-       * Sadece belirli bir kullanıcı (userIndex) için ödül istiyorsanız:
-       */
-      function calculateRewardForUser (
+    }
+
+    /**
+     * Sadece belirli bir kullanıcı (userIndex) için ödül istiyorsanız:
+     */
+    function calculateRewardForUser(
         totalReward: bigint,
         userIndex: number,
         totalUsers: number,
         decayRate: number = 9500,
         precision: number = 10000
-      ): bigint {
+    ): bigint {
         const rewards = calculateRewards(totalReward, totalUsers, decayRate, precision);
         return rewards[userIndex];
-      }
+    }
     return (
         <div className={` max-w-6xl mx-auto flex flex-col p py-4 transition-colors duration-300`}>
 
@@ -451,7 +452,7 @@ const Rewards = () => {
                                                     {address?.substring(2, 4).toUpperCase()}
                                                 </span>
                                             ) : (
-                                            
+
                                                 <svg className="w-8 h-8 text-[#ff4080]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                                 </svg>
@@ -484,8 +485,8 @@ const Rewards = () => {
                                 </div>
                                 <div className="flex justify-between mb-1">
                                     <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Last Access</span>
-                                    <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}> 
-                                    {bountiesInfo?.bountyUserInfo?.lastaccess ? moment.unix(Number(bountiesInfo?.bountyUserInfo?.lastaccess)).format('DD/MM/YYYY HH:mm:ss'): '—'}
+                                    <span className={`font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>
+                                        {bountiesInfo?.bountyUserInfo?.lastaccess ? moment.unix(Number(bountiesInfo?.bountyUserInfo?.lastaccess)).format('DD/MM/YYYY HH:mm:ss') : '—'}
                                     </span>
                                 </div>
                                 <div className="flex justify-between hidden">
@@ -687,11 +688,11 @@ const Rewards = () => {
                         transition={{ delay: 0.2 }}
                     >
                         <div className={`${isDarkMode
-                                ? 'bg-gray-800/70 border-gray-700/50'
-                                : 'bg-white/80 border-white/30'
+                            ? 'bg-gray-800/70 border-gray-700/50'
+                            : 'bg-white/80 border-white/30'
                             } backdrop-blur-lg p-1.5 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.06)] border flex space-x-1 transition-all duration-300`}>
-                           
-                           <button
+
+                            <button
                                 className={`text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'rewards'
                                     ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white shadow-lg'
                                     : isDarkMode
@@ -715,7 +716,7 @@ const Rewards = () => {
                                 Jackpot
                             </button>
 
-                            
+
 
                             <button
                                 className={`text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'airdrop'
@@ -733,8 +734,8 @@ const Rewards = () => {
                         </div>
                     </motion.div>
 
-                    {activeView === 'airdrop' && 
-                            <motion.div
+                    {activeView === 'airdrop' &&
+                        <motion.div
                             className={`relative ${isDarkMode
                                 ? 'bg-gray-800/30 border-gray-700/30'
                                 : 'bg-white/40 border-white/20'
@@ -748,7 +749,7 @@ const Rewards = () => {
                                     <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Tweet & Earn Cool Rewards!</h2>
                                     <p className={`mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Support our project and earn $1K tokens</p>
                                 </div>
-    
+
                                 {/* Step 1: Tweet Creation Area */}
                                 <div className={`mb-8 p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-100/60'} ${canClaimTweet ? 'hidden' : ''}`}>
                                     <div className="flex items-center mb-3">
@@ -762,7 +763,7 @@ const Rewards = () => {
                                         </motion.div>
                                         <h3 className={`ml-2 text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Tweet About Us</h3>
                                     </div>
-    
+
                                     <div className="mb-4">
                                         <div className="flex justify-between items-center mb-2">
                                             <p className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Suggested Tweet:</p>
@@ -790,7 +791,7 @@ const Rewards = () => {
                                             </motion.div>
                                         </div>
                                     </div>
-    
+
                                     {
                                         !isConnected ? (
                                             <ConnectButton />
@@ -832,10 +833,10 @@ const Rewards = () => {
                                             </motion.button>
                                         )
                                     }
-    
-    
+
+
                                 </div>
-    
+
                                 {/* Step 2: Claim Rewards */}
                                 <div className={`mb-8 p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-100/60'} ${canClaimTweet ? '' : 'hidden'}`}>
                                     <div className="flex items-center mb-3">
@@ -849,7 +850,7 @@ const Rewards = () => {
                                         </motion.div>
                                         <h3 className={`ml-2 text-lg font-semibold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Claim Your Reward</h3>
                                     </div>
-    
+
                                     <div className="mb-4">
                                         <p className={`font-medium mb-2 ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Paste your Tweet URL here:</p>
                                         <motion.div
@@ -862,7 +863,7 @@ const Rewards = () => {
                                                 onChange={(e) => {
                                                     const value = e.target.value;
                                                     setInputValue(value);
-                                      
+
                                                 }}
                                                 type="text"
                                                 placeholder="https://twitter.com/username/status/123456789"
@@ -873,14 +874,14 @@ const Rewards = () => {
                                             />
                                         </motion.div>
                                     </div>
-    
+
                                     <motion.button
                                         className={`w-full py-3 rounded-xl font-medium text-white bg-gradient-to-r from-[#ff1356] to-[#ff4080] 
-        ${(  !isClaimLoading) ? 'cursor-pointer' : 'cursor-not-allowed'}`}
+        ${(!isClaimLoading) ? 'cursor-pointer' : 'cursor-not-allowed'}`}
                                         animate={{ opacity: (!isClaimLoading) ? 1 : 0.6 }}
                                         onClick={handleClaimTwitter}
                                         whileHover={{
-                                            opacity: ( !isClaimLoading) ? 0.9 : 0.6,
+                                            opacity: (!isClaimLoading) ? 0.9 : 0.6,
                                             transition: { duration: 0.3 }
                                         }}
                                         disabled={isClaimLoading}
@@ -899,14 +900,14 @@ const Rewards = () => {
                                     </motion.button>
                                     <p className={`text-sm mt-2 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Enter your Tweet URL to enable claiming</p>
                                 </div>
-    
-                         
+
+
                             </div>
                         </motion.div>
-                    
+
                     }
-                    {activeView === 'jackpot' && 
-                            <motion.div
+                    {activeView === 'jackpot' &&
+                        <motion.div
                             className={`relative ${isDarkMode
                                 ? 'bg-gray-800/30 border-gray-700/30'
                                 : 'bg-white/40 border-white/20'
@@ -919,19 +920,19 @@ const Rewards = () => {
                                 <div className="text-center mb-8">
                                     <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Jackpot Time! Share & Earn</h2>
                                     <p className={`mt-2 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>
-                                    Last 200 users share 1K tokens based on your trade volume.
+                                        Last 200 users share 1K tokens based on your trade volume.
                                     </p>
                                 </div>
-    
+
                                 {/* Rewards Information */}
                                 <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-100/60'}`}>
-                               
-                         
-    
+
+
+
                                     {/* Jackpot Section */}
                                     <div className=" border-gray-700/30">
-                                     
-    
+
+
                                         {/* Jackpot Prize Display */}
                                         <motion.div
                                             className={`p-6 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/70'} mb-6 relative overflow-hidden`}
@@ -951,7 +952,7 @@ const Rewards = () => {
                                                     ease: "easeInOut"
                                                 }}
                                             />
-    
+
                                             <div className="relative z-10 text-center">
                                                 <p className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} mb-2`}>
                                                     Current Prize Pool
@@ -974,47 +975,47 @@ const Rewards = () => {
                                                 </p>
                                             </div>
                                         </motion.div>
-    
+
                                         {/* Recent Winners */}
                                         <div className="space-y-3">
                                             <h4 className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-3`}>
-                                            Eligable users
+                                                Eligable users
                                             </h4>
                                             <div className="flex flex-col gap-2 max-h-[60dvh] scrollbar-hide overflow-y-auto items-center gap-2">
-                                            {jackpotInfo && jackpotInfo.isLoaded && jackpotInfo.receivers.length > 0 && jackpotInfo.receivers.map((winner:any,index:number) => (
-                                                <motion.div
-                                                    key={winner}
-                                                    className={`p-3 cursor-pointer w-full rounded-lg ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/70'} border ${isDarkMode ? 'border-gray-700/50' : 'border-gray-200/50'}`}
-                                                    initial={{ opacity: 0, y: 10 }}
-                                                    animate={{ opacity: 1, y: 0 }}
-                                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
-                                                >
-                                                    <div className="flex items-center gap-2 justify-between">
-                                                        <div className="flex items-center gap-2">
-                                                            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#ff1356]/20 to-[#ff4080]/20 flex items-center justify-center">
-                                                                <span className="text-sm font-medium text-[#ff4080]">
-                                                                    {index+1}
-                                                                </span>
-                                                            </div>
-                                                            <div>
-                                                                <p className={`text-sm font-semibold text-[#ff4080]`}>
-                                                                {
-                                                                    bountiesInfo && bountiesInfo.bounties && bountiesInfo.bounties.length > 1 ? parseFloat(ethers.formatEther(calculateRewardForUser(bountiesInfo.bounties[1].userTotalReward,index,jackpotInfo.receivers.length))).toFixed(2) : 0} $1K
+                                                {jackpotInfo && jackpotInfo.isLoaded && jackpotInfo.receivers.length > 0 && jackpotInfo.receivers.map((winner: any, index: number) => (
+                                                    <motion.div
+                                                        key={winner}
+                                                        className={`p-3 cursor-pointer w-full rounded-lg ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/70'} border ${isDarkMode ? 'border-gray-700/50' : 'border-gray-200/50'}`}
+                                                        initial={{ opacity: 0, y: 10 }}
+                                                        animate={{ opacity: 1, y: 0 }}
+                                                        transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                                    >
+                                                        <div className="flex items-center gap-2 justify-between">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#ff1356]/20 to-[#ff4080]/20 flex items-center justify-center">
+                                                                    <span className="text-sm font-medium text-[#ff4080]">
+                                                                        {index + 1}
+                                                                    </span>
+                                                                </div>
+                                                                <div>
+                                                                    <p className={`text-sm font-semibold text-[#ff4080]`}>
+                                                                        {
+                                                                            bountiesInfo && bountiesInfo.bounties && bountiesInfo.bounties.length > 1 ? parseFloat(ethers.formatEther(calculateRewardForUser(bountiesInfo.bounties[1].userTotalReward, index, jackpotInfo.receivers.length))).toFixed(2) : 0} $1K
 
-                                                                
-                                                                </p>
-                                                                <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                                {winner}
-                                                                </p>
+
+                                                                    </p>
+                                                                    <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                                        {winner}
+                                                                    </p>
+                                                                </div>
                                                             </div>
+
                                                         </div>
-                                                        
-                                                    </div>
-                                                </motion.div>
-                                            ))}
+                                                    </motion.div>
+                                                ))}
                                             </div>
                                         </div>
-    
+
                                         {/* Jackpot Info */}
                                         <div className="mt-4 p-3 rounded-lg bg-gradient-to-r from-[#ff1356]/10 to-[#ff4080]/10">
                                             <h4 className={`text-sm font-medium mb-2 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
@@ -1062,7 +1063,7 @@ const Rewards = () => {
                                     <h2 className={`text-2xl font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Rewards Overview</h2>
                                 </div>
 
-                             
+
 
                                 {/* Rewards List */}
                                 <div className={`w-full space-y-4`}>
@@ -1169,21 +1170,20 @@ const Rewards = () => {
                                                         </div>
                                                         <div className={`p-2.5 rounded-lg flex items-center gap-2`}>
                                                             <button
-                                                                className={`w-full px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 ${
-                                                                    bounty.canUserClaim 
+                                                                className={`w-full px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 ${bounty.canUserClaim
                                                                         ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white hover:shadow-lg hover:shadow-[#ff4080]/20 hover:scale-105 active:scale-95'
                                                                         : 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                                                                }`}
+                                                                    }`}
                                                                 disabled={!bounty.canUserClaim}
                                                                 onClick={() => {
-                                                                    if(BOUNTY_TYPE_ARRAY[bounty.bountyType] === BOUNTY_TYPE.TWEET){
+                                                                    if (BOUNTY_TYPE_ARRAY[bounty.bountyType] === BOUNTY_TYPE.TWEET) {
                                                                         setActiveView('airdrop')
-                                                                    }else{
+                                                                    } else {
                                                                         handleClaimBounty(bounty)
                                                                     }
                                                                 }}
                                                             >
-                                                                {isClaimLoading ?(
+                                                                {isClaimLoading ? (
                                                                     <div className="flex items-center justify-center gap-2">
                                                                         <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                                             <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -1228,21 +1228,21 @@ const Rewards = () => {
                         exit={{ scale: 0.8, opacity: 0 }}
                         transition={{ type: "spring", damping: 20, stiffness: 300 }}
                         className={`relative rounded-2xl p-1 max-w-md w-full shadow-2xl ${isDarkMode
-                                ? 'bg-gradient-to-br from-gray-800 to-gray-900'
-                                : 'bg-gradient-to-br from-white to-gray-50'
+                            ? 'bg-gradient-to-br from-gray-800 to-gray-900'
+                            : 'bg-gradient-to-br from-white to-gray-50'
                             }`}
                         onClick={(e) => e.stopPropagation()}
                     >
                         <div className={`rounded-2xl p-6 ${isDarkMode
-                                ? 'bg-gradient-to-br from-gray-800 to-gray-900'
-                                : 'bg-gradient-to-br from-white to-gray-50'
+                            ? 'bg-gradient-to-br from-gray-800 to-gray-900'
+                            : 'bg-gradient-to-br from-white to-gray-50'
                             }`}>
                             <div className="flex justify-end">
                                 <button
                                     onClick={closeSuccessModal}
                                     className={`${isDarkMode
-                                            ? 'text-gray-400 hover:text-white'
-                                            : 'text-gray-500 hover:text-gray-700'
+                                        ? 'text-gray-400 hover:text-white'
+                                        : 'text-gray-500 hover:text-gray-700'
                                         } transition-colors`}
                                 >
                                     <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1294,8 +1294,8 @@ const Rewards = () => {
                                     animate={{ y: 0, opacity: 1 }}
                                     transition={{ delay: 0.5 }}
                                     className={`rounded-xl p-4 mb-6 ${isDarkMode
-                                            ? 'bg-gradient-to-r from-[#ff1356]/20 to-[#ff4080]/20'
-                                            : 'bg-gradient-to-r from-[#ff1356]/10 to-[#ff4080]/10'
+                                        ? 'bg-gradient-to-r from-[#ff1356]/20 to-[#ff4080]/20'
+                                        : 'bg-gradient-to-r from-[#ff1356]/10 to-[#ff4080]/10'
                                         }`}
                                 >
                                     <p className={`text-sm mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-500'
