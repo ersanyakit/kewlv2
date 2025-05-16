@@ -30,6 +30,7 @@ export enum BOUNTY_TYPE {
   VOLUME = "VOLUME",
   BALANCE = "BALANCE",
   LIQUIDITY = "LIQUIDITY",
+  JACKPOT = "JACKPOT",
   CUSTOM = "CUSTOM",
 }
 export const BOUNTY_TYPE_ARRAY = Object.values(BOUNTY_TYPE)
