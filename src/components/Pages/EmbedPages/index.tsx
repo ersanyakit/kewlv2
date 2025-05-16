@@ -8,8 +8,15 @@ import { useSearchParams } from 'react-router-dom';
 import ConnectButton from '../../UI/ConnectButton';
 import { appkitOptions, getChainById, publicClient, walletClient } from '../../../context/Web3ProviderContext';
 import { AppKitNetwork } from '@reown/appkit/networks';
+import FushionForm from '../../Swap/SwapForm/FushionForm';
+import BundleForm from '../../Swap/SwapForm/BundleForm';
 
-const TestPage = () => {
+
+interface EmbeddedSwapPageProps {
+    swap: 'aggregator' | 'swap'| 'bundle';
+  }
+
+const EmbeddedSwapPage = ({swap}: EmbeddedSwapPageProps) => {
     // Token context'inden verileri al
     const {
       isDarkMode,
@@ -54,10 +61,17 @@ const TestPage = () => {
 
 
     useEffect(() => {
-
-        console.log("caipNetworkId",caipNetworkId)
-
-
+        if(theme){
+            if(theme === 'dark'){
+                if(!isDarkMode){
+                    toggleDarkMode();
+                }
+            }else{
+                if(isDarkMode){
+                    toggleDarkMode();
+                }
+            }
+        }
         if(tokens.length === 0) return;
         if (base && quote) {
             let _base = tokens.find(token => token.symbol.toLowerCase() === base.toLowerCase());
@@ -66,17 +80,7 @@ const TestPage = () => {
                 setBaseToken(_base);
                 setQuoteToken(_quote);
             }
-            if(theme){
-                if(theme === 'dark'){
-                    if(!isDarkMode){
-                        toggleDarkMode();
-                    }
-                }else{
-                    if(isDarkMode){
-                        toggleDarkMode();
-                    }
-                }
-            }
+      
 
             if(defaultChainId){
                 if(parseInt(defaultChainId) !== chainId){
@@ -90,7 +94,7 @@ const TestPage = () => {
     }, [base, quote, tokens, address, defaultChainId]);
 
   return (
-    <div className={"min-h-[73dvh] mx-auto flex items-center justify-center p-2"}>
+    <div className={"min-h-[73dvh] w-full flex items-center justify-center p-2"}>
         <motion.div
             className={`relative ${isDarkMode
                 ? 'bg-gray-800/30 border-gray-700/30'
@@ -99,13 +103,18 @@ const TestPage = () => {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ delay: 0.3 }} >
-  
 
-        <div className={`relative ${isDarkMode ? 'bg-gray-800/80' : 'bg-white/80'} backdrop-blur-md rounded-3xl overflow-hidden`}>
-            <div className="flex flex-col gap-4">
+        <div className={`relative w-full ${isDarkMode ? 'bg-gray-800/80' : 'bg-white/80'} w-full backdrop-blur-md rounded-3xl overflow-hidden`}>
+            <div className="w-full flex  gap-4">
                 {
-                    <SwapForm disableTokenSelector={true} />
+                    swap === 'swap' && <SwapForm disableTokenSelector={base && quote ? true : false} />
                 }       
+                {
+                    swap === 'aggregator' && <FushionForm />
+                }
+                {
+                    swap === 'bundle' && <BundleForm />
+                }
                 
             </div>
         </div>
@@ -114,4 +123,4 @@ const TestPage = () => {
   );
 };
 
-export default TestPage; 
+export default EmbeddedSwapPage; 

@@ -23,9 +23,10 @@ import {
 import { SWAP_MODE, useTokenContext } from '../../../context/TokenContext';
 import TokenShape from '../../UI/TokenShape';
 import { TradeType } from '../../../constants/entities/utils/misc';
-import { useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
+import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
 import { TCustomPair, useSwapContext } from '../../../context/SwapContext';
 import { warningSeverity } from '../../../constants/entities/utils/calculateSlippageAmount';
+import ConnectButton from '../../UI/ConnectButton';
 
 // Token type
 
@@ -73,6 +74,7 @@ const FushionForm: React.FC = () => {
     } = useSwapContext();
     const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
     const { walletProvider } = useAppKitProvider('eip155');
+    const { address, isConnected } = useAppKitAccount();
 
 
 
@@ -102,7 +104,7 @@ const FushionForm: React.FC = () => {
     }, [baseToken, quoteToken]);
 
     return (
-        <div className="flex flex-col">
+        <div className="flex w-full flex-col">
 
             {!openTokenSelector && (<>
 
@@ -505,6 +507,8 @@ const FushionForm: React.FC = () => {
 
 
                 <div className="pt-5 px-3 pb-3">
+                    {
+                        isConnected ?
                     <motion.button
                         onClick={() => handleAggregatorSwap(walletProvider)}
                         className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${!canAggregatorSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
@@ -526,7 +530,11 @@ const FushionForm: React.FC = () => {
                         <Zap className="w-4 h-4" />
                     </motion.button>
 
-
+                        :
+                        <div className="flex flex-row z-5 items-center gap-2">
+                            <ConnectButton />
+                        </div>
+                    }
                 </div>
             </>)}
 

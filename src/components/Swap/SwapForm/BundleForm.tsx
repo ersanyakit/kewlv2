@@ -1,35 +1,21 @@
-import React, { memo, useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  ChevronDown,
-  ArrowDownUp,
   Search,
-  Clock,
-  AlertCircle,
   CheckCircle,
-  Star,
-  BarChart3,
-  TrendingUp,
-  Shield,
-  Zap,
-  RotateCcw,
-  RefreshCw,
-  DollarSign,
-  XCircle,
-  RefreshCcw,
-  Repeat,
-  RedoDot,
+  BarChart3,  XCircle,
+
   Shuffle,
   PlusCircle,
   LayoutGrid,
   List,
 } from 'lucide-react';
-import { SWAP_MODE, Token, useTokenContext } from '../../../context/TokenContext';
+import { SWAP_MODE, useTokenContext } from '../../../context/TokenContext';
 import TokenShape from '../../UI/TokenShape';
 import { TradeType } from '../../../constants/entities/utils/misc';
-import { useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
-import { TCustomPair, useSwapContext } from '../../../context/SwapContext';
-import { warningSeverity } from '../../../constants/entities/utils/calculateSlippageAmount';
+import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
+import ConnectButton from '../../UI/ConnectButton';
+import { useSwapContext } from '../../../context/SwapContext';
 
 // Token type
 
@@ -40,24 +26,12 @@ const BundleForm: React.FC = () => {
     nativeToken,
     isDarkMode,
     baseToken,
-    quoteToken,
     swapMode,
-    slippageTolerance,
-    selectingTokenIndex,
     tokenFilter,
-    favoriteOnly,
-    filteredTokens,
     tradeType,
     openTokenSelector,
-    riskTolerance,
-    setOpenTokenSelector,
     setTokenFilter,
-    setFavoriteOnly,
-    selectToken,
-    reloadTokens,
     setSwapMode,
-    handleSwapTokens,
-    setSelectingTokenIndex,
     setTradeType,
 
   } = useTokenContext();
@@ -79,6 +53,7 @@ const BundleForm: React.FC = () => {
   } = useSwapContext();
   const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
   const { walletProvider } = useAppKitProvider('eip155');
+  const { address, isConnected } = useAppKitAccount();
 
   const fanTokens: any[] =
     [
@@ -976,13 +951,16 @@ const BundleForm: React.FC = () => {
         {/* Horizontal line (now below the buttons due to z-index) */}
         <div className={`absolute left-0 right-0 h-px bg-gradient-to-r from-transparent ${isDarkMode ? 'via-gray-600' : 'via-gray-300'} to-transparent`}></div>
 
-        {/* Base token button with background */}
+        {
+          isConnected ?
+        
         <div className="relative z-20">
           {/* Background div to hide the line */}
           <div className={`absolute inset-0 rounded-full ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}></div>
 
-          <motion.button
-            disabled={swapMode == SWAP_MODE.COLLECTOR && isSwapping}
+ 
+            <motion.button
+              disabled={swapMode == SWAP_MODE.COLLECTOR && isSwapping}
             onClick={() => { setTradeType(TradeType.EXACT_INPUT); handleBundleSwap(walletProvider, selectableFanTokens.filter(t => t.isSelected)) }}
             className={`z-[100] relative flex flex-row items-center transition-all duration-300 bg-gradient-to-r from-[#ff1356]/10 to-[#3b82f6]/10 p-1 rounded-full`}
             whileHover={{
@@ -1010,7 +988,16 @@ const BundleForm: React.FC = () => {
             <Shuffle className={`w-6 h-6 mx-2 ${isDarkMode ? 'text-gray-400' : 'text-gray-400'} group-hover:text-pink-500`} />
 
           </motion.button>
+      
         </div>
+        :
+        <div className="flex absolute flex-row z-5 items-center gap-2">
+            <div className={` inset-0 rounded-full ${isDarkMode ? 'bg-gray-800' : 'bg-white'} shadow-sm`}></div>
+            <div className="z-[100] relative flex flex-row items-center gap-2">
+              <ConnectButton />
+          </div>
+          </div>
+        }
 
 
       </div>

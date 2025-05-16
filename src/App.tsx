@@ -9,7 +9,7 @@ import { SwapProvider } from './context/SwapContext';
 import Rewards from './components/Pages/Rewards';
 import TosPage from './components/Pages/TosPage';
 import Assets from './components/Pages/Assets';
-import TestPage from './components/Pages/TestPage';
+import EmbeddedSwapPage from './components/Pages/EmbedPages';
 
 function App() {
   return (
@@ -20,8 +20,11 @@ function App() {
 
           <Router>
             <Routes>
-              <Route path="/test" element={<TestPage />} />
-              <Route path="/embed" element={<TestPage />} />
+              <Route path="/test" element={<EmbeddedSwapPage swap="swap" />} />
+              <Route path="/embed" element={<EmbeddedSwapPage swap="swap" />} />
+              <Route path="/embed/swap" element={<EmbeddedSwapPage swap="swap" />} />
+              <Route path="/embed/aggregator" element={<EmbeddedSwapPage swap="aggregator" />} />
+              <Route path="/embed/bundle" element={<EmbeddedSwapPage swap="bundle" />} />
             <Route
               path="*"
               element={
@@ -32,6 +35,7 @@ function App() {
                     <Route path="/about" element={<About />} />
                     <Route path="/rewards" element={<Rewards />} />
                     <Route path="/assets" element={<Assets />} />
+                    <Route path="/tos" element={<TosPage />} />
                   </Routes>
                 </Layout>
               }

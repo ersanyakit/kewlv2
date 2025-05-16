@@ -30,6 +30,7 @@ const Rewards = () => {
     const [inputValue, setInputValue] = useState<string>("");
     const [activeView, setActiveView] = useState<string>("rewards");
 
+
     // Zamanlayıcı için state tanımla
     const [countdown, setCountdown] = useState({
         hours: 23,
