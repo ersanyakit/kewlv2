@@ -170,12 +170,12 @@ const ExchangePage = () => {
     const { sellOrders, buyOrders } = generateOrderBookData();
 
     return (
-      <div className="w-full h-full min-h-[73dvh] mx-auto flex items-center justify-center p-4">
+      <div className="w-full h-full max-w-6xl min-h-[73dvh] mx-auto flex items-center justify-center py-4">
         <motion.div
           className={`relative ${isDarkMode
             ? 'bg-gray-800/30 border-gray-700/30'
             : 'bg-white/40 border-white/20'
-            } backdrop-blur-sm p-0.5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden transition-all duration-300`}
+            } backdrop-blur-sm p-0.5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] max-w-6xl border overflow-hidden transition-all duration-300`}
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
@@ -590,51 +590,54 @@ const ExchangePage = () => {
                     <div className={`p-5 rounded-2xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-sm shadow-sm border border-gray-200/10`}>
                       <div className="flex flex-col gap-6">
                         {/* Buy/Sell Tab */}
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <button 
-                              onClick={() => setTradeType('buy')}
-                              className={`relative group overflow-hidden px-6 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
-                                tradeType === 'buy' 
-                                  ? 'bg-gradient-to-r from-green-500/20 to-emerald-500/20 text-green-500' 
-                                  : 'hover:bg-gray-200/10 text-gray-500'
-                              }`}
+                        <div className="mb-2">
+                            <div className={`flex p-0.5 rounded-xl backdrop-blur-sm transition-all duration-300 ${isDarkMode 
+                              ? 'bg-gray-800/40' 
+                              : 'bg-white/40'} 
+                            border border-gray-200/10 shadow-sm h-10`}
                             >
-                              {tradeType === 'buy' && (
-                                <span className="absolute inset-0 bg-gradient-to-r from-green-500/10 to-emerald-500/10 animate-pulse" />
-                              )}
-                              <div className="relative flex items-center gap-2">
-                                <TrendingUp className={`w-4 h-4 ${tradeType === 'buy' ? 'text-green-500' : 'text-gray-500'}`} />
-                                <span>Buy</span>
-                              </div>
-                            </button>
-                            <button 
-                              onClick={() => setTradeType('sell')}
-                              className={`relative group overflow-hidden px-6 py-2 rounded-xl text-sm font-medium transition-all duration-300 ${
-                                tradeType === 'sell' 
-                                  ? 'bg-gradient-to-r from-red-500/20 to-rose-500/20 text-red-500' 
-                                  : 'hover:bg-gray-200/10 text-gray-500'
-                              }`}
-                            >
-                              {tradeType === 'sell' && (
-                                <span className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-rose-500/10 animate-pulse" />
-                              )}
-                              <div className="relative flex items-center gap-2">
-                                <TrendingDown className={`w-4 h-4 ${tradeType === 'sell' ? 'text-red-500' : 'text-gray-500'}`} />
-                                <span>Sell</span>
-                              </div>
-                            </button>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-gray-200/10 text-sm font-medium backdrop-blur-sm">
-                              <Percent className="w-4 h-4" />
-                              <span>Limit</span>
+                              <button 
+                                onClick={() => setTradeType('buy')}
+                                className={`flex-1 relative overflow-hidden rounded-lg text-sm font-medium transition-all duration-200
+                                  ${tradeType === 'buy'
+                                    ? isDarkMode
+                                      ? 'bg-green-500/20 text-green-400 shadow-inner'
+                                      : 'bg-green-100 text-green-600 shadow-inner'
+                                    : 'hover:bg-gray-200/30'
+                                  }`}
+                              >
+                                <div className="relative flex items-center justify-center h-full">
+                                  <div className="flex items-center gap-1.5">
+                                    <TrendingUp className={`w-3.5 h-3.5 ${tradeType === 'buy' ? 'animate-pulse' : ''}`} />
+                                    <span className="font-medium">Buy</span>
+                                  </div>
+                                  {tradeType === 'buy' && (
+                                    <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-green-500/0 via-green-500 to-green-500/0"></div>
+                                  )}
+                                </div>
+                              </button>
+                              <button 
+                                onClick={() => setTradeType('sell')}
+                                className={`flex-1 relative overflow-hidden rounded-lg text-sm font-medium transition-all duration-200
+                                  ${tradeType === 'sell'
+                                    ? isDarkMode
+                                      ? 'bg-red-500/20 text-red-400 shadow-inner'
+                                      : 'bg-red-100 text-red-600 shadow-inner'
+                                    : 'hover:bg-gray-200/30'
+                                  }`}
+                              >
+                                <div className="relative flex items-center justify-center h-full">
+                                  <div className="flex items-center gap-1.5">
+                                    <TrendingDown className={`w-3.5 h-3.5 ${tradeType === 'sell' ? 'animate-pulse' : ''}`} />
+                                    <span className="font-medium">Sell</span>
+                                  </div>
+                                  {tradeType === 'sell' && (
+                                    <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-red-500/0 via-red-500 to-red-500/0"></div>
+                                  )}
+                                </div>
+                              </button>
                             </div>
-                            <button className="p-2.5 rounded-xl bg-gray-200/10 hover:bg-gray-200/20 transition-all duration-300 backdrop-blur-sm">
-                              <Layers className="w-4 h-4" />
-                            </button>
                           </div>
-                        </div>
                         
                         {/* Trading Inputs */}
                         <div className="space-y-4">
