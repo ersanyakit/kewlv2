@@ -14,6 +14,7 @@ import { Bird, Clock, Coins, Gem, RefreshCw, Waves } from 'lucide-react';
 const Rewards = () => {
     // Token context'inden verileri al
     const {
+        setAccount,
         isDarkMode,
     } = useTokenContext();
     const { walletProvider } = useAppKitProvider('eip155');
@@ -61,6 +62,9 @@ const Rewards = () => {
         await fetchBountiesInfo(walletProvider);
     }
     useEffect(() => {
+        if(address){
+            setAccount(address)
+        }
         initBountiesInfo()
     }, [address, isConnected]);
 
