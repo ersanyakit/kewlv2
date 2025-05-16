@@ -39,7 +39,7 @@ const TestPage = () => {
     const { address, isConnected } = useAppKitAccount();
     const navigate = useNavigate();
     const [searchParams] = useSearchParams();
-    const {switchNetwork} = useAppKitNetwork()
+    const {switchNetwork,caipNetworkId,chainId} = useAppKitNetwork()
     
      
     
@@ -52,6 +52,10 @@ const TestPage = () => {
 
 
     useEffect(() => {
+
+        console.log("caipNetworkId",caipNetworkId)
+
+
         if(tokens.length === 0) return;
         if (base && quote) {
             let _base = tokens.find(token => token.symbol.toLowerCase() === base.toLowerCase());
@@ -71,8 +75,11 @@ const TestPage = () => {
                     }
                 }
             }
+
             if(defaultChainId){
-                switchNetwork(getChainById(parseInt(defaultChainId)) as AppKitNetwork)
+                if(parseInt(defaultChainId) !== chainId){
+                    switchNetwork(getChainById(parseInt(defaultChainId)) as AppKitNetwork)
+                }
             }
             if(address) {   
                 setAccount(address);
