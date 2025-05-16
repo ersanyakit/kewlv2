@@ -41,6 +41,12 @@ export interface BountyClaimParam {
   params: string;
 }
 
+export interface JackpotInfoResult {
+  receivers: string[];         // Ethereum address array
+  jackpotAmount: bigint;       // Use bigint for uint256
+  isLoaded: boolean;
+}
+
 export type ClaimStatus = 'none' | 'success' | 'error';
 
 export interface ClaimModalState {
@@ -100,6 +106,9 @@ interface SwapContextProps {
   claimedRewardsLoading: boolean;
   setClaimedRewardsLoading: (loading: boolean) => void;
 
+  jackpotInfo: JackpotInfoResult;
+  setJackpotInfo: (jackpotInfo: JackpotInfoResult) => void;
+  fetchJackPotInfo: (walletProvider: any, limit:number) => void;
   isClaimLoading: boolean;
   setIsClaimLoading: (isClaimLoading: boolean) => void;
   claimModal: ClaimModalState;
@@ -173,6 +182,14 @@ const defaultContext: SwapContextProps = {
 
   claimedRewards: [],
   setClaimedRewards: () => { },
+
+  jackpotInfo: {
+    receivers: [],
+    jackpotAmount: 0n,
+    isLoaded: false,
+  },
+  setJackpotInfo: () => { },
+  fetchJackPotInfo: (walletProvider: any, limit:number) => { },
 
   setRemoveLiquidityPercent: () => { },
   handleAggregatorSwap: () => { },
@@ -435,6 +452,11 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     status: 'none',
     message: '',
     visible: false,
+  });
+  const [jackpotInfo, setJackpotInfo] = useState<JackpotInfoResult>({
+    receivers: [],
+    jackpotAmount: 0n,
+    isLoaded: false,
   });
 
 
@@ -2324,6 +2346,38 @@ const formatted = date.toLocaleString('en-US', {
   
 
   }
+
+
+
+  const fetchJackPotInfo = async (walletProvider: any, limit:number) => {
+    const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);    
+
+    setJackpotInfo({
+      receivers: [],
+      jackpotAmount: 0n,
+      isLoaded: false,
+    })
+
+
+    const _jackpotInfo: any = await dexContract.client.readContract({
+      address: dexContract.caller.address,
+      abi: dexContract.abi,
+      functionName: 'fetchJackPotInfo',
+      args: [limit],
+      account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
+    })
+
+    console.log("jackpotInfo", _jackpotInfo)
+
+    setJackpotInfo({
+      receivers: _jackpotInfo[0],
+      jackpotAmount: _jackpotInfo[1],
+      isLoaded: true,
+    })
+   
+    
+  }
+  
   // Context değeri
   const value: SwapContextProps = {
     isSwapping,
@@ -2379,6 +2433,10 @@ const formatted = date.toLocaleString('en-US', {
     setIsClaimLoading,
     claimModal,
     setClaimModal,
+
+    jackpotInfo,
+    setJackpotInfo,
+    fetchJackPotInfo,
     // Diğer değerler...
   };
 

@@ -20,7 +20,7 @@ const Rewards = () => {
     const { walletProvider } = useAppKitProvider('eip155');
 
     const { address, isConnected } = useAppKitAccount();
-    const { bountiesInfo, setBountiesInfo, fetchBountiesInfo, handleClaimedRewards, isClaimLoading, setIsClaimLoading,claimModal,setClaimModal } = useSwapContext();
+    const { bountiesInfo, setBountiesInfo, fetchBountiesInfo, handleClaimedRewards, isClaimLoading, setIsClaimLoading,claimModal,setClaimModal,fetchJackPotInfo,jackpotInfo } = useSwapContext();
     const navigate = useNavigate();
     const [getTweet, setTweet] = useState<string>(getRandomTweet());
     const [tweetButtonWaiting, setTweetButtonWaiting] = useState<boolean>(false);
@@ -61,6 +61,7 @@ const Rewards = () => {
             totalClaimed: 0n,
         })
         await fetchBountiesInfo(walletProvider);
+        await fetchJackPotInfo(walletProvider,50);
     }
     useEffect(() => {
         if(address){
@@ -383,6 +384,44 @@ const Rewards = () => {
           });
     };
 
+    function calculateRewards (
+        totalReward: bigint,          // Örn: 175_929_873_695_631_402_947_886n
+        totalUsers: number,           // Kaç kullanıcıya dağıtılacak
+        decayRate: number = 9500,     // 10000 üzerinden
+        precision: number = 10000     // Sabit payda
+      ): bigint[] {
+        const P  = BigInt(precision);
+        const R  = BigInt(decayRate);
+      
+        // 1) Her kullanıcının 'a(i)' katsayısını üret (a(0)=P, a(i+1)=a(i)*R/P)
+        const factors: bigint[] = [];
+        let   factor           = P;          // ilk kullanıcı tam pay alır (1.0)
+      
+        for (let i = 0; i < totalUsers; i++) {
+          factors.push(factor);
+          factor = (factor * R) / P;         // sonraki kullanıcı için azalt
+        }
+      
+        // 2) Toplam katsayı
+        const factorSum = factors.reduce((acc, f) => acc + f, 0n);
+      
+        // 3) Her kullanıcının ödülü = totalReward × a(i) / Σa
+        return factors.map(f => (f * totalReward) / factorSum);
+      }
+      
+      /**
+       * Sadece belirli bir kullanıcı (userIndex) için ödül istiyorsanız:
+       */
+      function calculateRewardForUser (
+        totalReward: bigint,
+        userIndex: number,
+        totalUsers: number,
+        decayRate: number = 9500,
+        precision: number = 10000
+      ): bigint {
+        const rewards = calculateRewards(totalReward, totalUsers, decayRate, precision);
+        return rewards[userIndex];
+      }
     return (
         <div className={` max-w-6xl mx-auto flex flex-col p py-4 transition-colors duration-300`}>
 
@@ -939,38 +978,41 @@ const Rewards = () => {
                                         {/* Recent Winners */}
                                         <div className="space-y-3">
                                             <h4 className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-3`}>
-                                                Recent Winners
+                                            Eligable users
                                             </h4>
-                                            {[1, 2, 3].map((winner) => (
+                                            <div className="flex flex-col gap-2 max-h-[60dvh] scrollbar-hide overflow-y-auto items-center gap-2">
+                                            {jackpotInfo && jackpotInfo.isLoaded && jackpotInfo.receivers.length > 0 && jackpotInfo.receivers.map((winner:any,index:number) => (
                                                 <motion.div
                                                     key={winner}
-                                                    className={`p-3 rounded-lg ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/70'} border ${isDarkMode ? 'border-gray-700/50' : 'border-gray-200/50'}`}
+                                                    className={`p-3 cursor-pointer w-full rounded-lg ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/70'} border ${isDarkMode ? 'border-gray-700/50' : 'border-gray-200/50'}`}
                                                     initial={{ opacity: 0, y: 10 }}
                                                     animate={{ opacity: 1, y: 0 }}
-                                                    transition={{ delay: winner * 0.1 }}
+                                                    transition={{ type: "spring", stiffness: 400, damping: 17 }}
                                                 >
-                                                    <div className="flex items-center justify-between">
+                                                    <div className="flex items-center gap-2 justify-between">
                                                         <div className="flex items-center gap-2">
                                                             <div className="w-8 h-8 rounded-full bg-gradient-to-r from-[#ff1356]/20 to-[#ff4080]/20 flex items-center justify-center">
                                                                 <span className="text-sm font-medium text-[#ff4080]">
-                                                                    {winner}
+                                                                    {index+1}
                                                                 </span>
                                                             </div>
                                                             <div>
-                                                                <p className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                                                                    0x1234...5678
+                                                                <p className={`text-sm font-semibold text-[#ff4080]`}>
+                                                                {
+                                                                    bountiesInfo && bountiesInfo.bounties && bountiesInfo.bounties.length > 1 ? parseFloat(ethers.formatEther(calculateRewardForUser(bountiesInfo.bounties[1].userTotalReward,index,jackpotInfo.receivers.length))).toFixed(2) : 0} $1K
+
+                                                                
                                                                 </p>
                                                                 <p className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                                                                    {winner} hours ago
+                                                                {winner}
                                                                 </p>
                                                             </div>
                                                         </div>
-                                                        <div className="text-sm font-semibold text-[#ff4080]">
-                                                            {winner * 1000} $1K
-                                                        </div>
+                                                        
                                                     </div>
                                                 </motion.div>
                                             ))}
+                                            </div>
                                         </div>
     
                                         {/* Jackpot Info */}
@@ -989,7 +1031,7 @@ const Rewards = () => {
                                                     <svg className="w-4 h-4 text-[#ff4080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
                                                         <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                                                     </svg>
-                                                    <span>More tickets = higher chances to win</span>
+                                                    <span>More transfers = higher chances to win</span>
                                                 </li>
                                                 <li className="flex items-start gap-2">
                                                     <svg className="w-4 h-4 text-[#ff4080] mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
@@ -1024,8 +1066,38 @@ const Rewards = () => {
 
                                 {/* Rewards List */}
                                 <div className={`w-full space-y-4`}>
-                                  
-                                        {bountiesInfo.bounties.map((bounty: any) => (
+                                    {bountiesInfo.bounties.length === 0 ? (
+                                        <>
+                                            {[1, 2].map((index) => (
+                                                <div key={`skeleton${index}`} className={`flex flex-col gap-2 items-center p-3 rounded-lg ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/70'}`}>
+                                                    <div className="flex flex-between items-center justify-between gap-2 w-full">
+                                                        <div>
+                                                            <div className="h-5 w-32 bg-gray-300/50 rounded animate-pulse"></div>
+                                                            <div className="h-3 w-48 bg-gray-300/50 rounded animate-pulse mt-2"></div>
+                                                        </div>
+                                                        <div className="h-5 w-20 bg-gray-300/50 rounded animate-pulse"></div>
+                                                    </div>
+                                                    <div className={`w-full p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-100/60'}`}>
+                                                        <div className="grid grid-cols-2 gap-2">
+                                                            {[1, 2, 3, 4, 5].map((item) => (
+                                                                <div key={`skeletonItem${item}`} className={`p-2.5 rounded-lg ${isDarkMode ? 'bg-gray-900/70' : 'bg-white/90'} flex items-center gap-2`}>
+                                                                    <div className="w-7 h-7 rounded-full bg-gray-300/50 animate-pulse"></div>
+                                                                    <div className="flex-1">
+                                                                        <div className="h-3 w-16 bg-gray-300/50 rounded animate-pulse mb-1"></div>
+                                                                        <div className="h-4 w-24 bg-gray-300/50 rounded animate-pulse"></div>
+                                                                    </div>
+                                                                </div>
+                                                            ))}
+                                                            <div className={`p-2.5 rounded-lg flex items-center gap-2`}>
+                                                                <div className="w-full h-8 bg-gray-300/50 rounded-lg animate-pulse"></div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </>
+                                    ) : (
+                                        bountiesInfo.bounties.map((bounty: any) => (
                                             <div key={`bountyExtra${bounty.bountyId}`}
                                                 className={`flex flex-col gap-2 items-center p-3 rounded-lg ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/70'}`}
                                             >
@@ -1036,7 +1108,6 @@ const Rewards = () => {
                                                     </div>
                                                     <div className="flex flex-col items-end gap-2">
                                                         <p className="font-semibold text-[#ff4080]">{BOUNTY_TYPE_ARRAY[bounty.bountyType]}</p>
-                                                       
                                                     </div>
                                                 </div>
                                                 <div className={`w-full p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-100/60'}`}>
@@ -1097,53 +1168,39 @@ const Rewards = () => {
                                                             </div>
                                                         </div>
                                                         <div className={`p-2.5 rounded-lg flex items-center gap-2`}>
-
-                                                        <button
-                                                        className={`w-full px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 ${
-                                                            bounty.canUserClaim 
-                                                                ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white hover:shadow-lg hover:shadow-[#ff4080]/20 hover:scale-105 active:scale-95'
-                                                                : 'bg-gray-500 text-gray-300 cursor-not-allowed'
-                                                        }`}
-                                                        disabled={!bounty.canUserClaim}
-                                                        onClick={() => {
-                                                            if(BOUNTY_TYPE_ARRAY[bounty.bountyType] === BOUNTY_TYPE.TWEET){
-                                                                setActiveView('airdrop')
-                                                            }else{
-                                                                handleClaimBounty(bounty)
-                                                            }
-                                                        }}
-                                                    >
-                                                           {isClaimLoading ?(
-                                                                <div className="flex items-center justify-center gap-2">
-                                                                    <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                                    </svg>
-                                                                    Verifying...
-                                                                </div>
-                                                            ) : (
-                                                                bounty.canUserClaim ? 'Claim' : 'Not Available'
-                                                            )}
-                                                       
-                                                    </button>
+                                                            <button
+                                                                className={`w-full px-4 py-1.5 rounded-lg text-sm font-medium transition-all duration-300 ${
+                                                                    bounty.canUserClaim 
+                                                                        ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white hover:shadow-lg hover:shadow-[#ff4080]/20 hover:scale-105 active:scale-95'
+                                                                        : 'bg-gray-500 text-gray-300 cursor-not-allowed'
+                                                                }`}
+                                                                disabled={!bounty.canUserClaim}
+                                                                onClick={() => {
+                                                                    if(BOUNTY_TYPE_ARRAY[bounty.bountyType] === BOUNTY_TYPE.TWEET){
+                                                                        setActiveView('airdrop')
+                                                                    }else{
+                                                                        handleClaimBounty(bounty)
+                                                                    }
+                                                                }}
+                                                            >
+                                                                {isClaimLoading ?(
+                                                                    <div className="flex items-center justify-center gap-2">
+                                                                        <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                                        </svg>
+                                                                        Verifying...
+                                                                    </div>
+                                                                ) : (
+                                                                    bounty.canUserClaim ? 'Claim' : 'Not Available'
+                                                                )}
+                                                            </button>
+                                                        </div>
                                                     </div>
-                                                    </div>
-
-                                                   
-
-                                                    </div>
-
-                                                 
-
-                                                      
-
-                                                       
-                                                         
-                                                    </div>
-                                          
-        
-                                        ))}
-                                 
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
                                 </div>
                             </div>
                         </motion.div>
