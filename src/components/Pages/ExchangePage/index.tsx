@@ -249,7 +249,7 @@ const ExchangePage = () => {
                         onClick={() => toggleSection('sellOrders')}
                         className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-gray-200/20 transition-colors"
                       >
-                        <span className="text-xs text-red-500 font-medium">Sell Orders</span>
+                        <span className="text-xs text-pink-500 font-medium">Sell Orders</span>
                         <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${expandedSections.sellOrders ? 'rotate-180' : ''}`} />
                       </button>
                       {expandedSections.sellOrders && (
@@ -257,9 +257,9 @@ const ExchangePage = () => {
                           {sellOrders.map((order, i) => (
                             <div 
                               key={i} 
-                              className="grid grid-cols-3 text-xs hover:bg-red-500/10 cursor-pointer p-1.5 rounded-lg group px-2"
+                              className="grid grid-cols-3 text-xs hover:bg-pink-500/20 cursor-pointer p-1.5 rounded-lg group px-2"
                             >
-                              <span className="group-hover:text-red-500">{order.price}</span>
+                              <span className="group-hover:text-pink-400">{order.price}</span>
                               <span className="text-right">{order.amount}</span>
                               <span className="text-right text-gray-500">{order.total}</span>
                             </div>
@@ -409,7 +409,7 @@ const ExchangePage = () => {
                               <span className="font-medium">{pair.price}</span>
                             </div>
                             <div className={`flex items-center justify-end font-medium ${
-                              pair.change.startsWith('+') ? 'text-green-500' : 'text-red-500'
+                              pair.change.startsWith('+') ? 'text-green-500' : 'text-pink-500'
                             }`}>
                               {pair.change}
                             </div>
@@ -567,7 +567,7 @@ const ExchangePage = () => {
                                       </div>
                                       <div className="w-[20%] text-right font-medium">{pair.price}</div>
                                       <div className={`w-[25%] text-right font-medium ${
-                                        pair.change.startsWith('+') ? 'text-green-500' : 'text-red-500'
+                                        pair.change.startsWith('+') ? 'text-green-500' : 'text-pink-500'
                                       }`}>
                                         {pair.change}
                                       </div>
@@ -622,8 +622,8 @@ const ExchangePage = () => {
                                 className={`flex-1 relative overflow-hidden rounded-lg text-sm font-medium transition-all duration-200
                                   ${tradeType === 'sell'
                                     ? isDarkMode
-                                      ? 'bg-red-500/20 text-red-400 shadow-inner'
-                                      : 'bg-red-100 text-red-600 shadow-inner'
+                                      ? 'bg-pink-500/20 text-pink-400 shadow-inner'
+                                      : 'bg-pink-50 text-pink-600 shadow-inner border border-pink-200'
                                     : 'hover:bg-gray-200/30'
                                   }`}
                               >
@@ -633,7 +633,7 @@ const ExchangePage = () => {
                                     <span className="font-medium">Sell</span>
                                   </div>
                                   {tradeType === 'sell' && (
-                                    <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-red-500/0 via-red-500 to-red-500/0"></div>
+                                    <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-pink-500/0 via-pink-500 to-pink-500/0"></div>
                                   )}
                                 </div>
                               </button>
@@ -766,10 +766,10 @@ const ExchangePage = () => {
                           </div>
 
                           <button 
-                            className={`w-full h-14 rounded-2xl text-white text-sm font-medium transition-all duration-300 mt-6
+                            className={`w-full h-14 sm:h-12 rounded-2xl sm:rounded-xl text-white text-sm font-medium transition-all duration-300 mt-6 sm:mt-4
                               ${tradeType === 'buy' 
                                 ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700' 
-                                : 'bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-600 hover:to-rose-700'
+                                : 'bg-gradient-to-r from-pink-400 to-pink-600 hover:from-pink-500 hover:to-pink-700'
                               } flex items-center justify-center gap-2 active:scale-[0.99] hover:shadow-xl backdrop-blur-sm`}
                           >
                             <div className="flex items-center gap-2">
@@ -803,12 +803,34 @@ const ExchangePage = () => {
                       { type: 'sell', price: '42,400.00', amount: '0.05', filled: '0.02', status: 'Open' },
                       { type: 'buy', price: '42,300.00', amount: '0.2', filled: '0.1', status: 'Open' }
                     ].map((order, i) => (
-                      <div key={i} className={`p-2 rounded-lg ${order.type === 'buy' ? 'bg-green-500/10' : 'bg-red-500/10'} hover:bg-opacity-20 transition-colors`}>
+                      <div key={i} className={`p-2 rounded-lg ${order.type === 'buy' 
+                        ? isDarkMode
+                          ? 'bg-green-500/20 hover:bg-green-500/30'
+                          : 'bg-green-50 border border-green-200 hover:bg-green-100' 
+                        : isDarkMode 
+                          ? 'bg-pink-500/20 hover:bg-pink-500/30' 
+                          : 'bg-pink-50 border border-pink-200 hover:bg-pink-100'
+                        } transition-colors`}>
                         <div className="flex justify-between text-xs">
-                          <span className={`font-medium ${order.type === 'buy' ? 'text-green-500' : 'text-red-500'}`}>
+                          <span className={`font-medium ${order.type === 'buy' 
+                            ? isDarkMode ? 'text-green-400' : 'text-green-600'
+                            : isDarkMode ? 'text-pink-400' : 'text-pink-600'
+                          }`}>
                             {order.type.toUpperCase()}
                           </span>
-                          <span className="px-1.5 py-0.5 rounded-full bg-gray-200/20 text-[10px]">{order.status}</span>
+                          <span className={`px-1.5 py-0.5 rounded-full ${
+                            order.status === 'Filled' 
+                              ? 'bg-green-500/10 text-green-500' 
+                              : order.type === 'buy'
+                                ? isDarkMode
+                                  ? 'bg-green-500/20 text-green-400'
+                                  : 'bg-green-50 text-green-600 border border-green-200'
+                                : isDarkMode 
+                                  ? 'bg-pink-500/20 text-pink-400' 
+                                  : 'bg-pink-50 text-pink-600 border border-pink-200'
+                          } text-[10px]`}>
+                            {order.status}
+                          </span>
                         </div>
                         <div className="flex justify-between text-xs mt-1">
                           <div className="flex flex-col">
@@ -825,7 +847,15 @@ const ExchangePage = () => {
                             <span className="text-[10px] text-gray-500">Filled</span>
                             <span>{order.filled}</span>
                           </div>
-                          <button className="px-2 py-0.5 rounded text-[10px] bg-red-500/10 text-red-500 hover:bg-red-500/20 transition-colors">
+                          <button className={`px-2 py-0.5 rounded text-[10px] ${
+                            order.type === 'buy'
+                              ? isDarkMode
+                                ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
+                                : 'bg-green-100 text-green-600 hover:bg-green-200'
+                              : isDarkMode 
+                                ? 'bg-pink-500/20 text-pink-400 hover:bg-pink-500/30' 
+                                : 'bg-pink-100 text-pink-600 hover:bg-pink-200'
+                          } transition-colors`}>
                             Cancel
                           </button>
                         </div>
@@ -853,11 +883,15 @@ const ExchangePage = () => {
                     ].map((order, i) => (
                       <div key={i} className="p-2 rounded-lg bg-gray-200/10 hover:bg-gray-200/20 transition-colors">
                         <div className="flex justify-between text-xs">
-                          <span className={`font-medium ${order.type === 'buy' ? 'text-green-500' : 'text-red-500'}`}>
+                          <span className={`font-medium ${order.type === 'buy' ? 'text-green-500' : 'text-pink-600'}`}>
                             {order.type.toUpperCase()}
                           </span>
                           <span className={`px-1.5 py-0.5 rounded-full ${
-                            order.status === 'Filled' ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'
+                            order.status === 'Filled' 
+                              ? 'bg-green-500/10 text-green-500' 
+                              : isDarkMode 
+                                ? 'bg-pink-500/20 text-pink-400' 
+                                : 'bg-pink-50 text-pink-600 border border-pink-200'
                           } text-[10px]`}>
                             {order.status}
                           </span>
