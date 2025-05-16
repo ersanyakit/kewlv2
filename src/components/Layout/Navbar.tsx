@@ -35,7 +35,7 @@ const Navbar: React.FC<NavbarProps> = () => {
     >
       <div onClick={()=>{
         navigate("/")
-      }} className="flex items-center cursor-pointer group">
+      }} className="flex items-center cursor-pointer group select-none">
         {/* Logo */}
         <div className="mr-2 sm:mr-3 flex items-center">
           <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-[#ff1356] to-[#ff4080] rounded-full shadow-md overflow-hidden relative">

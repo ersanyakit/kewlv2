@@ -21,14 +21,18 @@ import {
 import { SWAP_MODE, useTokenContext } from '../../../context/TokenContext';
 import TokenShape from '../../UI/TokenShape';
 import { TradeType } from '../../../constants/entities/utils/misc';
-import { useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
+import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
 import { useSwapContext } from '../../../context/SwapContext';
 import { warningSeverity } from '../../../constants/entities/utils/calculateSlippageAmount';
+import ConnectButton from '../../UI/ConnectButton';
 
 
 
-// memo ile render performansını optimize etme
-const SwapForm: React.FC = () => {
+interface SwapFormProps {
+  disableTokenSelector?: boolean;
+}
+
+const SwapForm: React.FC<SwapFormProps> = ({ disableTokenSelector = false }) => {
   // Token context'inden verileri al
   const {
     isDarkMode,
@@ -49,6 +53,7 @@ const SwapForm: React.FC = () => {
     handleSwapTokens,
     setSwapMode,
     setTradeType,
+    setAccount,
 
   } = useTokenContext();
 
@@ -69,6 +74,7 @@ const SwapForm: React.FC = () => {
     handleFromChange,
     handleSwap,
     handleToChange } = useSwapContext();
+    const { address, isConnected } = useAppKitAccount();
   const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
   const { walletProvider } = useAppKitProvider('eip155');
 
@@ -79,9 +85,13 @@ const SwapForm: React.FC = () => {
 }, []);
 
   useEffect(() => {
+    if(isConnected){
+      if(address){
+        setAccount(address);
+      }
+    }
 
-
-  }, [baseToken, quoteToken]);
+  }, [baseToken, quoteToken,isConnected,address]);
 
   return (
 
@@ -137,6 +147,7 @@ const SwapForm: React.FC = () => {
             </div>
 
             <button
+              disabled={disableTokenSelector}
               onClick={() => { setTradeType(TradeType.EXACT_INPUT); setOpenTokenSelector(true) }}
               className="flex items-center truncate ml-2 p-2 min-w-[140px] max-w-[140px] rounded-xl flex justify-between hover:bg-gray-100/50 dark:hover:bg-gray-700/50 active:bg-gray-200/50 transition-all duration-150 relative group"
             >
@@ -222,6 +233,7 @@ const SwapForm: React.FC = () => {
             </div>
 
             <button
+              disabled={disableTokenSelector}
               onClick={() => { setTradeType(TradeType.EXACT_OUTPUT); setOpenTokenSelector(true) }}
               className="flex truncate items-center ml-2 p-2 rounded-xl min-w-[140px] max-w-[140px] flex justify-between hover:bg-gray-100/50 dark:hover:bg-gray-700/50 active:bg-gray-200/50 transition-all duration-150 relative group"
             >
@@ -594,7 +606,10 @@ const SwapForm: React.FC = () => {
         )}
 
 
-        <div className="px-3 pb-3">
+
+        {
+          isConnected ? 
+          <div className="px-3 pb-3">
           <motion.button
             onClick={() => handleSwap(walletProvider)}
             className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${!canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
@@ -618,6 +633,14 @@ const SwapForm: React.FC = () => {
 
 
         </div>
+          : 
+        <div className="px-3 pb-3">
+          <ConnectButton />
+        </div>
+        }
+        
+       
+        
       </>)}
 
       {/* Ortak Token Seçim Paneli - Her iki input için tek liste */}

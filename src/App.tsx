@@ -9,23 +9,35 @@ import { SwapProvider } from './context/SwapContext';
 import Rewards from './components/Pages/Rewards';
 import TosPage from './components/Pages/TosPage';
 import Assets from './components/Pages/Assets';
+import TestPage from './components/Pages/TestPage';
 
 function App() {
   return (
     <Web3ProviderContext>
       <TokenProvider>
         <SwapProvider>
+
+
           <Router>
-            <Layout>
-              <Routes>
-                <Route path="/" element={<TradeTerminal />} />
-                <Route path="/swap" element={<TradeTerminal />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/rewards" element={<Rewards />} />
-                <Route path="/assets" element={<Assets />} />
-                <Route path="/tos" element={<TosPage />} />
-              </Routes>
-            </Layout>
+            <Routes>
+              <Route path="/test" element={<TestPage />} />
+            
+            <Route
+              path="*"
+              element={
+                <Layout>
+                  <Routes>
+                    <Route path="/" element={<TradeTerminal />} />
+                    <Route path="/swap" element={<TradeTerminal />} />
+                    <Route path="/about" element={<About />} />
+                    <Route path="/rewards" element={<Rewards />} />
+                    <Route path="/assets" element={<Assets />} />
+                  </Routes>
+                </Layout>
+              }
+            />
+            </Routes>
+
           </Router>
         </SwapProvider>
       </TokenProvider>

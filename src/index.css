@@ -9,6 +9,24 @@
   }
 }
 
+.gradient-border {
+  position: relative;
+}
+
+.gradient-border::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -75px;
+  height: 75px;
+  filter: blur(30px);
+  -webkit-filter: blur(30px);
+  background-image: conic-gradient(from 180deg at 50% 100%, transparent 0, transparent 27%, #ff3998 27%, #d764ff 36.04%, #00b5ff 58.23%, #0fd 63%, #54fa43 73%, transparent 73%, transparent 100%);
+  animation: hueRotate 2.5s linear infinite;
+}
+
+
 @layer utilities {
   .scrollbar-hide {
     -ms-overflow-style: none; /* IE ve Edge */
