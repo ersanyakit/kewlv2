@@ -1218,7 +1218,7 @@ const Rewards = () => {
                                     className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
                                         }`}
                                 >
-                                    {claimModal.status === 'success' ? 'Reward Claimed!' : 'Unexpected error encountered.'}
+                                    {claimModal.status === 'success' ? 'Reward Claimed!' : 'Error'}
                                 </motion.h3>
 
                                 <motion.p
@@ -1228,7 +1228,7 @@ const Rewards = () => {
                                     className={`mb-6 ${isDarkMode ? 'text-gray-300' : 'text-gray-600'
                                         }`}
                                 >
-                                    {claimModal.status === 'success' ? 'You\'ve successfully claimed your reward' : 'Error'}
+                                    {claimModal.status === 'success' ? 'You\'ve successfully claimed your reward' : 'Unexpected error encountered.'}
                                 </motion.p>
 
                                 <motion.div
