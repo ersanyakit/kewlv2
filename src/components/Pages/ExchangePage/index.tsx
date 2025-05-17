@@ -808,7 +808,7 @@ const ExchangePage = () => {
               {/* Right Column - Open Orders and Order History */}
               <div className="col-span-3 space-y-2">
                 {/* Open Orders */}
-                <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} shadow-lg transition-all duration-300`}>  
+                <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'}  transition-all duration-300`}>  
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-sm font-medium">Open Orders</h3>
                     <div className="flex items-center gap-1">
@@ -828,11 +828,11 @@ const ExchangePage = () => {
                         key={i} 
                         className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${order.type === 'buy' 
                           ? isDarkMode
-                            ? 'bg-transparent hover:bg-green-500/20 border-green-400'
-                            : 'bg-transparent hover:bg-green-100 border-green-600 shadow-sm'
+                            ? 'bg-transparent hover:bg-green-500/20'
+                            : 'bg-transparent hover:bg-green-100'
                           : isDarkMode 
-                            ? 'bg-transparent hover:bg-pink-500/20 border-pink-400' 
-                            : 'bg-transparent hover:bg-pink-100 border-pink-600 shadow-sm'
+                            ? 'bg-transparent hover:bg-pink-500/20' 
+                            : 'bg-transparent hover:bg-pink-100'
                         }`}
                         whileHover={{ scale: 1.02 }}
                         onClick={() => setSelectedOrder(i)}
@@ -873,14 +873,14 @@ const ExchangePage = () => {
                             <span className="text-[10px] text-gray-500">Filled</span>
                             <span>{order.filled}</span>
                           </div>
-                          <button className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
+                          <button className={`px-2 py-1 rounded text-xs font-medium transition-colors border ${
                             order.type === 'buy'
                               ? isDarkMode
-                                ? 'text-green-400 hover:bg-green-500/30'
-                                : 'text-green-600 hover:bg-green-200'
+                                ? 'text-green-400 border-green-400 hover:bg-green-500/30'
+                                : 'text-green-600 border-green-600 hover:bg-green-200'
                               : isDarkMode 
-                                ? 'bg-pink-500/20 text-pink-400 hover:bg-pink-500/30' 
-                                : 'bg-pink-100 text-pink-600 hover:bg-pink-200'
+                                ? 'text-pink-400 border-pink-400 hover:bg-pink-500/30' 
+                                : 'text-pink-600 border-pink-600 hover:bg-pink-200'
                           }`}>
                             Cancel
                           </button>
