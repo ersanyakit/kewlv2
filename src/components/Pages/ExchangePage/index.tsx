@@ -274,7 +274,7 @@ const ExchangePage = () => {
                         initial="collapsed"
                         animate={expandedSections.sellOrders ? 'expanded' : 'collapsed'}
                         variants={orderBookVariants}
-                        className="mt-1 space-y-0.5 max-h-[300px] overflow-y-auto custom-scrollbar flex flex-col-reverse"
+                        className="mt-1 space-y-0.5 max-h-[300px] scrollbar-hide overflow-y-auto custom-scrollbar flex flex-col-reverse"
                       >
                         {sellOrders.map((order, i) => (
                           <div 
@@ -308,12 +308,12 @@ const ExchangePage = () => {
                         initial="collapsed"
                         animate={expandedSections.buyOrders ? 'expanded' : 'collapsed'}
                         variants={orderBookVariants}
-                        className="mt-1 space-y-0.5 max-h-[300px] overflow-y-auto custom-scrollbar"
+                        className="mt-1 space-y-0.5 max-h-[300px] overflow-y-auto scrollbar-hide custom-scrollbar"
                       >
                         {buyOrders.map((order, i) => (
                           <div 
                             key={i} 
-                            className="grid grid-cols-3 text-xs hover:bg-green-500/10 cursor-pointer p-1.5 rounded-lg group px-2"
+                            className="grid grid-cols-3 text-xs hover:bg-green-500/10  cursor-pointer p-1.5 rounded-lg group px-2"
                             onClick={() => handleOrderBookPriceClick(order.price, 'sell')}
                           >
                             <span className="group-hover:text-green-500">{order.price}</span>
