@@ -75,7 +75,7 @@ const ExchangePage = () => {
     });
     const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
 
-    const tradingPairs = [
+    const _tradingPairs = [
       { pair: 'GAL/WCHZ', price: '4.35', change: '+2.5%', volume: '1.2M', isFavorite: true, logo: '/gal-logo.png' },
       { pair: 'ACM/WCHZ', price: '3.50', change: '-1.2%', volume: '800K', isFavorite: false, logo: '/acm-logo.png' },
       { pair: 'JUV/WCHZ', price: '5.20', change: '+0.8%', volume: '500K', isFavorite: true, logo: '/juv-logo.png' },
@@ -86,6 +86,11 @@ const ExchangePage = () => {
       { pair: 'INTER/WCHZ', price: '4.20', change: '-2.1%', volume: '80K', isFavorite: false, logo: '/inter-logo.png' },
     ];
 
+    const tradingPairs = tokens.map(token => ({
+        pair: `${token.symbol}/WCHZ`,
+        price: '4.35', change: '+2.5%', volume: '1.2M', isFavorite: true, 
+        logo: token.icon
+    }));
     const marketCategories = ['Favorites', 'WCHZ', 'FAN', 'SPORTS', 'CLUB'];
     const [selectedCategory, setSelectedCategory] = useState('USDT');
     const [sortBy, setSortBy] = useState<'pair' | 'price' | 'change' | 'volume'>('volume');
@@ -416,7 +421,7 @@ const ExchangePage = () => {
                           >
                             <div className="flex items-center gap-3">
                               <div className="relative">
-                                <img src={pair.logo} alt={pair.pair} className="w-8 h-8 rounded-full" />
+                                <img src={pair.logo} alt={pair.pair} className="w-8 h-8 min-w-8 min-h-8 rounded-full" />
                                 {pair.isFavorite && (
                                   <Star className="absolute -top-1 -right-1 w-3.5 h-3.5 text-yellow-400 fill-current" />
                                 )}
