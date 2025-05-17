@@ -294,7 +294,7 @@ const ExchangePage = () => {
                               className="relative grid grid-cols-3 text-xs hover:bg-pink-500/20 cursor-pointer p-1.5 rounded-lg group px-2"
                               onClick={() => handleOrderBookPriceClick(order.price, 'buy')}
                             >
-                              <div className="absolute inset-0 bg-pink-500/10" style={{ width: `${(parseFloat(order.amount) / 5) * 100}%` }}></div>
+                              <div className="absolute inset-0 bg-pink-500/10 rounded-lg" style={{ width: `${(parseFloat(order.amount) / 5) * 100}%` }}></div>
                               <span className="group-hover:text-pink-400 relative">{order.price}</span>
                               <span className="text-right relative">{order.amount}</span>
                               <span className="text-right text-gray-500 relative">{order.total}</span>
@@ -341,7 +341,7 @@ const ExchangePage = () => {
                               className="relative grid grid-cols-3 text-xs hover:bg-green-500/10 cursor-pointer p-1.5 rounded-lg group px-2"
                               onClick={() => handleOrderBookPriceClick(order.price, 'sell')}
                             >
-                              <div className="absolute inset-0 bg-green-500/10" style={{ width: `${(parseFloat(order.amount) / 5) * 100}%` }}></div>
+                              <div className="absolute inset-0 bg-green-500/10 rounded-lg" style={{ width: `${(parseFloat(order.amount) / 5) * 100}%` }}></div>
                               <span className="group-hover:text-green-500 relative">{order.price}</span>
                               <span className="text-right relative">{order.amount}</span>
                               <span className="text-right text-gray-500 relative">{order.total}</span>

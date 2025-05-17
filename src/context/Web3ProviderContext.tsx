@@ -1,7 +1,7 @@
 'use client';
 
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
-import { chiliz, hardhat, avalanche, arbitrum, sonic, Chain, AppKitNetwork } from '@reown/appkit/networks';
+import { chiliz, avalanche, arbitrum, sonic,hardhat, Chain, AppKitNetwork } from '@reown/appkit/networks';
 import { AppKitOptions, createAppKit } from '@reown/appkit/react';
 import { ReactNode } from 'react';
 import { createPublicClient, createWalletClient, http } from 'viem';
@@ -42,7 +42,7 @@ const metadata = {
 export const appkitOptions: AppKitOptions = {
   adapters: [new EthersAdapter()],
   metadata: metadata,
-  networks: [chiliz,sonic, avalanche, arbitrum],
+  networks: [chiliz,sonic, avalanche, arbitrum,hardhat],
   defaultNetwork: chiliz,
   chainImages: {
     88888: "/assets/chains/chz.svg",
