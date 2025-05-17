@@ -74,6 +74,7 @@ const ExchangePage = () => {
       sellOrders: true
     });
     const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
+    const isLoading = false; // Set to true to simulate loading state
 
     const _tradingPairs = [
       { pair: 'GAL/WCHZ', price: '4.35', change: '+2.5%', volume: '1.2M', isFavorite: true, logo: '/gal-logo.png' },
@@ -276,17 +277,30 @@ const ExchangePage = () => {
                         variants={orderBookVariants}
                         className="mt-1 space-y-0.5 max-h-[300px] scrollbar-hide overflow-y-auto custom-scrollbar flex flex-col-reverse"
                       >
-                        {sellOrders.map((order, i) => (
-                          <div 
-                            key={i} 
-                            className="grid grid-cols-3 text-xs hover:bg-pink-500/20 cursor-pointer p-1.5 rounded-lg group px-2"
-                            onClick={() => handleOrderBookPriceClick(order.price, 'buy')}
-                          >
-                            <span className="group-hover:text-pink-400">{order.price}</span>
-                            <span className="text-right">{order.amount}</span>
-                            <span className="text-right text-gray-500">{order.total}</span>
+                        {isLoading ? (
+                          <div className="space-y-0.5">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <div key={i} className={`grid grid-cols-3 text-xs p-1.5 rounded-lg animate-pulse shadow-sm ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>  
+                                <span className={`h-4 w-3/4 rounded-full ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
+                                <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
+                                <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        ) : (
+                          sellOrders.reverse().map((order, i) => (
+                            <div 
+                              key={i} 
+                              className="relative grid grid-cols-3 text-xs hover:bg-pink-500/20 cursor-pointer p-1.5 rounded-lg group px-2"
+                              onClick={() => handleOrderBookPriceClick(order.price, 'buy')}
+                            >
+                              <div className="absolute inset-0 bg-pink-500/10" style={{ width: `${(parseFloat(order.amount) / 5) * 100}%` }}></div>
+                              <span className="group-hover:text-pink-400 relative">{order.price}</span>
+                              <span className="text-right relative">{order.amount}</span>
+                              <span className="text-right text-gray-500 relative">{order.total}</span>
+                            </div>
+                          ))
+                        )}
                       </motion.div>
                     </div>
 
@@ -310,17 +324,30 @@ const ExchangePage = () => {
                         variants={orderBookVariants}
                         className="mt-1 space-y-0.5 max-h-[300px] overflow-y-auto scrollbar-hide custom-scrollbar"
                       >
-                        {buyOrders.map((order, i) => (
-                          <div 
-                            key={i} 
-                            className="grid grid-cols-3 text-xs hover:bg-green-500/10  cursor-pointer p-1.5 rounded-lg group px-2"
-                            onClick={() => handleOrderBookPriceClick(order.price, 'sell')}
-                          >
-                            <span className="group-hover:text-green-500">{order.price}</span>
-                            <span className="text-right">{order.amount}</span>
-                            <span className="text-right text-gray-500">{order.total}</span>
+                        {isLoading ? (
+                          <div className="space-y-0.5">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                              <div key={i} className={`grid grid-cols-3 text-xs p-1.5 rounded-lg animate-pulse shadow-sm ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>  
+                                <span className={`h-4 w-3/4 rounded-full ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
+                                <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
+                                <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
+                              </div>
+                            ))}
                           </div>
-                        ))}
+                        ) : (
+                          buyOrders.map((order, i) => (
+                            <div 
+                              key={i} 
+                              className="relative grid grid-cols-3 text-xs hover:bg-green-500/10 cursor-pointer p-1.5 rounded-lg group px-2"
+                              onClick={() => handleOrderBookPriceClick(order.price, 'sell')}
+                            >
+                              <div className="absolute inset-0 bg-green-500/10" style={{ width: `${(parseFloat(order.amount) / 5) * 100}%` }}></div>
+                              <span className="group-hover:text-green-500 relative">{order.price}</span>
+                              <span className="text-right relative">{order.amount}</span>
+                              <span className="text-right text-gray-500 relative">{order.total}</span>
+                            </div>
+                          ))
+                        )}
                       </motion.div>
                     </div>
                   </div>
