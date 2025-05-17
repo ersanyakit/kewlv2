@@ -190,7 +190,7 @@ const ExchangePage = () => {
     };
 
     return (
-      <div className="w-full h-full max-w-6xl min-h-[73dvh] mx-auto flex flex-col items-center justify-center py-4 px-2 sm:px-4">
+      <div className="w-full h-full max-w-6xl min-h-[73dvh] mx-auto flex flex-col items-center justify-center py-4">
         <motion.div
           className={`relative ${isDarkMode
             ? 'bg-gray-800/30 border-gray-700/30'
