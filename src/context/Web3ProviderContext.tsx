@@ -1,7 +1,7 @@
 'use client';
 
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
-import { chiliz, avalanche, arbitrum, sonic,hardhat, Chain, AppKitNetwork } from '@reown/appkit/networks';
+import { chiliz as originalChiliz,  avalanche, arbitrum, sonic,hardhat, Chain, AppKitNetwork } from '@reown/appkit/networks';
 import { AppKitOptions, createAppKit } from '@reown/appkit/react';
 import { ReactNode } from 'react';
 import { createPublicClient, createWalletClient, http } from 'viem';
@@ -10,6 +10,24 @@ import { createPublicClient, createWalletClient, http } from 'viem';
 const projectId = 'd44052dff4e08d391ea2749cd7df8422';
 
 
+export const chiliz = {
+  ...originalChiliz,
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.chiliz.com'], // ← Sadece burası değişiyor
+    },
+    public: {
+      http: ['https://rpc.chiliz.com'],
+    },
+    explorers: {
+      default: {
+        name: 'Chiliz Explorer',
+        url: 'https://chiliscan.com',
+        apiUrl: 'https://scan.chiliz.com/api',
+      },
+    },
+  },
+}
 
 export function getChainById(chainId: number): AppKitNetwork | Chain | undefined {
   return appkitOptions.networks.find((chain) => chain.id === chainId) || appkitOptions.defaultNetwork;
