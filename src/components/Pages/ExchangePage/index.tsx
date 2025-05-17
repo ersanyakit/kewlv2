@@ -190,7 +190,7 @@ const ExchangePage = () => {
     };
 
     return (
-      <div className="w-full h-full max-w-6xl min-h-[73dvh] mx-auto flex items-center justify-center py-4">
+      <div className="w-full h-full max-w-6xl min-h-[73dvh] mx-auto flex flex-col items-center justify-center py-4 px-2 sm:px-4">
         <motion.div
           className={`relative ${isDarkMode
             ? 'bg-gray-800/30 border-gray-700/30'
@@ -240,9 +240,9 @@ const ExchangePage = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-12 gap-2">
+            <div className="grid grid-cols-12 gap-2 sm:gap-4">
               {/* Left Column - Order Book */}
-              <div className="col-span-3">
+              <div className="col-span-12 sm:col-span-3">
                 <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'}`}>
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-sm font-medium">Order Book</h3>
@@ -355,7 +355,7 @@ const ExchangePage = () => {
               </div>
 
               {/* Middle Column - Chart and Trading Interface */}
-              <div className="col-span-6 space-y-2">
+              <div className="col-span-12 sm:col-span-6 space-y-2">
                 {showPairSelector ? (
                   <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} min-h-[650px]`}>
                     <div className="flex items-center justify-between mb-4">
@@ -838,7 +838,7 @@ const ExchangePage = () => {
               </div>
 
               {/* Right Column - Open Orders and Order History */}
-              <div className="col-span-3 space-y-2">
+              <div className="col-span-12 sm:col-span-3 space-y-2">
                 {/* Open Orders */}
                 <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'}  transition-all duration-300`}>  
                   <div className="flex items-center justify-between mb-2">

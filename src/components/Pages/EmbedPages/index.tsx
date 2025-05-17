@@ -72,26 +72,56 @@ const EmbeddedSwapPage = ({swap}: EmbeddedSwapPageProps) => {
                 }
             }
         }
-        if(tokens.length === 0) return;
-        if (base && quote) {
-            let _base = tokens.find(token => token.symbol.toLowerCase() === base.toLowerCase());
-            let _quote = tokens.find(token => token.symbol.toLowerCase() === quote.toLowerCase());
-            if (_base && _quote) {
-                setBaseToken(_base);
-                setQuoteToken(_quote);
-            }
-      
+       
 
             if(defaultChainId){
                 if(parseInt(defaultChainId) !== chainId){
                     switchNetwork(getChainById(parseInt(defaultChainId)) as AppKitNetwork)
                 }
             }
+
+
             if(address) {   
                 setAccount(address);
             }
-        }
+
+            if(tokens.length === 0) return;
+
+            if (base && quote) {
+                let _base = tokens.find(token => token.symbol.toLowerCase() === base.toLowerCase());
+                let _quote = tokens.find(token => token.symbol.toLowerCase() === quote.toLowerCase());
+                if (_base && _quote) {
+                    setBaseToken(_base);
+                    setQuoteToken(_quote);
+                }
+            }
+     
     }, [base, quote, tokens, address, defaultChainId]);
+
+    useEffect(()=>{
+        if (baseToken && quoteToken) {
+                if(base && quote){
+                    let _base = tokens.find(token => token.symbol.toLowerCase() === base.toLowerCase());
+                    let _quote = tokens.find(token => token.symbol.toLowerCase() === quote.toLowerCase());
+           
+                    console.log("base",_base,"quote",_quote,base,quote)
+                    if(_base && _quote){
+                   
+                        if (_base?.address && _base.address !== baseToken?.address && _base.address !== quoteToken?.address) {
+                            setBaseToken(_base);
+                            console.log("setBase");
+                        }
+                        
+                        if (_quote?.address && _quote.address !== baseToken?.address && _quote.address !== quoteToken?.address) {
+                            setQuoteToken(_quote);
+                            console.log("setQuote");
+                        }
+
+                }
+                }
+            }
+            console.log("base",base,"quote",quote)
+    },[defaultChainId,baseToken,quoteToken,tokens.length,base,quote])
 
   return (
     <div className={"min-h-[73dvh] w-full flex items-center justify-center p-2"}>
