@@ -73,6 +73,7 @@ const ExchangePage = () => {
       buyOrders: true,
       sellOrders: true
     });
+    const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
 
     const tradingPairs = [
       { pair: 'GAL/WCHZ', price: '4.35', change: '+2.5%', volume: '1.2M', isFavorite: true, logo: '/gal-logo.png' },
@@ -170,6 +171,18 @@ const ExchangePage = () => {
 
     const { sellOrders, buyOrders } = generateOrderBookData();
 
+    const orderBookVariants = {
+      collapsed: { height: 0, opacity: 0 },
+      expanded: { height: 'auto', opacity: 1, transition: { duration: 0.3 } }
+    };
+
+    // Update price, total, and trade type when a price is selected from the order book
+    const handleOrderBookPriceClick = (price: string, type: 'buy' | 'sell') => {
+      setPrice(price);
+      setTotal((parseFloat(price.replace(/,/g, '')) * parseFloat(amount)).toLocaleString());
+      setTradeType(type);
+    };
+
     return (
       <div className="w-full h-full max-w-6xl min-h-[73dvh] mx-auto flex items-center justify-center py-4">
         <motion.div
@@ -252,20 +265,24 @@ const ExchangePage = () => {
                         <span className="text-xs text-pink-500 font-medium">Sell Orders</span>
                         <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${expandedSections.sellOrders ? 'rotate-180' : ''}`} />
                       </button>
-                      {expandedSections.sellOrders && (
-                        <div className="mt-1 space-y-0.5 max-h-[300px] overflow-y-auto custom-scrollbar flex flex-col-reverse">
-                          {sellOrders.map((order, i) => (
-                            <div 
-                              key={i} 
-                              className="grid grid-cols-3 text-xs hover:bg-pink-500/20 cursor-pointer p-1.5 rounded-lg group px-2"
-                            >
-                              <span className="group-hover:text-pink-400">{order.price}</span>
-                              <span className="text-right">{order.amount}</span>
-                              <span className="text-right text-gray-500">{order.total}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      <motion.div
+                        initial="collapsed"
+                        animate={expandedSections.sellOrders ? 'expanded' : 'collapsed'}
+                        variants={orderBookVariants}
+                        className="mt-1 space-y-0.5 max-h-[300px] overflow-y-auto custom-scrollbar flex flex-col-reverse"
+                      >
+                        {sellOrders.map((order, i) => (
+                          <div 
+                            key={i} 
+                            className="grid grid-cols-3 text-xs hover:bg-pink-500/20 cursor-pointer p-1.5 rounded-lg group px-2"
+                            onClick={() => handleOrderBookPriceClick(order.price, 'buy')}
+                          >
+                            <span className="group-hover:text-pink-400">{order.price}</span>
+                            <span className="text-right">{order.amount}</span>
+                            <span className="text-right text-gray-500">{order.total}</span>
+                          </div>
+                        ))}
+                      </motion.div>
                     </div>
 
                     <div className="text-center py-2 text-xs font-medium bg-gray-200/20 rounded-lg my-2">
@@ -282,20 +299,24 @@ const ExchangePage = () => {
                         <span className="text-xs text-green-500 font-medium">Buy Orders</span>
                         <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${expandedSections.buyOrders ? 'rotate-180' : ''}`} />
                       </button>
-                      {expandedSections.buyOrders && (
-                        <div className="mt-1 space-y-0.5 max-h-[300px] overflow-y-auto custom-scrollbar">
-                          {buyOrders.map((order, i) => (
-                            <div 
-                              key={i} 
-                              className="grid grid-cols-3 text-xs hover:bg-green-500/10 cursor-pointer p-1.5 rounded-lg group px-2"
-                            >
-                              <span className="group-hover:text-green-500">{order.price}</span>
-                              <span className="text-right">{order.amount}</span>
-                              <span className="text-right text-gray-500">{order.total}</span>
-                            </div>
-                          ))}
-                        </div>
-                      )}
+                      <motion.div
+                        initial="collapsed"
+                        animate={expandedSections.buyOrders ? 'expanded' : 'collapsed'}
+                        variants={orderBookVariants}
+                        className="mt-1 space-y-0.5 max-h-[300px] overflow-y-auto custom-scrollbar"
+                      >
+                        {buyOrders.map((order, i) => (
+                          <div 
+                            key={i} 
+                            className="grid grid-cols-3 text-xs hover:bg-green-500/10 cursor-pointer p-1.5 rounded-lg group px-2"
+                            onClick={() => handleOrderBookPriceClick(order.price, 'sell')}
+                          >
+                            <span className="group-hover:text-green-500">{order.price}</span>
+                            <span className="text-right">{order.amount}</span>
+                            <span className="text-right text-gray-500">{order.total}</span>
+                          </div>
+                        ))}
+                      </motion.div>
                     </div>
                   </div>
                 </div>
@@ -602,8 +623,8 @@ const ExchangePage = () => {
                                 className={`flex-1 relative overflow-hidden rounded-lg text-sm font-medium transition-all duration-200
                                   ${tradeType === 'buy'
                                     ? isDarkMode
-                                      ? 'bg-green-500/20 text-green-400 shadow-inner'
-                                      : 'bg-green-100 text-green-600 shadow-inner'
+                                      ? 'bg-transparent border-green-400'
+                                      : 'bg-transparent border-green-600'
                                     : 'hover:bg-gray-200/30'
                                   }`}
                               >
@@ -622,8 +643,8 @@ const ExchangePage = () => {
                                 className={`flex-1 relative overflow-hidden rounded-lg text-sm font-medium transition-all duration-200
                                   ${tradeType === 'sell'
                                     ? isDarkMode
-                                      ? 'bg-pink-500/20 text-pink-400 shadow-inner'
-                                      : 'bg-pink-50 text-pink-600 shadow-inner border border-pink-200'
+                                      ? 'bg-transparent border-pink-400'
+                                      : 'bg-transparent border-pink-600'
                                     : 'hover:bg-gray-200/30'
                                   }`}
                               >
@@ -749,16 +770,16 @@ const ExchangePage = () => {
                             </div>
                           </div>
 
-                          <div className="grid grid-cols-4 gap-2 mt-4">
+                          <div className="grid grid-cols-4 gap-1 mt-2">
                             {[25, 50, 75, 100].map((percentage) => (
                               <button 
                                 key={percentage}
                                 onClick={() => handlePercentageClick(percentage)}
-                                className={`py-3 rounded-xl text-sm font-medium transition-all duration-200 backdrop-blur-sm
-                                  ${isDarkMode 
-                                    ? 'bg-gray-900/20 hover:bg-gray-900/30 border-gray-700/30' 
-                                    : 'bg-gray-100/50 hover:bg-white/70 border-gray-200/50'} 
-                                  border hover:border-blue-500/30 hover:ring-2 hover:ring-blue-500/20 active:scale-95`}
+                                className={`py-1 px-1.5 rounded-full text-xs font-medium transition-all duration-200
+                                  ${tradeType === 'buy' 
+                                    ? 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:border-green-300' 
+                                    : 'bg-pink-50 text-pink-600 border-pink-200 hover:bg-pink-100 hover:border-pink-300'} 
+                                  border hover:ring-1 hover:ring-blue-500/10 active:scale-95 shadow-sm`}
                               >
                                 {percentage}%
                               </button>
@@ -787,11 +808,11 @@ const ExchangePage = () => {
               {/* Right Column - Open Orders and Order History */}
               <div className="col-span-3 space-y-2">
                 {/* Open Orders */}
-                <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'}`}>
+                <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} shadow-lg transition-all duration-300`}>  
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-sm font-medium">Open Orders</h3>
                     <div className="flex items-center gap-1">
-                      <button className="p-1 rounded hover:bg-gray-200/20">
+                      <button className="p-1 rounded hover:bg-gray-200/20 transition-colors">
                         <Filter className="w-3 h-3" />
                       </button>
                       <Clock className="w-3 h-3" />
@@ -803,14 +824,19 @@ const ExchangePage = () => {
                       { type: 'sell', price: '42,400.00', amount: '0.05', filled: '0.02', status: 'Open' },
                       { type: 'buy', price: '42,300.00', amount: '0.2', filled: '0.1', status: 'Open' }
                     ].map((order, i) => (
-                      <div key={i} className={`p-2 rounded-lg ${order.type === 'buy' 
-                        ? isDarkMode
-                          ? 'bg-green-500/20 hover:bg-green-500/30'
-                          : 'bg-green-50 border border-green-200 hover:bg-green-100' 
-                        : isDarkMode 
-                          ? 'bg-pink-500/20 hover:bg-pink-500/30' 
-                          : 'bg-pink-50 border border-pink-200 hover:bg-pink-100'
-                        } transition-colors`}>
+                      <motion.div 
+                        key={i} 
+                        className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${order.type === 'buy' 
+                          ? isDarkMode
+                            ? 'bg-transparent hover:bg-green-500/20 border-green-400'
+                            : 'bg-transparent hover:bg-green-100 border-green-600 shadow-sm'
+                          : isDarkMode 
+                            ? 'bg-transparent hover:bg-pink-500/20 border-pink-400' 
+                            : 'bg-transparent hover:bg-pink-100 border-pink-600 shadow-sm'
+                        }`}
+                        whileHover={{ scale: 1.02 }}
+                        onClick={() => setSelectedOrder(i)}
+                      >
                         <div className="flex justify-between text-xs">
                           <span className={`font-medium ${order.type === 'buy' 
                             ? isDarkMode ? 'text-green-400' : 'text-green-600'
@@ -818,7 +844,7 @@ const ExchangePage = () => {
                           }`}>
                             {order.type.toUpperCase()}
                           </span>
-                          <span className={`px-1.5 py-0.5 rounded-full ${
+                          <span className={`px-1 py-0.5 rounded-full ${
                             order.status === 'Filled' 
                               ? 'bg-green-500/10 text-green-500' 
                               : order.type === 'buy'
@@ -832,7 +858,7 @@ const ExchangePage = () => {
                             {order.status}
                           </span>
                         </div>
-                        <div className="flex justify-between text-xs mt-1">
+                        <div className="flex justify-between text-xs mt-0.5">
                           <div className="flex flex-col">
                             <span className="text-[10px] text-gray-500">Price</span>
                             <span>{order.price}</span>
@@ -842,24 +868,24 @@ const ExchangePage = () => {
                             <span>{order.amount}</span>
                           </div>
                         </div>
-                        <div className="flex justify-between items-center text-xs mt-1">
+                        <div className="flex justify-between items-center text-xs mt-0.5">
                           <div className="flex flex-col">
                             <span className="text-[10px] text-gray-500">Filled</span>
                             <span>{order.filled}</span>
                           </div>
-                          <button className={`px-2 py-0.5 rounded text-[10px] ${
+                          <button className={`px-1.5 py-0.5 rounded text-[10px] transition-colors ${
                             order.type === 'buy'
                               ? isDarkMode
-                                ? 'bg-green-500/20 text-green-400 hover:bg-green-500/30'
-                                : 'bg-green-100 text-green-600 hover:bg-green-200'
+                                ? 'text-green-400 hover:bg-green-500/30'
+                                : 'text-green-600 hover:bg-green-200'
                               : isDarkMode 
                                 ? 'bg-pink-500/20 text-pink-400 hover:bg-pink-500/30' 
                                 : 'bg-pink-100 text-pink-600 hover:bg-pink-200'
-                          } transition-colors`}>
+                          }`}>
                             Cancel
                           </button>
                         </div>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                 </div>
@@ -881,12 +907,19 @@ const ExchangePage = () => {
                       { type: 'sell', price: '42,400.00', amount: '0.05', time: '10:44:15', status: 'Filled' },
                       { type: 'buy', price: '42,300.00', amount: '0.2', time: '10:43:01', status: 'Cancelled' }
                     ].map((order, i) => (
-                      <div key={i} className="p-2 rounded-lg bg-gray-200/10 hover:bg-gray-200/20 transition-colors">
+                      <div key={i} className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${isDarkMode 
+                        ? order.type === 'buy' 
+                          ? 'bg-gray-800/20 hover:bg-green-500/20' 
+                          : 'bg-gray-800/20 hover:bg-pink-500/20' 
+                        : order.type === 'buy' 
+                          ? 'bg-white/50 shadow-sm hover:bg-green-100' 
+                          : 'bg-white/50 shadow-sm hover:bg-pink-100'}`}
+                      >
                         <div className="flex justify-between text-xs">
-                          <span className={`font-medium ${order.type === 'buy' ? 'text-green-500' : 'text-pink-600'}`}>
+                          <span className={`font-medium ${order.type === 'buy' ? 'text-green-500' : 'text-pink-600'}`}> 
                             {order.type.toUpperCase()}
                           </span>
-                          <span className={`px-1.5 py-0.5 rounded-full ${
+                          <span className={`px-1 py-0.5 rounded-full ${
                             order.status === 'Filled' 
                               ? 'bg-green-500/10 text-green-500' 
                               : isDarkMode 
@@ -896,7 +929,7 @@ const ExchangePage = () => {
                             {order.status}
                           </span>
                         </div>
-                        <div className="flex justify-between text-xs mt-1">
+                        <div className="flex justify-between text-xs mt-0.5">
                           <div className="flex flex-col">
                             <span className="text-[10px] text-gray-500">Price</span>
                             <span>{order.price}</span>
@@ -906,9 +939,9 @@ const ExchangePage = () => {
                             <span>{order.amount}</span>
                           </div>
                         </div>
-                        <div className="flex justify-between items-center text-xs mt-1">
+                        <div className="flex justify-between items-center text-xs mt-0.5">
                           <span className="text-[10px] text-gray-500">{order.time}</span>
-                          <button className="px-2 py-0.5 rounded text-[10px] bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors">
+                          <button className="px-1.5 py-0.5 rounded text-[10px] bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors">
                             Details
                           </button>
                         </div>
