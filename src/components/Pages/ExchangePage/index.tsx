@@ -39,7 +39,7 @@ import {
     Bookmark,
     BookmarkCheck
 } from 'lucide-react';
-import Chart from './Chart';
+import ChartView from './ChartView';
 
 const ExchangePage = () => {
     const {
@@ -556,7 +556,7 @@ const ExchangePage = () => {
                                                     </div>
                                                 </div>
                                                 <div className="h-[29dvh] bg-gray-200/20 rounded-lg flex items-center justify-center">
-                                                    <Chart/>
+                                                    <ChartView/>
                                                 </div>
                                             </>
                                         ) : (

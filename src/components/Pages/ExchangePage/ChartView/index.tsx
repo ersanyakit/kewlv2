@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { init, dispose } from 'klinecharts'
-const Chart = () => {
+const ChartView= () => {
 
   useEffect(() => {
     const chart : any = init('chart')
@@ -35,4 +35,4 @@ const Chart = () => {
 
   return <div className='w-full h-full' id="chart" style={{ width: `100%`, height: "100%" }}/>
 }
-export default Chart;
+export default ChartView;
