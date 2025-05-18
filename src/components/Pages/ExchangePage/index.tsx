@@ -3,62 +3,62 @@ import { useTokenContext } from '../../../context/TokenContext';
 import { motion } from 'framer-motion';
 import { useAppKitAccount } from '@reown/appkit/react';
 import { useNavigate } from 'react-router-dom';
-import { 
-  ArrowDownUp, 
-  ChevronDown, 
-  Percent, 
-  Wallet, 
-  Clock, 
-  History, 
-  AlertCircle,
-  BarChart2,
-  Settings,
-  Star,
-  TrendingUp,
-  TrendingDown,
-  DollarSign,
-  Zap,
-  Info,
-  LineChart,
-  CandlestickChart,
-  BarChart,
-  PieChart,
-  Bell,
-  Shield,
-  HelpCircle,
-  Maximize2,
-  Minimize2,
-  Filter,
-  Search,
-  Layers,
-  Plus,
-  Minus,
-  X,
-  ChevronRight,
-  ChevronLeft,
-  Bookmark,
-  BookmarkCheck
+import {
+    ArrowDownUp,
+    ChevronDown,
+    Percent,
+    Wallet,
+    Clock,
+    History,
+    AlertCircle,
+    BarChart2,
+    Settings,
+    Star,
+    TrendingUp,
+    TrendingDown,
+    DollarSign,
+    Zap,
+    Info,
+    LineChart,
+    CandlestickChart,
+    BarChart,
+    PieChart,
+    Bell,
+    Shield,
+    HelpCircle,
+    Maximize2,
+    Minimize2,
+    Filter,
+    Search,
+    Layers,
+    Plus,
+    Minus,
+    X,
+    ChevronRight,
+    ChevronLeft,
+    Bookmark,
+    BookmarkCheck
 } from 'lucide-react';
 
 const ExchangePage = () => {
     const {
-      isDarkMode,
-      slippageTolerance,
-      baseToken,
-      swapMode,
-      quoteToken,
-      tokenFilter,
-      favoriteOnly,
-      filteredTokens,
-      openTokenSelector,
-      setOpenTokenSelector,
-      setTokenFilter,
-      setFavoriteOnly,
-      selectToken,
-      reloadTokens,
-      handleSwapTokens,
-      setSwapMode,
-      tokens
+        isDarkMode,
+        slippageTolerance,
+        baseToken,
+        swapMode,
+        quoteToken,
+        tokenFilter,
+        favoriteOnly,
+        filteredTokens,
+        openTokenSelector,
+        setOpenTokenSelector,
+        setTokenFilter,
+        setFavoriteOnly,
+        selectToken,
+        reloadTokens,
+        handleSwapTokens,
+        setSwapMode,
+        tokens
     } = useTokenContext();
     const { address, isConnected } = useAppKitAccount();
     const navigate = useNavigate();
@@ -70,8 +70,8 @@ const ExchangePage = () => {
     const [total, setTotal] = useState('4,235.00');
     const [isFavorite, setIsFavorite] = useState(false);
     const [expandedSections, setExpandedSections] = useState({
-      buyOrders: true,
-      sellOrders: true
+        buyOrders: true,
+        sellOrders: true
     });
     const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
     const isLoading = false; // Set to true to simulate loading state
@@ -81,19 +81,19 @@ const ExchangePage = () => {
     const [selectedBuyRange, setSelectedBuyRange] = useState<number | null>(null);
 
     const _tradingPairs = [
-      { pair: 'GAL/WCHZ', price: '4.35', change: '+2.5%', volume: '1.2M', isFavorite: true, logo: '/gal-logo.png' },
-      { pair: 'ACM/WCHZ', price: '3.50', change: '-1.2%', volume: '800K', isFavorite: false, logo: '/acm-logo.png' },
-      { pair: 'JUV/WCHZ', price: '5.20', change: '+0.8%', volume: '500K', isFavorite: true, logo: '/juv-logo.png' },
-      { pair: 'PSG/WCHZ', price: '4.80', change: '+5.2%', volume: '300K', isFavorite: false, logo: '/psg-logo.png' },
-      { pair: 'BAR/WCHZ', price: '5.80', change: '+1.2%', volume: '200K', isFavorite: false, logo: '/bar-logo.png' },
-      { pair: 'CITY/WCHZ', price: '4.45', change: '-0.8%', volume: '150K', isFavorite: false, logo: '/city-logo.png' },
-      { pair: 'ATM/WCHZ', price: '3.80', change: '+3.2%', volume: '100K', isFavorite: false, logo: '/atm-logo.png' },
-      { pair: 'INTER/WCHZ', price: '4.20', change: '-2.1%', volume: '80K', isFavorite: false, logo: '/inter-logo.png' },
+        { pair: 'GAL/WCHZ', price: '4.35', change: '+2.5%', volume: '1.2M', isFavorite: true, logo: '/gal-logo.png' },
+        { pair: 'ACM/WCHZ', price: '3.50', change: '-1.2%', volume: '800K', isFavorite: false, logo: '/acm-logo.png' },
+        { pair: 'JUV/WCHZ', price: '5.20', change: '+0.8%', volume: '500K', isFavorite: true, logo: '/juv-logo.png' },
+        { pair: 'PSG/WCHZ', price: '4.80', change: '+5.2%', volume: '300K', isFavorite: false, logo: '/psg-logo.png' },
+        { pair: 'BAR/WCHZ', price: '5.80', change: '+1.2%', volume: '200K', isFavorite: false, logo: '/bar-logo.png' },
+        { pair: 'CITY/WCHZ', price: '4.45', change: '-0.8%', volume: '150K', isFavorite: false, logo: '/city-logo.png' },
+        { pair: 'ATM/WCHZ', price: '3.80', change: '+3.2%', volume: '100K', isFavorite: false, logo: '/atm-logo.png' },
+        { pair: 'INTER/WCHZ', price: '4.20', change: '-2.1%', volume: '80K', isFavorite: false, logo: '/inter-logo.png' },
     ];
 
     const tradingPairs = tokens.map(token => ({
         pair: `${token.symbol}/WCHZ`,
-        price: '4.35', change: '+2.5%', volume: '1.2M', isFavorite: true, 
+        price: '4.35', change: '+2.5%', volume: '1.2M', isFavorite: true,
         logo: token.icon
     }));
     const marketCategories = ['Favorites', 'WCHZ', 'FAN', 'SPORTS', 'CLUB'];
@@ -103,80 +103,80 @@ const ExchangePage = () => {
     const [pairSearch, setPairSearch] = useState('');
 
     const sortedPairs = React.useMemo(() => {
-      return [...tradingPairs]
-        .filter(pair => {
-          if (selectedCategory === 'Favorites') return pair.isFavorite;
-          return pair.pair.endsWith(selectedCategory);
-        })
-        .filter(pair => 
-          pair.pair.toLowerCase().includes(pairSearch.toLowerCase()) ||
-          pair.price.toLowerCase().includes(pairSearch.toLowerCase())
-        )
-        .sort((a, b) => {
-          const direction = sortDirection === 'asc' ? 1 : -1;
-          switch (sortBy) {
-            case 'pair':
-              return direction * a.pair.localeCompare(b.pair);
-            case 'price':
-              return direction * (parseFloat(a.price.replace(/,/g, '')) - parseFloat(b.price.replace(/,/g, '')));
-            case 'change':
-              return direction * (parseFloat(a.change) - parseFloat(b.change));
-            case 'volume':
-              return direction * (parseFloat(a.volume.replace(/[A-Z]/g, '')) - parseFloat(b.volume.replace(/[A-Z]/g, '')));
-            default:
-              return 0;
-          }
-        });
+        return [...tradingPairs]
+            .filter(pair => {
+                if (selectedCategory === 'Favorites') return pair.isFavorite;
+                return pair.pair.endsWith(selectedCategory);
+            })
+            .filter(pair =>
+                pair.pair.toLowerCase().includes(pairSearch.toLowerCase()) ||
+                pair.price.toLowerCase().includes(pairSearch.toLowerCase())
+            )
+            .sort((a, b) => {
+                const direction = sortDirection === 'asc' ? 1 : -1;
+                switch (sortBy) {
+                    case 'pair':
+                        return direction * a.pair.localeCompare(b.pair);
+                    case 'price':
+                        return direction * (parseFloat(a.price.replace(/,/g, '')) - parseFloat(b.price.replace(/,/g, '')));
+                    case 'change':
+                        return direction * (parseFloat(a.change) - parseFloat(b.change));
+                    case 'volume':
+                        return direction * (parseFloat(a.volume.replace(/[A-Z]/g, '')) - parseFloat(b.volume.replace(/[A-Z]/g, '')));
+                    default:
+                        return 0;
+                }
+            });
     }, [tradingPairs, selectedCategory, sortBy, sortDirection, pairSearch]);
 
     const handleSort = (category: 'pair' | 'price' | 'change' | 'volume') => {
-      if (sortBy === category) {
-        setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
-      } else {
-        setSortBy(category);
-        setSortDirection('desc');
-      }
+        if (sortBy === category) {
+            setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+        } else {
+            setSortBy(category);
+            setSortDirection('desc');
+        }
     };
 
     const handlePriceChange = (value: string) => {
-      setPrice(value);
-      setTotal((parseFloat(value.replace(/,/g, '')) * parseFloat(amount)).toLocaleString());
+        setPrice(value);
+        setTotal((parseFloat(value.replace(/,/g, '')) * parseFloat(amount)).toLocaleString());
     };
 
     const handleAmountChange = (value: string) => {
-      setAmount(value);
-      setTotal((parseFloat(price.replace(/,/g, '')) * parseFloat(value)).toLocaleString());
+        setAmount(value);
+        setTotal((parseFloat(price.replace(/,/g, '')) * parseFloat(value)).toLocaleString());
     };
 
     const handlePercentageClick = (percentage: number) => {
-      const maxAmount = 10; // Dummy max amount
-      const newAmount = (maxAmount * percentage / 100).toFixed(2);
-      handleAmountChange(newAmount);
+        const maxAmount = 10; // Dummy max amount
+        const newAmount = (maxAmount * percentage / 100).toFixed(2);
+        handleAmountChange(newAmount);
     };
 
     const toggleSection = (section: 'buyOrders' | 'sellOrders') => {
-      setExpandedSections(prev => ({
-        ...prev,
-        [section]: !prev[section]
-      }));
+        setExpandedSections(prev => ({
+            ...prev,
+            [section]: !prev[section]
+        }));
     };
 
     // Generate dummy order book data
     const generateOrderBookData = () => {
-      const basePrice = 42350;
-      const sellOrders = Array.from({ length: 50 }, (_, i) => ({
-        price: (basePrice + (i + 1) * 10).toLocaleString(),
-        amount: (0.1 * (i + 1)).toFixed(2),
-        total: ((basePrice + (i + 1) * 10) * 0.1 * (i + 1)).toLocaleString()
-      })).reverse(); // Reverse sell orders to show highest price at top
+        const basePrice = 42350;
+        const sellOrders = Array.from({ length: 50 }, (_, i) => ({
+            price: (basePrice + (i + 1) * 10).toLocaleString(),
+            amount: (0.1 * (i + 1)).toFixed(2),
+            total: ((basePrice + (i + 1) * 10) * 0.1 * (i + 1)).toLocaleString()
+        })).reverse(); // Reverse sell orders to show highest price at top
 
-      const buyOrders = Array.from({ length: 50 }, (_, i) => ({
-        price: (basePrice - (i + 1) * 10).toLocaleString(),
-        amount: (0.1 * (i + 1)).toFixed(2),
-        total: ((basePrice - (i + 1) * 10) * 0.1 * (i + 1)).toLocaleString()
-      }));
+        const buyOrders = Array.from({ length: 50 }, (_, i) => ({
+            price: (basePrice - (i + 1) * 10).toLocaleString(),
+            amount: (0.1 * (i + 1)).toFixed(2),
+            total: ((basePrice - (i + 1) * 10) * 0.1 * (i + 1)).toLocaleString()
+        }));
 
-      return { sellOrders, buyOrders };
+        return { sellOrders, buyOrders };
     };
 
     const { sellOrders, buyOrders } = generateOrderBookData();
@@ -184,857 +184,860 @@ const ExchangePage = () => {
     const totalOrderBookHeight = 60; // Total height for both sections combined
 
     const orderBookVariants = {
-      collapsed: { height: 0, opacity: 0 },
-      expanded: (section: 'buyOrders' | 'sellOrders') => {
-        const bothExpanded = expandedSections.buyOrders && expandedSections.sellOrders;
-        return {
-          height: bothExpanded ? `${totalOrderBookHeight / 2}dvh` : `${totalOrderBookHeight}dvh`,
-          opacity: 1,
-          transition: { duration: 0.3 }
-        };
-      }
+        collapsed: { height: 0, opacity: 0 },
+        expanded: (section: 'buyOrders' | 'sellOrders') => {
+            const bothExpanded = expandedSections.buyOrders && expandedSections.sellOrders;
+            return {
+                height: bothExpanded ? `${totalOrderBookHeight / 2}dvh` : `${totalOrderBookHeight}dvh`,
+                opacity: 1,
+                transition: { duration: 0.3 }
+            };
+        }
     };
 
     // Update price, total, and trade type when a price is selected from the order book
     const handleOrderBookPriceClick = (price: string, type: 'buy' | 'sell') => {
-      setPrice(price);
-      setTotal((parseFloat(price.replace(/,/g, '')) * parseFloat(amount)).toLocaleString());
-      setTradeType(type);
+        setPrice(price);
+        setTotal((parseFloat(price.replace(/,/g, '')) * parseFloat(amount)).toLocaleString());
+        setTradeType(type);
     };
 
     const handleSellOrderHover = (index: number) => {
-      setHoveredSellOrder(index);
+        setHoveredSellOrder(index);
     };
 
     const handleBuyOrderHover = (index: number) => {
-      setHoveredBuyOrder(index);
+        setHoveredBuyOrder(index);
     };
 
     const toggleSellOrderSelection = (index: number) => {
-      setSelectedSellRange(prev => (prev === index ? null : index));
+        setSelectedSellRange(prev => (prev === index ? null : index));
     };
 
     const toggleBuyOrderSelection = (index: number) => {
-      setSelectedBuyRange(prev => (prev === index ? null : index));
+        setSelectedBuyRange(prev => (prev === index ? null : index));
     };
 
     useEffect(() => {
-      setHoveredSellOrder(null);
-      setHoveredBuyOrder(null);
-      setSelectedSellRange(null);
-      setSelectedBuyRange(null);
+        setHoveredSellOrder(null);
+        setHoveredBuyOrder(null);
+        setSelectedSellRange(null);
+        setSelectedBuyRange(null);
     }, [tradeType]);
 
     return (
-      <div className="w-full h-full max-w-6xl min-h-[73dvh] mx-auto flex flex-col items-center justify-center py-4">
-        <motion.div
-          className={`relative ${isDarkMode
-            ? 'bg-gray-800/30 border-gray-700/30'
-            : 'bg-white/40 border-white/20'
-            } backdrop-blur-sm p-0.5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] max-w-6xl border overflow-hidden transition-all duration-300`}
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.3 }}
-        >
-          <div className="w-full max-w-6xl mx-auto gap-4 p-4 flex flex-col">
-            {/* Compact Header */}
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-4">
-                <div className="relative">
-                  <button 
-                    onClick={() => setShowPairSelector(!showPairSelector)}
-                    className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-200/20 hover:bg-gray-200/30 transition-colors"
-                  >
-                    <span className="font-medium">{selectedPair}</span>
-                    <ChevronDown className="w-4 h-4" />
-                  </button>
-                </div>
-                <div className="flex items-center gap-2">
-                  <button 
-                    onClick={() => setIsFavorite(!isFavorite)}
-                    className={`p-1.5 rounded-lg transition-colors ${
-                      isFavorite ? 'text-yellow-400' : 'text-gray-500 hover:text-yellow-400'
-                    }`}
-                  >
-                    {isFavorite ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
-                  </button>
-                  <button className="p-1.5 rounded-lg text-gray-500 hover:text-blue-400 transition-colors">
-                    <Bell className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <TrendingUp className="w-4 h-4 text-green-500" />
-                  <span className="text-lg font-semibold">42,350.00</span>
-                  <span className="text-green-500 font-medium">+2.5%</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Wallet className="w-4 h-4" />
-                  <span className="font-medium">10,000 USDT</span>
-                </div>
-              </div>
-            </div>
 
-            <div className="grid grid-cols-12 gap-2 sm:gap-4">
-              {/* Left Column - Order Book */}
-              <div className="col-span-12 sm:col-span-3">
-                <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'}`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium">Order Book</h3>
-                    <div className="flex items-center gap-1">
-                      <button className="p-1.5 rounded-lg hover:bg-gray-200/20">
-                        <Filter className="w-4 h-4" />
-                      </button>
-                      <button className="p-1.5 rounded-lg hover:bg-gray-200/20">
-                        <Maximize2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="grid grid-cols-3 text-xs text-gray-500 mb-2 px-2">
-                      <span>Price (USDT)</span>
-                      <span className="text-right">Amount (BTC)</span>
-                      <span className="text-right">Total (USDT)</span>
-                    </div>
+        <div className={`flex flex-col px-0 py-4 md:p-4 transition-colors duration-300`}>
+            <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-7 gap-4">
 
-                    {/* Sell Orders Section */}
-                    <div className="mb-2">
-                      <button 
-                        onClick={() => toggleSection('sellOrders')}
-                        className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-gray-200/20 transition-colors"
-                      >
-                        <span className="text-xs text-pink-500 font-medium">Sell Orders</span>
-                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${expandedSections.sellOrders ? 'rotate-180' : ''}`} />
-                      </button>
-                      <motion.div
-                        initial="collapsed"
-                        animate={expandedSections.sellOrders ? 'expanded' : 'collapsed'}
-                        custom='sellOrders'
-                        variants={orderBookVariants}
-                        className="mt-1 space-y-0.5 overflow-y-auto scrollbar-hide custom-scrollbar flex flex-col-reverse"
-                      >
-                        {isLoading ? (
-                          <div className="space-y-0.5">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <div key={i} className={`grid grid-cols-3 text-xs p-1.5 rounded-lg animate-pulse shadow-sm ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>  
-                                <span className={`h-4 w-3/4 rounded-full ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
-                                <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
-                                <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          sellOrders.reverse().map((order, i) => (
-                            <div 
-                              key={i} 
-                              className={`relative grid grid-cols-3 text-xs hover:bg-pink-500/20 cursor-pointer p-1.5 rounded-lg group px-2 ${hoveredSellOrder !== null && i <= hoveredSellOrder ? 'bg-pink-500/20' : ''} ${selectedSellRange !== null && i <= selectedSellRange ? 'bg-pink-500/40' : ''}`}
-                              onMouseEnter={() => handleSellOrderHover(i)}
-                              onClick={() => {
-                                handleOrderBookPriceClick(order.price, 'buy');
-                                toggleSellOrderSelection(i);
-                              }}
-                            >
-                              <div className="absolute inset-0 bg-pink-500/10 rounded-lg" style={{ width: `${(parseFloat(order.amount) / 5) * 100}%` }}></div>
-                              <span className="group-hover:text-pink-400 relative">{order.price}</span>
-                              <span className="text-right relative">{order.amount}</span>
-                              <span className="text-right text-gray-500 relative">{order.total}</span>
-                            </div>
-                          ))
-                        )}
-                      </motion.div>
-                    </div>
-
-                    <div className="text-center py-2 text-xs font-medium bg-gray-200/20 rounded-lg my-2">
-                      <div className="text-sm font-bold">42,350.00</div>
-                      <div className="text-[10px] text-gray-500">Last Price</div>
-                    </div>
-
-                    {/* Buy Orders Section */}
-                    <div>
-                      <button 
-                        onClick={() => toggleSection('buyOrders')}
-                        className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-gray-200/20 transition-colors"
-                      >
-                        <span className="text-xs text-green-500 font-medium">Buy Orders</span>
-                        <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${expandedSections.buyOrders ? 'rotate-180' : ''}`} />
-                      </button>
-                      <motion.div
-                        initial="collapsed"
-                        animate={expandedSections.buyOrders ? 'expanded' : 'collapsed'}
-                        custom='buyOrders'
-                        variants={orderBookVariants}
-                        className="mt-1 space-y-0.5 overflow-y-auto scrollbar-hide custom-scrollbar"
-                      >
-                        {isLoading ? (
-                          <div className="space-y-0.5">
-                            {Array.from({ length: 5 }).map((_, i) => (
-                              <div key={i} className={`grid grid-cols-3 text-xs p-1.5 rounded-lg animate-pulse shadow-sm ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>  
-                                <span className={`h-4 w-3/4 rounded-full ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
-                                <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
-                                <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          buyOrders.map((order, i) => (
-                            <div 
-                              key={i} 
-                              className={`relative grid grid-cols-3 text-xs hover:bg-green-500/10 cursor-pointer p-1.5 rounded-lg group px-2 ${hoveredBuyOrder !== null && i <= hoveredBuyOrder ? 'bg-green-500/20' : ''} ${selectedBuyRange !== null && i <= selectedBuyRange ? 'bg-green-500/40' : ''}`}
-                              onMouseEnter={() => handleBuyOrderHover(i)}
-                              onClick={() => {
-                                handleOrderBookPriceClick(order.price, 'sell');
-                                toggleBuyOrderSelection(i);
-                              }}
-                            >
-                              <div className="absolute inset-0 bg-green-500/10 rounded-lg" style={{ width: `${(parseFloat(order.amount) / 5) * 100}%` }}></div>
-                              <span className="group-hover:text-green-500 relative">{order.price}</span>
-                              <span className="text-right relative">{order.amount}</span>
-                              <span className="text-right text-gray-500 relative">{order.total}</span>
-                            </div>
-                          ))
-                        )}
-                      </motion.div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Middle Column - Chart and Trading Interface */}
-              <div className="col-span-12 sm:col-span-6 space-y-2">
-                {showPairSelector ? (
-                  <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} min-h-[650px]`}>
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-3">
-                        <h3 className="text-lg font-semibold">Select Market</h3>
-                        <div className="relative">
-                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                          <input 
-                            type="text" 
-                            value={pairSearch}
-                            onChange={(e) => setPairSearch(e.target.value)}
-                            placeholder="Search markets..." 
-                            className={`w-64 h-9 pl-9 pr-4 rounded-xl text-sm transition-all duration-200
-                              ${isDarkMode 
-                                ? 'bg-gray-900/30 focus:bg-gray-900/50 border-gray-700/50' 
-                                : 'bg-gray-100/70 focus:bg-white/70 border-gray-200/70'} 
-                              border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none`}
-                          />
-                        </div>
-                      </div>
-                      <button 
-                        onClick={() => setShowPairSelector(false)}
-                        className="p-2 rounded-lg hover:bg-gray-200/20 transition-colors"
-                      >
-                        <X className="w-5 h-5" />
-                      </button>
-                    </div>
-
-                    <div className="flex items-center gap-2 pb-3 overflow-x-auto custom-scrollbar border-b border-gray-200/10">
-                      {marketCategories.map((category) => (
-                        <button
-                          key={category}
-                          onClick={() => setSelectedCategory(category)}
-                          className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200
-                            ${selectedCategory === category
-                              ? `${isDarkMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600'}`
-                              : `${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'} text-gray-500`
-                            }`}
-                        >
-                          {category === 'Favorites' ? (
-                            <div className="flex items-center gap-1.5">
-                              <Star className="w-4 h-4 fill-current" />
-                              <span>{category}</span>
-                            </div>
-                          ) : category}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div className="mt-4">
-                      <div className="grid grid-cols-4 px-4 py-2 border-b border-gray-200/10">
-                        <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSort('pair')}>
-                          <span className="text-xs font-medium text-gray-500">Pair</span>
-                          {sortBy === 'pair' && (
-                            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                          )}
-                        </div>
-                        <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('price')}>
-                          <span className="text-xs font-medium text-gray-500">Price</span>
-                          {sortBy === 'price' && (
-                            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                          )}
-                        </div>
-                        <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('change')}>
-                          <span className="text-xs font-medium text-gray-500">24h Change</span>
-                          {sortBy === 'change' && (
-                            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                          )}
-                        </div>
-                        <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('volume')}>
-                          <span className="text-xs font-medium text-gray-500">24h Volume</span>
-                          {sortBy === 'volume' && (
-                            <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                          )}
-                        </div>
-                      </div>
-
-                      <div className="overflow-y-auto max-h-[520px] custom-scrollbar">
-                        {sortedPairs.map((pair) => (
-                          <div 
-                            key={pair.pair}
-                            onClick={() => {
-                              setSelectedPair(pair.pair);
-                              setShowPairSelector(false);
-                            }}
-                            className={`grid grid-cols-4 px-4 py-3 cursor-pointer transition-all duration-200 hover:scale-[0.99]
-                              ${isDarkMode 
-                                ? 'hover:bg-gray-700/30' 
-                                : 'hover:bg-gray-100/70'}`}
-                          >
-                            <div className="flex items-center gap-3">
-                              <div className="relative">
-                                <img src={pair.logo} alt={pair.pair} className="w-8 h-8 min-w-8 min-h-8 rounded-full" />
-                                {pair.isFavorite && (
-                                  <Star className="absolute -top-1 -right-1 w-3.5 h-3.5 text-yellow-400 fill-current" />
-                                )}
-                              </div>
-                              <div className="flex flex-col">
-                                <span className="font-medium">{pair.pair}</span>
-                                <span className="text-xs text-gray-500">Perpetual</span>
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-end">
-                              <span className="font-medium">{pair.price}</span>
-                            </div>
-                            <div className={`flex items-center justify-end font-medium ${
-                              pair.change.startsWith('+') ? 'text-green-500' : 'text-pink-500'
-                            }`}>
-                              {pair.change}
-                            </div>
-                            <div className="flex items-center justify-end font-medium text-gray-500">
-                              {pair.volume}
-                            </div>
-                          </div>
-                        ))}
-                        {sortedPairs.length === 0 && (
-                          <div className="flex flex-col items-center justify-center h-[400px] text-gray-500">
-                            <Search className="w-8 h-8 mb-3" />
-                            <span className="text-lg">No markets found</span>
-                            <span className="text-sm text-gray-400 mt-1">Try adjusting your search</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <>
-                    {/* Chart */}
-                    <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'}`}>
-                      {!showPairSelector ? (
-                        <>
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center gap-2">
-                              <div className="flex gap-1">
-                                <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">1m</button>
-                                <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">5m</button>
-                                <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">15m</button>
-                                <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">1h</button>
-                                <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">4h</button>
-                                <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">1d</button>
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-1">
-                              <button className="p-1 rounded hover:bg-gray-200/20">
-                                <LineChart className="w-4 h-4" />
-                              </button>
-                              <button className="p-1 rounded hover:bg-gray-200/20">
-                                <CandlestickChart className="w-4 h-4" />
-                              </button>
-                              <button className="p-1 rounded hover:bg-gray-200/20">
-                                <BarChart className="w-4 h-4" />
-                              </button>
-                              <button className="p-1 rounded hover:bg-gray-200/20">
-                                <Maximize2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </div>
-                          <div className="h-[300px] bg-gray-200/20 rounded-lg flex items-center justify-center">
-                            <span className="text-gray-500 text-sm">Chart Area</span>
-                          </div>
-                        </>
-                      ) : (
-                        <div className="h-[350px] relative">
-                          <div className="absolute inset-0 z-50 backdrop-blur-sm">
-                            <div className="h-full flex flex-col">
-                              <div className="flex items-center justify-between p-4">
-                                <div className="flex items-center gap-3">
-                                  <h3 className="text-lg font-semibold">Select Market</h3>
-                                  <div className="relative">
-                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                                    <input 
-                                      type="text" 
-                                      value={pairSearch}
-                                      onChange={(e) => setPairSearch(e.target.value)}
-                                      placeholder="Search markets..." 
-                                      className={`w-64 h-9 pl-9 pr-4 rounded-xl text-sm transition-all duration-200
-                                        ${isDarkMode 
-                                          ? 'bg-gray-900/30 focus:bg-gray-900/50 border-gray-700/50' 
-                                          : 'bg-gray-100/70 focus:bg-white/70 border-gray-200/70'} 
-                                        border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none`}
-                                    />
-                                  </div>
-                                </div>
-                                <button 
-                                  onClick={() => setShowPairSelector(false)}
-                                  className="p-2 rounded-lg hover:bg-gray-200/20 transition-colors"
-                                >
-                                  <X className="w-5 h-5" />
-                                </button>
-                              </div>
-
-                              <div className="flex items-center gap-2 px-4 pb-3 overflow-x-auto custom-scrollbar border-b border-gray-200/10">
-                                {marketCategories.map((category) => (
-                                  <button
-                                    key={category}
-                                    onClick={() => setSelectedCategory(category)}
-                                    className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200
-                                      ${selectedCategory === category
-                                        ? `${isDarkMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600'}`
-                                        : `${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'} text-gray-500`
-                                      }`}
-                                  >
-                                    {category === 'Favorites' ? (
-                                      <div className="flex items-center gap-1.5">
-                                        <Star className="w-4 h-4 fill-current" />
-                                        <span>{category}</span>
-                                      </div>
-                                    ) : category}
-                                  </button>
-                                ))}
-                              </div>
-
-                              <div className="flex-1 overflow-hidden">
-                                <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200/10">
-                                  <div className="flex items-center gap-2 w-[30%] cursor-pointer" onClick={() => handleSort('pair')}>
-                                    <span className="text-xs font-medium text-gray-500">Pair</span>
-                                    {sortBy === 'pair' && (
-                                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                    )}
-                                  </div>
-                                  <div className="flex items-center justify-end gap-2 w-[20%] cursor-pointer" onClick={() => handleSort('price')}>
-                                    <span className="text-xs font-medium text-gray-500">Price</span>
-                                    {sortBy === 'price' && (
-                                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                    )}
-                                  </div>
-                                  <div className="flex items-center justify-end gap-2 w-[25%] cursor-pointer" onClick={() => handleSort('change')}>
-                                    <span className="text-xs font-medium text-gray-500">24h Change</span>
-                                    {sortBy === 'change' && (
-                                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                    )}
-                                  </div>
-                                  <div className="flex items-center justify-end gap-2 w-[25%] cursor-pointer" onClick={() => handleSort('volume')}>
-                                    <span className="text-xs font-medium text-gray-500">24h Volume</span>
-                                    {sortBy === 'volume' && (
-                                      <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                    )}
-                                  </div>
-                                </div>
-
-                                <div className="h-[calc(100%-40px)] overflow-y-auto custom-scrollbar">
-                                  {sortedPairs.map((pair) => (
-                                    <div 
-                                      key={pair.pair}
-                                      onClick={() => {
-                                        setSelectedPair(pair.pair);
-                                        setShowPairSelector(false);
-                                      }}
-                                      className={`flex items-center justify-between px-4 py-3 cursor-pointer transition-colors
-                                        ${isDarkMode 
-                                          ? 'hover:bg-gray-700/30' 
-                                          : 'hover:bg-gray-100/70'}`}
+                <div className="order-2 sm:order-1 lg:col-span-2">
+                    <div className="flex items-center gap-4 mb-2">
+                        <motion.div
+                            className={`relative ${isDarkMode
+                                ? 'bg-gray-800/30 border-gray-700/30'
+                                : 'bg-white/40 border-white/20'
+                                } backdrop-blur-sm p-0.5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden transition-all duration-300 w-full`}
+                            initial={{ y: 20, opacity: 0 }}
+                            animate={{ y: 0, opacity: 1 }}
+                            transition={{ delay: 0.3 }}>
+                            <div className='w-full flex flex-row items-center justify-between gap-2 px-4 pt-4'>
+                                <div className="w-full">
+                                    <button
+                                        onClick={() => setShowPairSelector(!showPairSelector)}
+                                        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gray-200/20 hover:bg-gray-200/30 transition-colors"
                                     >
-                                      <div className="flex items-center gap-3 w-[30%]">
-                                        <div className="relative">
-                                          <img src={pair.logo} alt={pair.pair} className="w-7 h-7" />
-                                          {pair.isFavorite && (
-                                            <Star className="absolute -top-1 -right-1 w-3.5 h-3.5 text-yellow-400 fill-current" />
-                                          )}
+                                        <span className="font-medium">{selectedPair}</span>
+                                        <ChevronDown className="w-4 h-4" />
+                                    </button>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setIsFavorite(!isFavorite)}
+                                        className={`p-1.5 rounded-lg transition-colors ${isFavorite ? 'text-yellow-400' : 'text-gray-500 hover:text-yellow-400'
+                                            }`}
+                                    >
+                                        {isFavorite ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
+                                    </button>
+                                    <button className="p-1.5 rounded-lg text-gray-500 hover:text-blue-400 transition-colors">
+                                        <Bell className="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                           
+                           <div className={`w-full p-4 rounded-lg`}>
+                                    <div className="flex items-center justify-between mb-2">
+                                        <h3 className="text-sm font-medium">Order Book</h3>
+                                        <div className="flex items-center gap-1">
+                                            <button className="p-1.5 rounded-lg hover:bg-gray-200/20">
+                                                <Filter className="w-4 h-4" />
+                                            </button>
+                                            <button className="p-1.5 rounded-lg hover:bg-gray-200/20">
+                                                <Maximize2 className="w-4 h-4" />
+                                            </button>
                                         </div>
-                                        <span className="font-medium">{pair.pair}</span>
-                                      </div>
-                                      <div className="w-[20%] text-right font-medium">{pair.price}</div>
-                                      <div className={`w-[25%] text-right font-medium ${
-                                        pair.change.startsWith('+') ? 'text-green-500' : 'text-pink-500'
-                                      }`}>
-                                        {pair.change}
-                                      </div>
-                                      <div className="w-[25%] text-right font-medium text-gray-500">{pair.volume}</div>
                                     </div>
-                                  ))}
-                                  {sortedPairs.length === 0 && (
-                                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                                      <Search className="w-6 h-6 mb-2" />
-                                      <span>No markets found</span>
+                                    <div className="space-y-1 max-h-[100dvh] ">
+                                        <div className="grid grid-cols-3 text-xs text-gray-500 mb-2 px-2">
+                                            <span>Price (USDT)</span>
+                                            <span className="text-right">Amount (BTC)</span>
+                                            <span className="text-right">Total (USDT)</span>
+                                        </div>
+
+                                        {/* Sell Orders Section */}
+                                        <div className="mb-2">
+                                            <button
+                                                onClick={() => toggleSection('sellOrders')}
+                                                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-gray-200/20 transition-colors"
+                                            >
+                                                <span className="text-xs text-pink-500 font-medium">Sell Orders</span>
+                                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${expandedSections.sellOrders ? 'rotate-180' : ''}`} />
+                                            </button>
+                                            <motion.div
+                                                initial="collapsed"
+                                                animate={expandedSections.sellOrders ? 'expanded' : 'collapsed'}
+                                                custom='sellOrders'
+                                                variants={orderBookVariants}
+                                                className="my-1 flex flex-col  gap-[1px] overflow-y-auto scrollbar-hide custom-scrollbar flex flex-col-reverse"
+                                            >
+                                                {isLoading ? (
+                                                    <div className="space-y-0.5">
+                                                        {Array.from({ length: 5 }).map((_, i) => (
+                                                            <div key={i} className={`grid grid-cols-3 text-xs p-1.5 rounded-lg animate-pulse shadow-sm ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                                                                <span className={`h-4 w-3/4 rounded-full ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
+                                                                <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
+                                                                <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    sellOrders.reverse().map((order, i) => (
+                                                        <div
+                                                            key={i}
+                                                            className={`relative grid grid-cols-3 text-xs hover:bg-pink-500/20 cursor-pointer p-1.5 rounded-lg group px-2 ${hoveredSellOrder !== null && i <= hoveredSellOrder ? 'bg-pink-500/20' : ''} ${selectedSellRange !== null && i <= selectedSellRange ? 'bg-pink-500/40' : ''}`}
+                                                            onMouseEnter={() => handleSellOrderHover(i)}
+                                                            onClick={() => {
+                                                                handleOrderBookPriceClick(order.price, 'buy');
+                                                                toggleSellOrderSelection(i);
+                                                            }}
+                                                        >
+                                                            <div className="absolute inset-0 bg-pink-500/10 rounded-lg" style={{ width: `${(parseFloat(order.amount) / 5) * 100}%` }}></div>
+                                                            <span className="group-hover:text-pink-400 relative">{order.price}</span>
+                                                            <span className="text-right relative">{order.amount}</span>
+                                                            <span className="text-right text-gray-500 relative">{order.total}</span>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </motion.div>
+                                        </div>
+
+                                        <div className="text-center py-2 text-xs font-medium bg-gray-200/20 rounded-lg my-2">
+                                            <div className="text-sm font-bold">42,350.00</div>
+                                            <div className="text-[10px] text-gray-500">Last Price</div>
+                                        </div>
+
+                                        {/* Buy Orders Section */}
+                                        <div>
+                                            <button
+                                                onClick={() => toggleSection('buyOrders')}
+                                                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-gray-200/20 transition-colors"
+                                            >
+                                                <span className="text-xs text-green-500 font-medium">Buy Orders</span>
+                                                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${expandedSections.buyOrders ? 'rotate-180' : ''}`} />
+                                            </button>
+                                            <motion.div
+                                                initial="collapsed"
+                                                animate={expandedSections.buyOrders ? 'expanded' : 'collapsed'}
+                                                custom='buyOrders'
+                                                variants={orderBookVariants}
+                                                className="mt-1 flex flex-col gap-[1px] overflow-y-auto scrollbar-hide custom-scrollbar"
+                                            >
+                                                {isLoading ? (
+                                                    <div className="space-y-0.5">
+                                                        {Array.from({ length: 5 }).map((_, i) => (
+                                                            <div key={i} className={`grid grid-cols-3 text-xs p-1.5 rounded-lg animate-pulse shadow-sm ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                                                                <span className={`h-4 w-3/4 rounded-full ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
+                                                                <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
+                                                                <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    buyOrders.map((order, i) => (
+                                                        <div
+                                                            key={i}
+                                                            className={`relative grid grid-cols-3 text-xs hover:bg-green-500/10 cursor-pointer p-1.5 rounded-lg group px-2 ${hoveredBuyOrder !== null && i <= hoveredBuyOrder ? 'bg-green-500/20' : ''} ${selectedBuyRange !== null && i <= selectedBuyRange ? 'bg-green-500/40' : ''}`}
+                                                            onMouseEnter={() => handleBuyOrderHover(i)}
+                                                            onClick={() => {
+                                                                handleOrderBookPriceClick(order.price, 'sell');
+                                                                toggleBuyOrderSelection(i);
+                                                            }}
+                                                        >
+                                                            <div className="absolute inset-0 bg-green-500/10 rounded-lg" style={{ width: `${(parseFloat(order.amount) / 5) * 100}%` }}></div>
+                                                            <span className="group-hover:text-green-500 relative">{order.price}</span>
+                                                            <span className="text-right relative">{order.amount}</span>
+                                                            <span className="text-right text-gray-500 relative">{order.total}</span>
+                                                        </div>
+                                                    ))
+                                                )}
+                                            </motion.div>
+                                        </div>
                                     </div>
-                                  )}
                                 </div>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      )}
+                        </motion.div>
                     </div>
 
-                    <div className={`p-5 rounded-2xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-sm shadow-sm `}>
-                      <div className="flex flex-col gap-2">
-                        {/* Buy/Sell Tab */}
-                        <div className="mb-2">
-                            <div className={`flex p-0.5 rounded-xl backdrop-blur-sm transition-all duration-300 ${isDarkMode 
-                              ? 'bg-gray-800/40' 
-                              : 'bg-white/40'} 
-                            border border-gray-200/10 shadow-sm h-10`}
-                            >
-                              <button 
-                                onClick={() => setTradeType('buy')}
-                                className={`flex-1 relative overflow-hidden rounded-lg text-sm font-medium transition-all duration-200
-                                  ${tradeType === 'buy'
-                                    ? isDarkMode
-                                      ? 'bg-transparent border-green-400'
-                                      : 'bg-transparent border-green-600'
-                                    : 'hover:bg-gray-200/30'
-                                  }`}
-                              >
-                                <div className="relative flex items-center justify-center h-full">
-                                  <div className="flex items-center gap-1.5">
-                                    <TrendingUp className={`w-3.5 h-3.5 ${tradeType === 'buy' ? 'animate-pulse' : ''}`} />
-                                    <span className="font-medium">Buy</span>
-                                  </div>
-                                  {tradeType === 'buy' && (
-                                    <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-green-500/0 via-green-500 to-green-500/0"></div>
-                                  )}
-                                </div>
-                              </button>
-                              <button 
-                                onClick={() => setTradeType('sell')}
-                                className={`flex-1 relative overflow-hidden rounded-lg text-sm font-medium transition-all duration-200
-                                  ${tradeType === 'sell'
-                                    ? isDarkMode
-                                      ? 'bg-transparent border-pink-400'
-                                      : 'bg-transparent border-pink-600'
-                                    : 'hover:bg-gray-200/30'
-                                  }`}
-                              >
-                                <div className="relative flex items-center justify-center h-full">
-                                  <div className="flex items-center gap-1.5">
-                                    <TrendingDown className={`w-3.5 h-3.5 ${tradeType === 'sell' ? 'animate-pulse' : ''}`} />
-                                    <span className="font-medium">Sell</span>
-                                  </div>
-                                  {tradeType === 'sell' && (
-                                    <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-pink-500/0 via-pink-500 to-pink-500/0"></div>
-                                  )}
-                                </div>
-                              </button>
-                            </div>
-                          </div>
-                        
-                        {/* Trading Inputs */}
-                        <div className="space-y-4">
-                          <div className="relative">
-                            <div className="flex justify-between mb-2">
-                              <label className="block text-sm font-medium text-gray-400">Price</label>
-                              <span className="text-sm text-gray-500">≈ $42,350.00</span>
-                            </div>
-                            <div className="relative group">
-                              <div className="absolute left-0 inset-y-0 flex items-center pl-4">
-                                <img src="/wchz-logo.png" alt="WCHZ" className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
-                              </div>
-                              <input 
-                                type="text" 
-                                value={price}
-                                onChange={(e) => handlePriceChange(e.target.value)}
-                                className={`w-full h-14 pl-11 pr-24 rounded-2xl text-base font-medium transition-all duration-200 
-                                  ${isDarkMode 
-                                    ? 'bg-gray-900/20 focus:bg-gray-900/30 border-gray-700/30 text-white' 
-                                    : 'bg-gray-100/50 focus:bg-white/70 border-gray-200/50 text-gray-900'} 
-                                  border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none backdrop-blur-sm`}
-                                placeholder="0.00"
-                              />
-                              <div className="absolute right-0 inset-y-0 flex items-center gap-1 pr-3">
-                                <span className="text-sm font-medium text-gray-500 mr-2">WCHZ</span>
-                                <div className="flex items-center gap-0.5 bg-gray-200/10 rounded-lg backdrop-blur-sm">
-                                  <button 
-                                    onClick={() => handlePriceChange((parseFloat(price.replace(/,/g, '')) + 1).toLocaleString())}
-                                    className="p-2 rounded-l-lg hover:bg-gray-200/20 transition-all duration-200 active:scale-95"
-                                  >
-                                    <Plus className="w-3.5 h-3.5" />
-                                  </button>
-                                  <div className="h-5 w-px bg-gray-400/10" />
-                                  <button 
-                                    onClick={() => handlePriceChange((parseFloat(price.replace(/,/g, '')) - 1).toLocaleString())}
-                                    className="p-2 rounded-r-lg hover:bg-gray-200/20 transition-all duration-200 active:scale-95"
-                                  >
-                                    <Minus className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="relative">
-                            <div className="flex justify-between mb-2">
-                              <label className="block text-sm font-medium text-gray-400">Amount</label>
-                              <span className="text-sm text-gray-500">Available: 10.000 BTC</span>
-                            </div>
-                            <div className="relative group">
-                              <div className="absolute left-0 inset-y-0 flex items-center pl-4">
-                                <img src={`/${selectedPair.split('/')[0].toLowerCase()}-logo.png`} alt={selectedPair.split('/')[0]} className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
-                              </div>
-                              <input 
-                                type="text" 
-                                value={amount}
-                                onChange={(e) => handleAmountChange(e.target.value)}
-                                className={`w-full h-14 pl-11 pr-24 rounded-2xl text-base font-medium transition-all duration-200 
-                                  ${isDarkMode 
-                                    ? 'bg-gray-900/20 focus:bg-gray-900/30 border-gray-700/30 text-white' 
-                                    : 'bg-gray-100/50 focus:bg-white/70 border-gray-200/50 text-gray-900'} 
-                                  border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none backdrop-blur-sm`}
-                                placeholder="0.00"
-                              />
-                              <div className="absolute right-0 inset-y-0 flex items-center gap-1 pr-3">
-                                <span className="text-sm font-medium text-gray-500 mr-2">{selectedPair.split('/')[0]}</span>
-                                <div className="flex items-center gap-0.5 bg-gray-200/10 rounded-lg backdrop-blur-sm">
-                                  <button 
-                                    onClick={() => handleAmountChange((parseFloat(amount) + 0.01).toFixed(2))}
-                                    className="p-2 rounded-l-lg hover:bg-gray-200/20 transition-all duration-200 active:scale-95"
-                                  >
-                                    <Plus className="w-3.5 h-3.5" />
-                                  </button>
-                                  <div className="h-5 w-px bg-gray-400/10" />
-                                  <button 
-                                    onClick={() => handleAmountChange((parseFloat(amount) - 0.01).toFixed(2))}
-                                    className="p-2 rounded-r-lg hover:bg-gray-200/20 transition-all duration-200 active:scale-95"
-                                  >
-                                    <Minus className="w-3.5 h-3.5" />
-                                  </button>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="relative">
-                            <div className="flex justify-between mb-2">
-                              <label className="block text-sm font-medium text-gray-400">Total</label>
-                              <span className="text-sm text-gray-500">Available: 10,000 USDT</span>
-                            </div>
-                            <div className="relative group">
-                              <div className="absolute left-0 inset-y-0 flex items-center pl-4">
-                                <img src="/wchz-logo.png" alt="WCHZ" className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
-                              </div>
-                              <input 
-                                type="text" 
-                                value={total}
-                                className={`w-full h-14 pl-11 pr-16 rounded-2xl text-base font-medium transition-all duration-200
-                                  ${isDarkMode 
-                                    ? 'bg-gray-900/20 border-gray-700/30 text-white' 
-                                    : 'bg-gray-100/50 border-gray-200/50 text-gray-900'} 
-                                  border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none backdrop-blur-sm`}
-                                readOnly
-                              />
-                              <div className="absolute right-0 inset-y-0 flex items-center pr-4">
-                                <span className="text-sm font-medium text-gray-500">WCHZ</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="grid grid-cols-4 gap-1 mt-2">
-                            {[25, 50, 75, 100].map((percentage) => (
-                              <button 
-                                key={percentage}
-                                onClick={() => handlePercentageClick(percentage)}
-                                className={`py-1 px-1.5 rounded-full text-xs font-medium transition-all duration-200
-                                  ${tradeType === 'buy' 
-                                    ? 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:border-green-300' 
-                                    : 'bg-pink-50 text-pink-600 border-pink-200 hover:bg-pink-100 hover:border-pink-300'} 
-                                  border hover:ring-1 hover:ring-blue-500/10 active:scale-95 shadow-sm`}
-                              >
-                                {percentage}%
-                              </button>
-                            ))}
-                          </div>
-
-                          <button 
-                            className={`w-full h-14 sm:h-12 rounded-2xl sm:rounded-xl text-white text-sm font-medium transition-all duration-300 mt-6 sm:mt-4
-                              ${tradeType === 'buy' 
-                                ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700' 
-                                : 'bg-gradient-to-r from-pink-400 to-pink-600 hover:from-pink-500 hover:to-pink-700'
-                              } flex items-center justify-center gap-2 active:scale-[0.99] hover:shadow-xl backdrop-blur-sm`}
-                          >
-                            <div className="flex items-center gap-2">
-                              <img src={`/${selectedPair.split('/')[0].toLowerCase()}-logo.png`} alt={selectedPair.split('/')[0]} className="w-5 h-5" />
-                              <span>{tradeType === 'buy' ? 'Buy' : 'Sell'} {selectedPair.split('/')[0]}</span>
-                            </div>
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Right Column - Open Orders and Order History */}
-              <div className="col-span-12 sm:col-span-3 space-y-2">
-                {/* Open Orders */}
-                <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'}  transition-all duration-300`}>  
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium">Open Orders</h3>
-                    <div className="flex items-center gap-1">
-                      <button className="p-1 rounded hover:bg-gray-200/20 transition-colors">
-                        <Filter className="w-3 h-3" />
-                      </button>
-                      <Clock className="w-3 h-3" />
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    {[
-                      { type: 'buy', price: '42,350.00', amount: '0.1', filled: '0.05', status: 'Open' },
-                      { type: 'sell', price: '42,400.00', amount: '0.05', filled: '0.02', status: 'Open' },
-                      { type: 'buy', price: '42,300.00', amount: '0.2', filled: '0.1', status: 'Open' }
-                    ].map((order, i) => (
-                      <motion.div 
-                        key={i} 
-                        className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${order.type === 'buy' 
-                          ? isDarkMode
-                            ? 'bg-transparent hover:bg-green-500/20'
-                            : 'bg-transparent hover:bg-green-100'
-                          : isDarkMode 
-                            ? 'bg-transparent hover:bg-pink-500/20' 
-                            : 'bg-transparent hover:bg-pink-100'
-                        }`}
-                        whileHover={{ scale: 1.02 }}
-                        onClick={() => setSelectedOrder(i)}
-                      >
-                        <div className="flex justify-between text-xs">
-                          <span className={`font-medium ${order.type === 'buy' 
-                            ? isDarkMode ? 'text-green-400' : 'text-green-600'
-                            : isDarkMode ? 'text-pink-400' : 'text-pink-600'
-                          }`}>
-                            {order.type.toUpperCase()}
-                          </span>
-                          <span className={`px-1 py-0.5 rounded-full ${
-                            order.status === 'Filled' 
-                              ? 'bg-green-500/10 text-green-500' 
-                              : order.type === 'buy'
-                                ? isDarkMode
-                                  ? 'bg-green-500/20 text-green-400'
-                                  : 'bg-green-50 text-green-600 border border-green-200'
-                                : isDarkMode 
-                                  ? 'bg-pink-500/20 text-pink-400' 
-                                  : 'bg-pink-50 text-pink-600 border border-pink-200'
-                          } text-[10px]`}>
-                            {order.status}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-xs mt-0.5">
-                          <div className="flex flex-col">
-                            <span className="text-[10px] text-gray-500">Price</span>
-                            <span>{order.price}</span>
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-[10px] text-gray-500">Amount</span>
-                            <span>{order.amount}</span>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center text-xs mt-0.5">
-                          <div className="flex flex-col">
-                            <span className="text-[10px] text-gray-500">Filled</span>
-                            <span>{order.filled}</span>
-                          </div>
-                          <button className={`px-2 py-1 rounded text-xs font-medium transition-colors border ${
-                            order.type === 'buy'
-                              ? isDarkMode
-                                ? 'text-green-400 border-green-400 hover:bg-green-500/30'
-                                : 'text-green-600 border-green-600 hover:bg-green-200'
-                              : isDarkMode 
-                                ? 'text-pink-400 border-pink-400 hover:bg-pink-500/30' 
-                                : 'text-pink-600 border-pink-600 hover:bg-pink-200'
-                          }`}>
-                            Cancel
-                          </button>
-                        </div>
-                        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                          <div className={`h-1.5 rounded-full ${order.type === 'buy' ? 'bg-green-500' : 'bg-pink-500'}`} style={{ width: `${(parseFloat(order.filled) / parseFloat(order.amount)) * 100}%` }}></div>
-                        </div>
-                      </motion.div>
-                    ))}
-                  </div>
                 </div>
 
-                {/* Order History */}
-                <div className={`p-3 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'}`}>
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-sm font-medium">Order History</h3>
-                    <div className="flex items-center gap-1">
-                      <button className="p-1 rounded hover:bg-gray-200/20">
-                        <Filter className="w-3 h-3" />
-                      </button>
-                      <History className="w-3 h-3" />
-                    </div>
-                  </div>
-                  <div className="space-y-1">
-                    {[
-                      { type: 'buy', price: '42,350.00', amount: '0.1', time: '10:45:23', status: 'Filled' },
-                      { type: 'sell', price: '42,400.00', amount: '0.05', time: '10:44:15', status: 'Filled' },
-                      { type: 'buy', price: '42,300.00', amount: '0.2', time: '10:43:01', status: 'Cancelled' }
-                    ].map((order, i) => (
-                      <div key={i} className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${isDarkMode 
-                        ? order.type === 'buy' 
-                          ? 'bg-gray-800/20 hover:bg-green-500/20' 
-                          : 'bg-gray-800/20 hover:bg-pink-500/20' 
-                        : order.type === 'buy' 
-                          ? 'bg-white/50 shadow-sm hover:bg-green-100' 
-                          : 'bg-white/50 shadow-sm hover:bg-pink-100'}`}
-                      >
-                        <div className="flex justify-between text-xs">
-                          <span className={`font-medium ${order.type === 'buy' ? 'text-green-500' : 'text-pink-600'}`}> 
-                            {order.type.toUpperCase()}
-                          </span>
-                          <span className={`px-1 py-0.5 rounded-full ${
-                            order.status === 'Filled' 
-                              ? 'bg-green-500/10 text-green-500' 
-                              : isDarkMode 
-                                ? 'bg-pink-500/20 text-pink-400' 
-                                : 'bg-pink-50 text-pink-600 border border-pink-200'
-                          } text-[10px]`}>
-                            {order.status}
-                          </span>
+                <div className="order-1 sm:order-2 lg:col-span-3 flex flex-col gap-4">
+                    <motion.div
+                        className={`relative ${isDarkMode
+                            ? 'bg-gray-800/30 border-gray-700/30'
+                            : 'bg-white/40 border-white/20'
+                            } backdrop-blur-sm p-0.5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden transition-all duration-300 w-full`}
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 }}>
+                        <div className="w-full">
+                            {showPairSelector ? (
+                                <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} min-h-[650px]`}>
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className="flex items-center gap-3">
+                                            <h3 className="text-lg font-semibold">Select Market</h3>
+                                            <div className="relative">
+                                                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                                                <input
+                                                    type="text"
+                                                    value={pairSearch}
+                                                    onChange={(e) => setPairSearch(e.target.value)}
+                                                    placeholder="Search markets..."
+                                                    className={`w-64 h-9 pl-9 pr-4 rounded-xl text-sm transition-all duration-200
+                ${isDarkMode
+                                                            ? 'bg-gray-900/30 focus:bg-gray-900/50 border-gray-700/50'
+                                                            : 'bg-gray-100/70 focus:bg-white/70 border-gray-200/70'} 
+                border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none`}
+                                                />
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => setShowPairSelector(false)}
+                                            className="p-2 rounded-lg hover:bg-gray-200/20 transition-colors"
+                                        >
+                                            <X className="w-5 h-5" />
+                                        </button>
+                                    </div>
+
+                                    <div className="flex items-center gap-2 pb-3 overflow-x-auto custom-scrollbar border-b border-gray-200/10">
+                                        {marketCategories.map((category) => (
+                                            <button
+                                                key={category}
+                                                onClick={() => setSelectedCategory(category)}
+                                                className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200
+              ${selectedCategory === category
+                                                        ? `${isDarkMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600'}`
+                                                        : `${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'} text-gray-500`
+                                                    }`}
+                                            >
+                                                {category === 'Favorites' ? (
+                                                    <div className="flex items-center gap-1.5">
+                                                        <Star className="w-4 h-4 fill-current" />
+                                                        <span>{category}</span>
+                                                    </div>
+                                                ) : category}
+                                            </button>
+                                        ))}
+                                    </div>
+
+                                    <div className="mt-4">
+                                        <div className="grid grid-cols-4 px-4 py-2 border-b border-gray-200/10">
+                                            <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSort('pair')}>
+                                                <span className="text-xs font-medium text-gray-500">Pair</span>
+                                                {sortBy === 'pair' && (
+                                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
+                                                )}
+                                            </div>
+                                            <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('price')}>
+                                                <span className="text-xs font-medium text-gray-500">Price</span>
+                                                {sortBy === 'price' && (
+                                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
+                                                )}
+                                            </div>
+                                            <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('change')}>
+                                                <span className="text-xs font-medium text-gray-500">24h Change</span>
+                                                {sortBy === 'change' && (
+                                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
+                                                )}
+                                            </div>
+                                            <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('volume')}>
+                                                <span className="text-xs font-medium text-gray-500">24h Volume</span>
+                                                {sortBy === 'volume' && (
+                                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="overflow-y-auto max-h-[520px] custom-scrollbar">
+                                            {sortedPairs.map((pair) => (
+                                                <div
+                                                    key={pair.pair}
+                                                    onClick={() => {
+                                                        setSelectedPair(pair.pair);
+                                                        setShowPairSelector(false);
+                                                    }}
+                                                    className={`grid grid-cols-4 px-4 py-3 cursor-pointer transition-all duration-200 hover:scale-[0.99]
+                ${isDarkMode
+                                                            ? 'hover:bg-gray-700/30'
+                                                            : 'hover:bg-gray-100/70'}`}
+                                                >
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="relative">
+                                                            <img src={pair.logo} alt={pair.pair} className="w-8 h-8 min-w-8 min-h-8 rounded-full" />
+                                                            {pair.isFavorite && (
+                                                                <Star className="absolute -top-1 -right-1 w-3.5 h-3.5 text-yellow-400 fill-current" />
+                                                            )}
+                                                        </div>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-medium">{pair.pair}</span>
+                                                            <span className="text-xs text-gray-500">Perpetual</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center justify-end">
+                                                        <span className="font-medium">{pair.price}</span>
+                                                    </div>
+                                                    <div className={`flex items-center justify-end font-medium ${pair.change.startsWith('+') ? 'text-green-500' : 'text-pink-500'
+                                                        }`}>
+                                                        {pair.change}
+                                                    </div>
+                                                    <div className="flex items-center justify-end font-medium text-gray-500">
+                                                        {pair.volume}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                            {sortedPairs.length === 0 && (
+                                                <div className="flex flex-col items-center justify-center h-[400px] text-gray-500">
+                                                    <Search className="w-8 h-8 mb-3" />
+                                                    <span className="text-lg">No markets found</span>
+                                                    <span className="text-sm text-gray-400 mt-1">Try adjusting your search</span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className='flex flex-col gap-4 p-4'>
+                                    {/* Chart */}
+                                    <div className={`w-full`}>
+                                        {!showPairSelector ? (
+                                            <>
+                                                <div className="flex items-center justify-between mb-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="flex gap-1">
+                                                            <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">1m</button>
+                                                            <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">5m</button>
+                                                            <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">15m</button>
+                                                            <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">1h</button>
+                                                            <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">4h</button>
+                                                            <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">1d</button>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <button className="p-1 rounded hover:bg-gray-200/20">
+                                                            <LineChart className="w-4 h-4" />
+                                                        </button>
+                                                        <button className="p-1 rounded hover:bg-gray-200/20">
+                                                            <CandlestickChart className="w-4 h-4" />
+                                                        </button>
+                                                        <button className="p-1 rounded hover:bg-gray-200/20">
+                                                            <BarChart className="w-4 h-4" />
+                                                        </button>
+                                                        <button className="p-1 rounded hover:bg-gray-200/20">
+                                                            <Maximize2 className="w-4 h-4" />
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <div className="h-[29dvh] bg-gray-200/20 rounded-lg flex items-center justify-center">
+                                                    <span className="text-gray-500 text-sm">Chart Area</span>
+                                                </div>
+                                            </>
+                                        ) : (
+                                            <div className="h-[50dvh] relative">
+                                                <div className="absolute inset-0 z-50 backdrop-blur-sm">
+                                                    <div className="h-full flex flex-col">
+                                                        <div className="flex items-center justify-between p-4">
+                                                            <div className="flex items-center gap-3">
+                                                                <h3 className="text-lg font-semibold">Select Market</h3>
+                                                                <div className="relative">
+                                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
+                                                                    <input
+                                                                        type="text"
+                                                                        value={pairSearch}
+                                                                        onChange={(e) => setPairSearch(e.target.value)}
+                                                                        placeholder="Search markets..."
+                                                                        className={`w-64 h-9 pl-9 pr-4 rounded-xl text-sm transition-all duration-200
+                          ${isDarkMode
+                                                                                ? 'bg-gray-900/30 focus:bg-gray-900/50 border-gray-700/50'
+                                                                                : 'bg-gray-100/70 focus:bg-white/70 border-gray-200/70'} 
+                          border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none`}
+                                                                    />
+                                                                </div>
+                                                            </div>
+                                                            <button
+                                                                onClick={() => setShowPairSelector(false)}
+                                                                className="p-2 rounded-lg hover:bg-gray-200/20 transition-colors"
+                                                            >
+                                                                <X className="w-5 h-5" />
+                                                            </button>
+                                                        </div>
+
+                                                        <div className="flex items-center gap-2 px-4 pb-3 overflow-x-auto custom-scrollbar border-b border-gray-200/10">
+                                                            {marketCategories.map((category) => (
+                                                                <button
+                                                                    key={category}
+                                                                    onClick={() => setSelectedCategory(category)}
+                                                                    className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200
+                        ${selectedCategory === category
+                                                                            ? `${isDarkMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600'}`
+                                                                            : `${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'} text-gray-500`
+                                                                        }`}
+                                                                >
+                                                                    {category === 'Favorites' ? (
+                                                                        <div className="flex items-center gap-1.5">
+                                                                            <Star className="w-4 h-4 fill-current" />
+                                                                            <span>{category}</span>
+                                                                        </div>
+                                                                    ) : category}
+                                                                </button>
+                                                            ))}
+                                                        </div>
+
+                                                        <div className="flex-1 overflow-hidden">
+                                                            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200/10">
+                                                                <div className="flex items-center gap-2 w-[30%] cursor-pointer" onClick={() => handleSort('pair')}>
+                                                                    <span className="text-xs font-medium text-gray-500">Pair</span>
+                                                                    {sortBy === 'pair' && (
+                                                                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex items-center justify-end gap-2 w-[20%] cursor-pointer" onClick={() => handleSort('price')}>
+                                                                    <span className="text-xs font-medium text-gray-500">Price</span>
+                                                                    {sortBy === 'price' && (
+                                                                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex items-center justify-end gap-2 w-[25%] cursor-pointer" onClick={() => handleSort('change')}>
+                                                                    <span className="text-xs font-medium text-gray-500">24h Change</span>
+                                                                    {sortBy === 'change' && (
+                                                                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
+                                                                    )}
+                                                                </div>
+                                                                <div className="flex items-center justify-end gap-2 w-[25%] cursor-pointer" onClick={() => handleSort('volume')}>
+                                                                    <span className="text-xs font-medium text-gray-500">24h Volume</span>
+                                                                    {sortBy === 'volume' && (
+                                                                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
+                                                                    )}
+                                                                </div>
+                                                            </div>
+
+                                                            <div className="h-[calc(100%-40px)] overflow-y-auto custom-scrollbar">
+                                                                {sortedPairs.map((pair) => (
+                                                                    <div
+                                                                        key={pair.pair}
+                                                                        onClick={() => {
+                                                                            setSelectedPair(pair.pair);
+                                                                            setShowPairSelector(false);
+                                                                        }}
+                                                                        className={`flex items-center justify-between px-4 py-3 cursor-pointer transition-colors
+                          ${isDarkMode
+                                                                                ? 'hover:bg-gray-700/30'
+                                                                                : 'hover:bg-gray-100/70'}`}
+                                                                    >
+                                                                        <div className="flex items-center gap-3 w-[30%]">
+                                                                            <div className="relative">
+                                                                                <img src={pair.logo} alt={pair.pair} className="w-7 h-7" />
+                                                                                {pair.isFavorite && (
+                                                                                    <Star className="absolute -top-1 -right-1 w-3.5 h-3.5 text-yellow-400 fill-current" />
+                                                                                )}
+                                                                            </div>
+                                                                            <span className="font-medium">{pair.pair}</span>
+                                                                        </div>
+                                                                        <div className="w-[20%] text-right font-medium">{pair.price}</div>
+                                                                        <div className={`w-[25%] text-right font-medium ${pair.change.startsWith('+') ? 'text-green-500' : 'text-pink-500'
+                                                                            }`}>
+                                                                            {pair.change}
+                                                                        </div>
+                                                                        <div className="w-[25%] text-right font-medium text-gray-500">{pair.volume}</div>
+                                                                    </div>
+                                                                ))}
+                                                                {sortedPairs.length === 0 && (
+                                                                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
+                                                                        <Search className="w-6 h-6 mb-2" />
+                                                                        <span>No markets found</span>
+                                                                    </div>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                   
+                                        <div className={`p-5 rounded-2xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-sm shadow-sm `}>
+                                            {/* Buy/Sell Tab */}
+                                            <div className="mb-2">
+                                                <div className={`flex p-0.5 rounded-xl backdrop-blur-sm transition-all duration-300 ${isDarkMode
+                                                    ? 'bg-gray-800/40'
+                                                    : 'bg-white/40'} 
+              border border-gray-200/10 shadow-sm h-10`}
+                                                >
+                                                    <button
+                                                        onClick={() => setTradeType('buy')}
+                                                        className={`flex-1 relative overflow-hidden rounded-lg text-sm font-medium transition-all duration-200
+                    ${tradeType === 'buy'
+                                                                ? isDarkMode
+                                                                    ? 'bg-transparent border-green-400'
+                                                                    : 'bg-transparent border-green-600'
+                                                                : 'hover:bg-gray-200/30'
+                                                            }`}
+                                                    >
+                                                        <div className="relative flex items-center justify-center h-full">
+                                                            <div className="flex items-center gap-1.5">
+                                                                <TrendingUp className={`w-3.5 h-3.5 ${tradeType === 'buy' ? 'animate-pulse' : ''}`} />
+                                                                <span className="font-medium">Buy</span>
+                                                            </div>
+                                                            {tradeType === 'buy' && (
+                                                                <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-green-500/0 via-green-500 to-green-500/0"></div>
+                                                            )}
+                                                        </div>
+                                                    </button>
+                                                    <button
+                                                        onClick={() => setTradeType('sell')}
+                                                        className={`flex-1 relative overflow-hidden rounded-lg text-sm font-medium transition-all duration-200
+                    ${tradeType === 'sell'
+                                                                ? isDarkMode
+                                                                    ? 'bg-transparent border-pink-400'
+                                                                    : 'bg-transparent border-pink-600'
+                                                                : 'hover:bg-gray-200/30'
+                                                            }`}
+                                                    >
+                                                        <div className="relative flex items-center justify-center h-full">
+                                                            <div className="flex items-center gap-1.5">
+                                                                <TrendingDown className={`w-3.5 h-3.5 ${tradeType === 'sell' ? 'animate-pulse' : ''}`} />
+                                                                <span className="font-medium">Sell</span>
+                                                            </div>
+                                                            {tradeType === 'sell' && (
+                                                                <div className="absolute bottom-0 left-1/4 right-1/4 h-0.5 bg-gradient-to-r from-pink-500/0 via-pink-500 to-pink-500/0"></div>
+                                                            )}
+                                                        </div>
+                                                    </button>
+                                                </div>
+                                            </div>
+
+                                            {/* Trading Inputs */}
+                                            <div className="space-y-4">
+                                                <div className="relative">
+                                                    <div className="flex justify-between mb-2">
+                                                        <label className="block text-sm font-medium text-gray-400">Price</label>
+                                                        <span className="text-sm text-gray-500">≈ $42,350.00</span>
+                                                    </div>
+                                                    <div className="relative group">
+                                                        <div className="absolute left-0 inset-y-0 flex items-center pl-4">
+                                                            <img src="/wchz-logo.png" alt="WCHZ" className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+                                                        </div>
+                                                        <input
+                                                            type="text"
+                                                            value={price}
+                                                            onChange={(e) => handlePriceChange(e.target.value)}
+                                                            className={`w-full h-14 pl-11 pr-24 rounded-2xl text-base font-medium transition-all duration-200 
+                    ${isDarkMode
+                                                                    ? 'bg-gray-900/20 focus:bg-gray-900/30 border-gray-700/30 text-white'
+                                                                    : 'bg-gray-100/50 focus:bg-white/70 border-gray-200/50 text-gray-900'} 
+                    border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none backdrop-blur-sm`}
+                                                            placeholder="0.00"
+                                                        />
+                                                        <div className="absolute right-0 inset-y-0 flex items-center gap-1 pr-3">
+                                                            <span className="text-sm font-medium text-gray-500 mr-2">WCHZ</span>
+                                                            <div className="flex items-center gap-0.5 bg-gray-200/10 rounded-lg backdrop-blur-sm">
+                                                                <button
+                                                                    onClick={() => handlePriceChange((parseFloat(price.replace(/,/g, '')) + 1).toLocaleString())}
+                                                                    className="p-2 rounded-l-lg hover:bg-gray-200/20 transition-all duration-200 active:scale-95"
+                                                                >
+                                                                    <Plus className="w-3.5 h-3.5" />
+                                                                </button>
+                                                                <div className="h-5 w-px bg-gray-400/10" />
+                                                                <button
+                                                                    onClick={() => handlePriceChange((parseFloat(price.replace(/,/g, '')) - 1).toLocaleString())}
+                                                                    className="p-2 rounded-r-lg hover:bg-gray-200/20 transition-all duration-200 active:scale-95"
+                                                                >
+                                                                    <Minus className="w-3.5 h-3.5" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="relative">
+                                                    <div className="flex justify-between mb-2">
+                                                        <label className="block text-sm font-medium text-gray-400">Amount</label>
+                                                        <span className="text-sm text-gray-500">Available: 10.000 BTC</span>
+                                                    </div>
+                                                    <div className="relative group">
+                                                        <div className="absolute left-0 inset-y-0 flex items-center pl-4">
+                                                            <img src={`/${selectedPair.split('/')[0].toLowerCase()}-logo.png`} alt={selectedPair.split('/')[0]} className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+                                                        </div>
+                                                        <input
+                                                            type="text"
+                                                            value={amount}
+                                                            onChange={(e) => handleAmountChange(e.target.value)}
+                                                            className={`w-full h-14 pl-11 pr-24 rounded-2xl text-base font-medium transition-all duration-200 
+                    ${isDarkMode
+                                                                    ? 'bg-gray-900/20 focus:bg-gray-900/30 border-gray-700/30 text-white'
+                                                                    : 'bg-gray-100/50 focus:bg-white/70 border-gray-200/50 text-gray-900'} 
+                    border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none backdrop-blur-sm`}
+                                                            placeholder="0.00"
+                                                        />
+                                                        <div className="absolute right-0 inset-y-0 flex items-center gap-1 pr-3">
+                                                            <span className="text-sm font-medium text-gray-500 mr-2">{selectedPair.split('/')[0]}</span>
+                                                            <div className="flex items-center gap-0.5 bg-gray-200/10 rounded-lg backdrop-blur-sm">
+                                                                <button
+                                                                    onClick={() => handleAmountChange((parseFloat(amount) + 0.01).toFixed(2))}
+                                                                    className="p-2 rounded-l-lg hover:bg-gray-200/20 transition-all duration-200 active:scale-95"
+                                                                >
+                                                                    <Plus className="w-3.5 h-3.5" />
+                                                                </button>
+                                                                <div className="h-5 w-px bg-gray-400/10" />
+                                                                <button
+                                                                    onClick={() => handleAmountChange((parseFloat(amount) - 0.01).toFixed(2))}
+                                                                    className="p-2 rounded-r-lg hover:bg-gray-200/20 transition-all duration-200 active:scale-95"
+                                                                >
+                                                                    <Minus className="w-3.5 h-3.5" />
+                                                                </button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="relative">
+                                                    <div className="flex justify-between mb-2">
+                                                        <label className="block text-sm font-medium text-gray-400">Total</label>
+                                                        <span className="text-sm text-gray-500">Available: 10,000 USDT</span>
+                                                    </div>
+                                                    <div className="relative group">
+                                                        <div className="absolute left-0 inset-y-0 flex items-center pl-4">
+                                                            <img src="/wchz-logo.png" alt="WCHZ" className="w-5 h-5 opacity-70 group-hover:opacity-100 transition-opacity" />
+                                                        </div>
+                                                        <input
+                                                            type="text"
+                                                            value={total}
+                                                            className={`w-full h-14 pl-11 pr-16 rounded-2xl text-base font-medium transition-all duration-200
+                    ${isDarkMode
+                                                                    ? 'bg-gray-900/20 border-gray-700/30 text-white'
+                                                                    : 'bg-gray-100/50 border-gray-200/50 text-gray-900'} 
+                    border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none backdrop-blur-sm`}
+                                                            readOnly
+                                                        />
+                                                        <div className="absolute right-0 inset-y-0 flex items-center pr-4">
+                                                            <span className="text-sm font-medium text-gray-500">WCHZ</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div className="grid grid-cols-4 gap-1 mt-2">
+                                                    {[25, 50, 75, 100].map((percentage) => (
+                                                        <button
+                                                            key={percentage}
+                                                            onClick={() => handlePercentageClick(percentage)}
+                                                            className={`py-1 px-1.5 rounded-full text-xs font-medium transition-all duration-200
+                    ${tradeType === 'buy'
+                                                                    ? 'bg-green-50 text-green-600 border-green-200 hover:bg-green-100 hover:border-green-300'
+                                                                    : 'bg-pink-50 text-pink-600 border-pink-200 hover:bg-pink-100 hover:border-pink-300'} 
+                    border hover:ring-1 hover:ring-blue-500/10 active:scale-95 shadow-sm`}
+                                                        >
+                                                            {percentage}%
+                                                        </button>
+                                                    ))}
+                                                </div>
+
+                                                <button
+                                                    className={`w-full h-14 sm:h-12 rounded-2xl sm:rounded-xl text-white text-sm font-medium transition-all duration-300 mt-6 sm:mt-4
+                ${tradeType === 'buy'
+                                                            ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
+                                                            : 'bg-gradient-to-r from-pink-400 to-pink-600 hover:from-pink-500 hover:to-pink-700'
+                                                        } flex items-center justify-center gap-2 active:scale-[0.99] hover:shadow-xl backdrop-blur-sm`}
+                                                >
+                                                    <div className="flex items-center gap-2">
+                                                        <img src={`/${selectedPair.split('/')[0].toLowerCase()}-logo.png`} alt={selectedPair.split('/')[0]} className="w-5 h-5" />
+                                                        <span>{tradeType === 'buy' ? 'Buy' : 'Sell'} {selectedPair.split('/')[0]}</span>
+                                                    </div>
+                                                </button>
+                                            </div>
+                                        </div>
+                                </div>
+                            )}
                         </div>
-                        <div className="flex justify-between text-xs mt-0.5">
-                          <div className="flex flex-col">
-                            <span className="text-[10px] text-gray-500">Price</span>
-                            <span>{order.price}</span>
-                          </div>
-                          <div className="flex flex-col">
-                            <span className="text-[10px] text-gray-500">Amount</span>
-                            <span>{order.amount}</span>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center text-xs mt-0.5">
-                          <span className="text-[10px] text-gray-500">{order.time}</span>
-                          <button className="px-1.5 py-0.5 rounded text-[10px] bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors">
-                            Details
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                    </motion.div>
                 </div>
-              </div>
+
+                <div className="order-3 sm:order-3 lg:col-span-2">
+                    <motion.div
+                        className={`relative ${isDarkMode
+                            ? 'bg-gray-800/30 border-gray-700/30'
+                            : 'bg-white/40 border-white/20'
+                            } backdrop-blur-sm p-0.5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden transition-all duration-300 w-full`}
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 }}>
+                        <div className="flex-1">
+                            {/* Open Orders */}
+                            <div className={`p-3  transition-all duration-300`}>
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="text-sm font-medium">Open Orders</h3>
+                                    <div className="flex items-center gap-1">
+                                        <button className="p-1 rounded hover:bg-gray-200/20 transition-colors">
+                                            <Filter className="w-3 h-3" />
+                                        </button>
+                                        <Clock className="w-3 h-3" />
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    {[
+                                        { type: 'buy', price: '42,350.00', amount: '0.1', filled: '0.05', status: 'Open' },
+                                        { type: 'sell', price: '42,400.00', amount: '0.05', filled: '0.02', status: 'Open' },
+                                        { type: 'buy', price: '42,300.00', amount: '0.2', filled: '0.1', status: 'Open' }
+                                    ].map((order, i) => (
+                                        <motion.div
+                                            key={i}
+                                            className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${order.type === 'buy'
+                                                ? isDarkMode
+                                                    ? 'bg-transparent hover:bg-green-500/20'
+                                                    : 'bg-transparent hover:bg-green-100'
+                                                : isDarkMode
+                                                    ? 'bg-transparent hover:bg-pink-500/20'
+                                                    : 'bg-transparent hover:bg-pink-100'
+                                                }`}
+                                            whileHover={{ scale: 1.02 }}
+                                            onClick={() => setSelectedOrder(i)}
+                                        >
+                                            <div className="flex justify-between text-xs">
+                                                <span className={`font-medium ${order.type === 'buy'
+                                                    ? isDarkMode ? 'text-green-400' : 'text-green-600'
+                                                    : isDarkMode
+                                                        ? 'text-pink-400'
+                                                        : 'text-pink-600'
+                                                    }`}>
+                                                    {order.type.toUpperCase()}
+                                                </span>
+                                                <span className={`px-1 py-0.5 rounded-full ${order.status === 'Filled'
+                                                    ? 'bg-green-500/10 text-green-500'
+                                                    : order.type === 'buy'
+                                                        ? isDarkMode
+                                                            ? 'bg-green-500/20 text-green-400'
+                                                            : 'bg-green-50 text-green-600 border border-green-200'
+                                                        : isDarkMode
+                                                            ? 'bg-pink-500/20 text-pink-400'
+                                                            : 'bg-pink-50 text-pink-600 border border-pink-200'
+                                                    } text-[10px]`}>
+                                                    {order.status}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between text-xs mt-0.5">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] text-gray-500">Price</span>
+                                                    <span>{order.price}</span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] text-gray-500">Amount</span>
+                                                    <span>{order.amount}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-between items-center text-xs mt-0.5">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] text-gray-500">Filled</span>
+                                                    <span>{order.filled}</span>
+                                                </div>
+                                                <button className={`px-2 py-1 rounded text-xs font-medium transition-colors border ${order.type === 'buy'
+                                                    ? isDarkMode
+                                                        ? 'text-green-400 border-green-400 hover:bg-green-500/30'
+                                                        : 'text-green-600 border-green-600 hover:bg-green-200'
+                                                    : isDarkMode
+                                                        ? 'text-pink-400 border-pink-400 hover:bg-pink-500/30'
+                                                        : 'text-pink-600 border-pink-600 hover:bg-pink-200'
+                                                    }`}>
+                                                    Cancel
+                                                </button>
+                                            </div>
+                                            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                                <div className={`h-1.5 rounded-full ${order.type === 'buy' ? 'bg-green-500' : 'bg-pink-500'}`} style={{ width: `${(parseFloat(order.filled) / parseFloat(order.amount)) * 100}%` }}></div>
+                                            </div>
+                                        </motion.div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Order History */}
+                            <div className={`p-3 rounded-xl`}>
+                                <div className="flex items-center justify-between mb-2">
+                                    <h3 className="text-sm font-medium">Order History</h3>
+                                    <div className="flex items-center gap-1">
+                                        <button className="p-1 rounded hover:bg-gray-200/20 transition-colors">
+                                            <Filter className="w-3 h-3" />
+                                        </button>
+                                        <History className="w-3 h-3" />
+                                    </div>
+                                </div>
+                                <div className="space-y-1">
+                                    {[
+                                        { type: 'buy', price: '42,350.00', amount: '0.1', time: '10:45:23', status: 'Filled' },
+                                        { type: 'sell', price: '42,400.00', amount: '0.05', time: '10:44:15', status: 'Filled' },
+                                        { type: 'sell', price: '42,400.00', amount: '0.05', time: '10:44:15', status: 'Filled' },
+                                        { type: 'buy', price: '42,300.00', amount: '0.2', time: '10:43:01', status: 'Cancelled' }
+                                    ].map((order, i) => (
+                                        <div key={i} className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${isDarkMode
+                                            ? order.type === 'buy'
+                                                ? 'bg-gray-800/20 hover:bg-green-500/20'
+                                                : 'bg-gray-800/20 hover:bg-pink-500/20'
+                                            : order.type === 'buy'
+                                                ? 'bg-white/50 shadow-sm hover:bg-green-100'
+                                                : 'bg-white/50 shadow-sm hover:bg-pink-100'}`}
+                                        >
+                                            <div className="flex justify-between text-xs">
+                                                <span className={`font-medium ${order.type === 'buy' ? 'text-green-500' : 'text-pink-600'}`}>
+                                                    {order.type.toUpperCase()}
+                                                </span>
+                                                <span className={`px-1 py-0.5 rounded-full ${order.status === 'Filled'
+                                                    ? 'bg-green-500/10 text-green-500'
+                                                    : isDarkMode
+                                                        ? 'bg-pink-500/20 text-pink-400'
+                                                        : 'bg-pink-50 text-pink-600 border border-pink-200'
+                                                    } text-[10px]`}>
+                                                    {order.status}
+                                                </span>
+                                            </div>
+                                            <div className="flex justify-between text-xs mt-0.5">
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] text-gray-500">Price</span>
+                                                    <span>{order.price}</span>
+                                                </div>
+                                                <div className="flex flex-col">
+                                                    <span className="text-[10px] text-gray-500">Amount</span>
+                                                    <span>{order.amount}</span>
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-between items-center text-xs mt-0.5">
+                                                <span className="text-[10px] text-gray-500">{order.time}</span>
+                                                <button className="px-1.5 py-0.5 rounded text-[10px] bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors">
+                                                    Details
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
             </div>
-          </div>
-        </motion.div>
-      </div>
+        </div>
     );
 };
 
