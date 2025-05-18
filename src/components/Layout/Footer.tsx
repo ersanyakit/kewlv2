@@ -15,7 +15,7 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
       className={`w-full max-w-6xl mx-auto ${
         isDarkMode 
           ? 'bg-gray-800/90 border-gray-700/50' 
-          : 'bg-white/80 border-white/30'
+          : 'bg-white/40 border-white/30'
       } backdrop-blur-xl rounded-3xl px-5 py-4 shadow-[0_4px_20px_rgba(0,0,0,0.08)] border transition-all duration-300`}
       initial={{ y: 20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}

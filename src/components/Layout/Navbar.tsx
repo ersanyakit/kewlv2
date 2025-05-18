@@ -27,7 +27,7 @@ const Navbar: React.FC<NavbarProps> = () => {
       className={`w-full max-w-6xl mx-auto ${
         isDarkMode 
           ? 'bg-gray-800/80 border-gray-700/50' 
-          : 'bg-white/80 border-white/30'
+          : 'bg-white/40 border-white/30'
       } backdrop-blur-xl rounded-3xl px-4 sm:px-6 py-3 sm:py-3.5 shadow-[0_4px_20px_rgba(0,0,0,0.08)] border flex justify-between items-center transition-all duration-500 sticky top-4 z-50`}
       initial={{ y: -30, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
