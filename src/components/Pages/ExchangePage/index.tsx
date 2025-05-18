@@ -963,6 +963,9 @@ const ExchangePage = () => {
                             Cancel
                           </button>
                         </div>
+                        <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                          <div className={`h-1.5 rounded-full ${order.type === 'buy' ? 'bg-green-500' : 'bg-pink-500'}`} style={{ width: `${(parseFloat(order.filled) / parseFloat(order.amount)) * 100}%` }}></div>
+                        </div>
                       </motion.div>
                     ))}
                   </div>
