@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useTokenContext } from '../../../context/TokenContext';
 import { motion } from 'framer-motion';
 import { useAppKitAccount } from '@reown/appkit/react';
@@ -75,6 +75,10 @@ const ExchangePage = () => {
     });
     const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
     const isLoading = false; // Set to true to simulate loading state
+    const [hoveredSellOrder, setHoveredSellOrder] = useState<number | null>(null);
+    const [hoveredBuyOrder, setHoveredBuyOrder] = useState<number | null>(null);
+    const [selectedSellRange, setSelectedSellRange] = useState<number | null>(null);
+    const [selectedBuyRange, setSelectedBuyRange] = useState<number | null>(null);
 
     const _tradingPairs = [
       { pair: 'GAL/WCHZ', price: '4.35', change: '+2.5%', volume: '1.2M', isFavorite: true, logo: '/gal-logo.png' },
@@ -177,9 +181,18 @@ const ExchangePage = () => {
 
     const { sellOrders, buyOrders } = generateOrderBookData();
 
+    const totalOrderBookHeight = 60; // Total height for both sections combined
+
     const orderBookVariants = {
       collapsed: { height: 0, opacity: 0 },
-      expanded: { height: 'auto', opacity: 1, transition: { duration: 0.3 } }
+      expanded: (section: 'buyOrders' | 'sellOrders') => {
+        const bothExpanded = expandedSections.buyOrders && expandedSections.sellOrders;
+        return {
+          height: bothExpanded ? `${totalOrderBookHeight / 2}dvh` : `${totalOrderBookHeight}dvh`,
+          opacity: 1,
+          transition: { duration: 0.3 }
+        };
+      }
     };
 
     // Update price, total, and trade type when a price is selected from the order book
@@ -188,6 +201,29 @@ const ExchangePage = () => {
       setTotal((parseFloat(price.replace(/,/g, '')) * parseFloat(amount)).toLocaleString());
       setTradeType(type);
     };
+
+    const handleSellOrderHover = (index: number) => {
+      setHoveredSellOrder(index);
+    };
+
+    const handleBuyOrderHover = (index: number) => {
+      setHoveredBuyOrder(index);
+    };
+
+    const toggleSellOrderSelection = (index: number) => {
+      setSelectedSellRange(prev => (prev === index ? null : index));
+    };
+
+    const toggleBuyOrderSelection = (index: number) => {
+      setSelectedBuyRange(prev => (prev === index ? null : index));
+    };
+
+    useEffect(() => {
+      setHoveredSellOrder(null);
+      setHoveredBuyOrder(null);
+      setSelectedSellRange(null);
+      setSelectedBuyRange(null);
+    }, [tradeType]);
 
     return (
       <div className="w-full h-full max-w-6xl min-h-[73dvh] mx-auto flex flex-col items-center justify-center py-4">
@@ -274,8 +310,9 @@ const ExchangePage = () => {
                       <motion.div
                         initial="collapsed"
                         animate={expandedSections.sellOrders ? 'expanded' : 'collapsed'}
+                        custom='sellOrders'
                         variants={orderBookVariants}
-                        className="mt-1 space-y-0.5 max-h-[300px] scrollbar-hide overflow-y-auto custom-scrollbar flex flex-col-reverse"
+                        className="mt-1 space-y-0.5 overflow-y-auto scrollbar-hide custom-scrollbar flex flex-col-reverse"
                       >
                         {isLoading ? (
                           <div className="space-y-0.5">
@@ -291,8 +328,12 @@ const ExchangePage = () => {
                           sellOrders.reverse().map((order, i) => (
                             <div 
                               key={i} 
-                              className="relative grid grid-cols-3 text-xs hover:bg-pink-500/20 cursor-pointer p-1.5 rounded-lg group px-2"
-                              onClick={() => handleOrderBookPriceClick(order.price, 'buy')}
+                              className={`relative grid grid-cols-3 text-xs hover:bg-pink-500/20 cursor-pointer p-1.5 rounded-lg group px-2 ${hoveredSellOrder !== null && i <= hoveredSellOrder ? 'bg-pink-500/20' : ''} ${selectedSellRange !== null && i <= selectedSellRange ? 'bg-pink-500/40' : ''}`}
+                              onMouseEnter={() => handleSellOrderHover(i)}
+                              onClick={() => {
+                                handleOrderBookPriceClick(order.price, 'buy');
+                                toggleSellOrderSelection(i);
+                              }}
                             >
                               <div className="absolute inset-0 bg-pink-500/10 rounded-lg" style={{ width: `${(parseFloat(order.amount) / 5) * 100}%` }}></div>
                               <span className="group-hover:text-pink-400 relative">{order.price}</span>
@@ -321,8 +362,9 @@ const ExchangePage = () => {
                       <motion.div
                         initial="collapsed"
                         animate={expandedSections.buyOrders ? 'expanded' : 'collapsed'}
+                        custom='buyOrders'
                         variants={orderBookVariants}
-                        className="mt-1 space-y-0.5 max-h-[300px] overflow-y-auto scrollbar-hide custom-scrollbar"
+                        className="mt-1 space-y-0.5 overflow-y-auto scrollbar-hide custom-scrollbar"
                       >
                         {isLoading ? (
                           <div className="space-y-0.5">
@@ -338,8 +380,12 @@ const ExchangePage = () => {
                           buyOrders.map((order, i) => (
                             <div 
                               key={i} 
-                              className="relative grid grid-cols-3 text-xs hover:bg-green-500/10 cursor-pointer p-1.5 rounded-lg group px-2"
-                              onClick={() => handleOrderBookPriceClick(order.price, 'sell')}
+                              className={`relative grid grid-cols-3 text-xs hover:bg-green-500/10 cursor-pointer p-1.5 rounded-lg group px-2 ${hoveredBuyOrder !== null && i <= hoveredBuyOrder ? 'bg-green-500/20' : ''} ${selectedBuyRange !== null && i <= selectedBuyRange ? 'bg-green-500/40' : ''}`}
+                              onMouseEnter={() => handleBuyOrderHover(i)}
+                              onClick={() => {
+                                handleOrderBookPriceClick(order.price, 'sell');
+                                toggleBuyOrderSelection(i);
+                              }}
                             >
                               <div className="absolute inset-0 bg-green-500/10 rounded-lg" style={{ width: `${(parseFloat(order.amount) / 5) * 100}%` }}></div>
                               <span className="group-hover:text-green-500 relative">{order.price}</span>
@@ -641,8 +687,8 @@ const ExchangePage = () => {
                       )}
                     </div>
 
-                    <div className={`p-5 rounded-2xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-sm shadow-sm border border-gray-200/10`}>
-                      <div className="flex flex-col gap-6">
+                    <div className={`p-5 rounded-2xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-sm shadow-sm `}>
+                      <div className="flex flex-col gap-2">
                         {/* Buy/Sell Tab */}
                         <div className="mb-2">
                             <div className={`flex p-0.5 rounded-xl backdrop-blur-sm transition-all duration-300 ${isDarkMode 
