@@ -44,14 +44,14 @@ export const ContractList: MultiContractConfig = {
             42161: {
                 address: "0xA0BB8f9865f732C277d0C162249A4F6c157ae9D0",
             },
-            31337: {
-                address: "0xA0BB8f9865f732C277d0C162249A4F6c157ae9D0",
-            },
             43114: {
                 address: "0xA0BB8f9865f732C277d0C162249A4F6c157ae9D0",
             },
             146: {
                 address: "0xA0BB8f9865f732C277d0C162249A4F6c157ae9D0",
+            },
+            31337: {
+                address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
             },
         },
     },

@@ -80,6 +80,9 @@ const initialPairState: TPairState = {
 };
 // Context için tip tanımı
 interface SwapContextProps {
+
+  orderBook: OrderBook;
+  setOrderBook: (orderBook: OrderBook) => void;
   // Diğer özellikler...
   swapResult: SwapResult | null;
   canSwap: boolean;
@@ -138,6 +141,8 @@ interface SwapContextProps {
   handleRemoveLiquidity: (walletProvider: any) => void;
   fetchLiquidityInfo: (walletProvider: any) => void;
   fetchUseTradeStats: (chainId: string | number, walletProvider: any | undefined, account: string | undefined) => void;
+  fetchOrderBook: (walletProvider: any) => void;  
+  placeLimitOrder: (walletProvider: any, params: LimitOrderParam) => void;
 }
 
 // Context varsayılan değeri
@@ -213,6 +218,16 @@ const defaultContext: SwapContextProps = {
   fetchUseTradeStats: () => { },
   fetchClaimedRewards: () => { },
   handleClaimedRewards: () => { },
+  orderBook: {
+    maxBuyTotal: 0n,
+    maxSellTotal: 0n,
+    loading: false,
+    buy: [],
+    sell: []
+  },
+  setOrderBook: () => { },  
+  fetchOrderBook: () => { },
+  placeLimitOrder: () => { },
 };
 
 // Context oluşturma
@@ -393,6 +408,77 @@ interface TPairState {
 }
 
 
+/** LIMIT ORDER PROTOCOL */
+
+export interface PriceLevel {//contract
+  price: bigint;
+  baseLiquidity: bigint;
+  quoteLiquidity: bigint;
+
+  head: bigint;
+  tail: bigint;
+  orderCount: bigint;
+
+  nextTickPrice: bigint;
+  prevTickPrice: bigint;
+
+  sequence: bigint;
+
+  exists: boolean;
+}
+
+export interface PriceLevelOrderBook {//ui
+  price: bigint;
+  baseLiquidity: bigint;
+  quoteLiquidity: bigint;
+
+  head: bigint;
+  tail: bigint;
+  orderCount: bigint;
+
+  nextTickPrice: bigint;
+  prevTickPrice: bigint;
+
+  total:bigint;
+  amount:bigint;
+
+  sequence: bigint;
+
+  exists: boolean;
+}
+
+export interface OrderBook {
+  buy: PriceLevelOrderBook[];
+  sell: PriceLevelOrderBook[];
+  loading: boolean;
+  maxBuyTotal:bigint;
+  maxSellTotal:bigint;
+}
+
+export enum OrderKind {
+  BUY_LIMIT = 0,
+  BUY_MARKET = 1,
+  SELL_LIMIT = 2,
+  SELL_MARKET = 3,
+  BUY_STOP_LOSS = 4,
+  BUY_STOP_LIMIT = 5,
+  BUY_TAKE_PROFIT = 6,
+  BUY_TAKE_PROFIT_LIMIT = 7,
+  SELL_STOP_LOSS = 8,
+  SELL_STOP_LIMIT = 9,
+  SELL_TAKE_PROFIT = 10,
+  SELL_TAKE_PROFIT_LIMIT = 11
+}
+
+export interface LimitOrderParam {
+  kind: OrderKind;
+  token0: string;        // Ethereum adresi olduğu için string
+  token1: string;
+  price: bigint;         // uint256 için bigint uygun
+  amount: bigint;
+  ticks: bigint[];       // uint256[] dizisi için bigint[]
+}
+
 
 export interface TradeItemProps {
   pair: TCustomPair,
@@ -459,7 +545,13 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     jackpotAmount: 0n,
     isLoaded: false,
   });
-
+  const [orderBook, setOrderBook] = useState<OrderBook>({
+    buy: [],
+    sell: [],
+    maxBuyTotal:0n,
+    maxSellTotal:0n,  
+    loading: false,
+  });
 
 
   const [userTradingStats, setUserTradingStats] = useState<UserTradingStats | null>(null);
@@ -2378,6 +2470,99 @@ const formatted = date.toLocaleString('en-US', {
    
     
   }
+
+  const fetchOrderBook = async (walletProvider: any) => {
+    const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+    setOrderBook({
+      loading: true,
+      maxBuyTotal:0n,
+      maxSellTotal:0n,  
+      buy: [],
+      sell: []
+    });
+    
+    const limit = 100;
+    const pairHash = "0x476fa95dd4b9e538daae00223eddea9a2d89d85c196266748cc1a1d0fddb7362";
+    const _levels: any = await dexContract.client.readContract({
+      address: dexContract.caller.address,
+      abi: dexContract.abi,
+      functionName: 'orderBook',
+      args: [pairHash, limit],
+      account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
+    }) as [PriceLevel[]]
+
+    console.log("_gelenLevels", _levels)
+
+
+    const mapOrderBookLevels = (levels: PriceLevel[]): OrderBook => {
+      const buy: PriceLevelOrderBook[] = [];
+      const sell: PriceLevelOrderBook[] = [];
+    
+      let buyTotal = 0n;
+      let sellTotal = 0n;
+    
+      for (const level of levels) {
+        if (!level.exists) continue;
+    
+        if (level.quoteLiquidity > 0n) {
+          buyTotal += level.quoteLiquidity;
+          buy.push({
+            ...level,
+            total: buyTotal,
+            amount: level.quoteLiquidity
+          });
+        }
+    
+        if (level.baseLiquidity > 0n) {
+          sellTotal += level.baseLiquidity;
+          sell.push({
+            ...level,
+            total: sellTotal,
+            amount: level.baseLiquidity
+          });
+        }
+      }
+      const maxSellTotal = sell.length > 0 ? sell[sell.length - 1].total : 1n;
+      const maxBuyTotal = buy.length > 0 ? buy[buy.length - 1].total : 1n;
+    
+      return {
+        loading: false,
+        buy,
+        sell,
+        maxBuyTotal,
+        maxSellTotal
+      };
+    };
+    const _orderBook = mapOrderBookLevels(_levels)
+    console.log("orderBook", _orderBook)
+    setOrderBook(_orderBook)
+
+    
+      
+     
+
+
+   
+  }
+
+  const placeLimitOrder = async (walletProvider : any,params: LimitOrderParam) => {
+    const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+
+    const [signerAccount] = await dexContract.wallet.getAddresses()
+
+    const tx: any = await dexContract.wallet.writeContract({
+      chain: dexContract.client.chain,
+      address: dexContract.caller.address as `0x${string}`,
+      abi: dexContract.abi,
+      functionName: "create",
+      args: params as any,
+      account: signerAccount,
+      value: undefined
+    })
+    
+  }
+  
+  
   
   // Context değeri
   const value: SwapContextProps = {
@@ -2439,6 +2624,11 @@ const formatted = date.toLocaleString('en-US', {
     setJackpotInfo,
     fetchJackPotInfo,
     // Diğer değerler...
+
+    orderBook,
+    setOrderBook,
+    fetchOrderBook,
+    placeLimitOrder,
   };
 
   return (

@@ -69,6 +69,7 @@ export async function GetSigner(walletProvider: any) {
 
 export const fetchBalances = async (chainId: string | number,account: string | undefined, walletProvider: any, tokenList: TToken[],setTokenList: (tokenList: TToken[]) => void) => {
     
+    try{
     if(!account){
 
         tokenList.forEach((tokenInfo : any, index : number) => {
@@ -119,6 +120,9 @@ export const fetchBalances = async (chainId: string | number,account: string | u
         let shortedTokens = [...tokenList].sort((a, b) => parseFloat(b.balance) - parseFloat(a.balance));
         setTokenList(shortedTokens);
 
+    }
+    }catch(error){
+        console.log("error:fetchBalances",error)
     }
 
 }
