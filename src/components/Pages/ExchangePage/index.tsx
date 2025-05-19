@@ -303,7 +303,7 @@ interface TokenPair {
                                             <img src={selectedPair?.base?.logoURI} alt={selectedPair?.base?.symbol} className='w-4 h-4 rounded-full min-w-4 min-h-4' />
                                             <img src={selectedPair?.quote?.logoURI} alt={selectedPair?.quote?.symbol} className='w-4 h-4 rounded-full min-w-4 min-h-4' />
                                         </div>
-                                        <span className="font-medium">{selectedPair?.symbol}</span>
+                                        <span className="font-medium">{selectedPair?.symbol? selectedPair?.symbol : 'Select Market'}</span>
                                         <ChevronDown className="w-4 h-4" />
                                     </button>
                                 </div>
@@ -589,7 +589,7 @@ interface TokenPair {
                             ) : (
                                 <div className='flex flex-col gap-4 p-4'>
                                     {/* Chart */}
-                                    <div className={`w-full`}>
+                                    <div className={`w-full h-full`}>
                                         {!showPairSelector ? (
 
                                             <ChartView />

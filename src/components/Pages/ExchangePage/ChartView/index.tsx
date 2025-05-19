@@ -38,37 +38,37 @@ const ChartView = () => {
   }, [])
 
   return(
-    <div className="ounded-lg flex flex-col items-between justify-around">
+    <div className="min-h-[29dvh] rounded-lg flex flex-col items-between justify-around">
 
-    <div className="flex items-center justify-between mb-2">
-      <div className="flex items-center gap-2">
-        <div className="flex gap-1">
-          <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">1m</button>
-          <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">5m</button>
-          <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">15m</button>
-          <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">1h</button>
-          <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">4h</button>
-          <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">1d</button>
+      <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center gap-2">
+          <div className="flex gap-1">
+            <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">1m</button>
+            <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">5m</button>
+            <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">15m</button>
+            <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">1h</button>
+            <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">4h</button>
+            <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">1d</button>
+          </div>
+        </div>
+        <div className="flex items-center gap-1">
+          <button className="p-1 rounded hover:bg-gray-200/20">
+            <LineChart className="w-4 h-4" />
+          </button>
+          <button className="p-1 rounded hover:bg-gray-200/20">
+            <CandlestickChart className="w-4 h-4" />
+          </button>
+          <button className="p-1 rounded hover:bg-gray-200/20">
+            <BarChart className="w-4 h-4" />
+          </button>
+          <button className="p-1 rounded hover:bg-gray-200/20">
+            <Maximize2 className="w-4 h-4" />
+          </button>
         </div>
       </div>
-      <div className="flex items-center gap-1">
-        <button className="p-1 rounded hover:bg-gray-200/20">
-          <LineChart className="w-4 h-4" />
-        </button>
-        <button className="p-1 rounded hover:bg-gray-200/20">
-          <CandlestickChart className="w-4 h-4" />
-        </button>
-        <button className="p-1 rounded hover:bg-gray-200/20">
-          <BarChart className="w-4 h-4" />
-        </button>
-        <button className="p-1 rounded hover:bg-gray-200/20">
-          <Maximize2 className="w-4 h-4" />
-        </button>
+      <div className='w-full h-full h-[29dvh] min-h-[29dvh]  bg-gray-200/20 rounded-lg'>
+      <div className='w-full h-full' id="chart" style={{ width: `100%`, height: "100%" }} />
       </div>
-    </div>
-    <div className='w-full h-full h-[29dvh] bg-gray-200/20 rounded-lg'>
-    <div className='w-full h-full' id="chart" style={{ width: `100%`, height: "100%" }} />
-    </div>
 
   </div>)
 }
