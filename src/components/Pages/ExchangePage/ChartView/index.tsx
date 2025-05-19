@@ -67,7 +67,7 @@ const ChartView = () => {
         </div>
       </div>
       <div className='w-full h-full h-[29dvh] min-h-[29dvh]  bg-gray-200/20 rounded-lg'>
-      <div className='w-full h-full' id="chart" style={{ width: `100%`, height: "100%" }} />
+      <div className='w-full h-full min-h[260px]' id="chart" style={{ width: `100%`, height: "100%" }} />
       </div>
 
   </div>)
