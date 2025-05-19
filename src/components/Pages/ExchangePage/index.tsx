@@ -138,9 +138,9 @@ interface TokenPair {
             symbol: `${base.symbol}/${quote.symbol}`,
             pair:getPairId(base.address, quote.address),
             isFavorite:parseFloat(base.balance) > 0 && parseFloat(quote.balance) > 0,
-            price:'4.35',
-            change:'+2.5%',
-            volume:'1.2M',
+            price:'-',
+            change:'-',
+            volume:'-',
             logo:base.icon
           });
         }
@@ -299,7 +299,7 @@ interface TokenPair {
                                         onClick={() => setShowPairSelector(!showPairSelector)}
                                         className="flex w-full items-center justify-between gap-2 px-3 py-1.5 rounded-lg bg-gray-200/20 hover:bg-gray-200/30 transition-colors"
                                     >
-                                        <div className='flex flex-row gap-2 col-center gap-2'>
+                                        <div className='flex flex-row gap-1 col-center gap-2'>
                                             <img src={selectedPair?.base?.logoURI} alt={selectedPair?.base?.symbol} className='w-4 h-4 rounded-full min-w-4 min-h-4' />
                                             <img src={selectedPair?.quote?.logoURI} alt={selectedPair?.quote?.symbol} className='w-4 h-4 rounded-full min-w-4 min-h-4' />
                                         </div>
@@ -308,16 +308,7 @@ interface TokenPair {
                                     </button>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <button
-                                        onClick={() => setIsFavorite(!isFavorite)}
-                                        className={`p-1.5 rounded-lg transition-colors ${isFavorite ? 'text-yellow-400' : 'text-gray-500 hover:text-yellow-400'
-                                            }`}
-                                    >
-                                        {isFavorite ? <BookmarkCheck className="w-4 h-4" /> : <Bookmark className="w-4 h-4" />}
-                                    </button>
-                                    <button className="p-1.5 rounded-lg text-gray-500 hover:text-blue-400 transition-colors">
-                                        <Bell className="w-4 h-4" />
-                                    </button>
+                                
                                     <button onClick={() => {
                                         loadData();
                                     }} className="p-1.5 cursor-pointer rounded-lg text-gray-500 hover:text-blue-400 transition-colors">
