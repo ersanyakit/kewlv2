@@ -14,6 +14,7 @@ import { Address, BaseError, ContractFunctionExecutionError, ContractFunctionRev
 import { waitForTransactionReceipt } from 'viem/actions';
 import { getExchangeByRouterAndWETH, getRoutersByChainId } from '../constants/contracts/exchanges';
 import { sqrt } from '../constants/entities/utils/sqrt';
+import { Token as TokenContextToken } from './TokenContext';
 
 interface UserTradingStats {
   totalReward: bigint;
@@ -83,6 +84,8 @@ interface SwapContextProps {
 
   orderBook: OrderBook;
   setOrderBook: (orderBook: OrderBook) => void;
+  selectedPair: TokenPair | null;
+  setSelectedPair: (selectedPair: TokenPair | null) => void;
   // Diğer özellikler...
   swapResult: SwapResult | null;
   canSwap: boolean;
@@ -147,6 +150,8 @@ interface SwapContextProps {
 
 // Context varsayılan değeri
 const defaultContext: SwapContextProps = {
+  selectedPair: null,
+  setSelectedPair: () => { },
   userTradingStats: null,
   setUserTradingStats: () => { },
   canAggregatorSwap: false,
@@ -479,6 +484,17 @@ export interface LimitOrderParam {
   ticks: bigint[];       // uint256[] dizisi için bigint[]
 }
 
+export interface TokenPair {
+  base: TokenContextToken;
+  quote: TokenContextToken;
+  symbol: string; // örn: BTC/USDT
+  pair:string;
+  isFavorite:boolean;
+  price:string;
+  change:string;
+  volume:string;
+  logo:string;
+}
 
 export interface TradeItemProps {
   pair: TCustomPair,
@@ -552,6 +568,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     maxSellTotal:0n,  
     loading: false,
   });
+  const [selectedPair, setSelectedPair] = useState<TokenPair | null>(null);
 
 
   const [userTradingStats, setUserTradingStats] = useState<UserTradingStats | null>(null);
@@ -2546,6 +2563,7 @@ const formatted = date.toLocaleString('en-US', {
   }
 
   const placeLimitOrder = async (walletProvider : any,params: LimitOrderParam) => {
+    try{
     const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
 
     const [signerAccount] = await dexContract.wallet.getAddresses()
@@ -2560,6 +2578,11 @@ const formatted = date.toLocaleString('en-US', {
       value: undefined
     })
     
+    }catch(err){
+      console.log("err", err)
+    }finally{
+      fetchOrderBook(walletProvider)
+    }
   }
   
   
@@ -2629,6 +2652,8 @@ const formatted = date.toLocaleString('en-US', {
     setOrderBook,
     fetchOrderBook,
     placeLimitOrder,
+    selectedPair,
+    setSelectedPair,
   };
 
   return (

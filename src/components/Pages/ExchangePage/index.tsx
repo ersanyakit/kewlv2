@@ -41,7 +41,7 @@ import {
     RefreshCw
 } from 'lucide-react';
 import ChartView from './ChartView';
-import { useSwapContext } from '../../../context/SwapContext';
+import { PriceLevel, PriceLevelOrderBook, TokenPair, useSwapContext } from '../../../context/SwapContext';
 import { ethers } from 'ethers';
 import { encodePacked, keccak256 } from 'viem';
 import { WETH9 } from '../../../constants/entities';
@@ -68,49 +68,37 @@ const ExchangePage = () => {
         tokens
     } = useTokenContext();
 
-    const { fetchOrderBook, orderBook } = useSwapContext();
+    const { fetchOrderBook, orderBook,placeLimitOrder, selectedPair, setSelectedPair } = useSwapContext();
     const { walletProvider } = useAppKitProvider('eip155');
     const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
     const { address, isConnected } = useAppKitAccount();
     const navigate = useNavigate();
     const [tradeType, setTradeType] = useState<'buy' | 'sell'>('buy');
-    const [selectedPair, setSelectedPair] = useState<TokenPair | null>(null);
     const [showPairSelector, setShowPairSelector] = useState(false);
-    const [price, setPrice] = useState('42,350.00');
-    const [amount, setAmount] = useState('0.1');
-    const [total, setTotal] = useState('4,235.00');
+    const [price, setPrice] = useState('');
+    const [amount, setAmount] = useState('');
+    const [total, setTotal] = useState('');
     const [isFavorite, setIsFavorite] = useState(false);
     const [expandedSections, setExpandedSections] = useState({
         buyOrders: true,
         sellOrders: true
     });
     const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
-    const isLoading = false; // Set to true to simulate loading state
     const [hoveredSellOrder, setHoveredSellOrder] = useState<number | null>(null);
     const [hoveredBuyOrder, setHoveredBuyOrder] = useState<number | null>(null);
     const [selectedSellRange, setSelectedSellRange] = useState<number | null>(null);
     const [selectedBuyRange, setSelectedBuyRange] = useState<number | null>(null);
 
 
-    const marketCategories = ['Favorites', nativeToken?.symbol.toUpperCase(), 'USDT', 'USDC'] as string[];;
+    const commonBases = ['Favorites', nativeToken?.symbol.toUpperCase(), 'USDT', 'USDC','KWL'] as string[];;
 
 
-    const tradingPairs = generateQuotePairs(tokens, marketCategories)
+    const tradingPairs = generateQuotePairs(tokens, commonBases)
     console.log(tradingPairs)
     
 
 
-interface TokenPair {
-    base: Token;
-    quote: Token;
-    symbol: string; // örn: BTC/USDT
-    pair:string;
-    isFavorite:boolean;
-    price:string;
-    change:string;
-    volume:string;
-    logo:string;
-  }
+
 
   function getPairId(token0: string, token1: string): `0x${string}` {
     const [tokenA, tokenB] = token0.toLowerCase() < token1.toLowerCase()
@@ -120,6 +108,7 @@ interface TokenPair {
     return keccak256(encodePacked(['address', 'address'], [tokenA as `0x${string}`, tokenB as `0x${string}`])) as `0x${string}`;
   }
   
+  /*
   function generateQuotePairs(tokens: Token[], quoteAssets: string[]): TokenPair[] {
     const pairs: TokenPair[] = [];
   
@@ -149,15 +138,66 @@ interface TokenPair {
   
     return pairs;
   }
-    
-    /*
-    tokens.map(token => ({
-        pair: `${token.symbol}/CHZ`,
-        price: '4.35', change: '+2.5%', volume: '1.2M', isFavorite: true,
-        logo: token.icon
-    }));
     */
 
+  function generateQuotePairs(tokens: Token[], quoteSymbols: string[]): TokenPair[] {
+    const pairs: TokenPair[] = [];
+    const seenPairs = new Set<string>();
+  
+    const wethAddress = WETH9[Number(chainId)].address;
+    const quoteTokens = tokens.filter(t => quoteSymbols.includes(t.symbol));
+  
+    // Yardımcı: pairId üret ve tekrar var mı kontrol et
+    const createPair = (base: Token, quote: Token) => {
+      const id = getPairId(base.address, quote.address);
+      if (seenPairs.has(id)) return;
+      seenPairs.add(id);
+  
+      pairs.push({
+        base: { ...base, logoURI: base.logoURI ?? base.icon },
+        quote: { ...quote, logoURI: quote.logoURI ?? quote.icon },
+        symbol: `${base.symbol}/${quote.symbol}`,
+        pair: id,
+        isFavorite: parseFloat(base.balance) > 0 && parseFloat(quote.balance) > 0,
+        price: '-',
+        change: '-',
+        volume: '-',
+        logo: base.icon
+      });
+    };
+  
+    // Yardımcı: çift geçerli mi?
+    const isValidPair = (a: Token, b: Token) => {
+      return (
+        a.address !== b.address &&
+        a.address !== wethAddress &&
+        b.address !== wethAddress
+      );
+    };
+  
+    // 1. Token -> QuoteAsset eşleşmeleri
+    for (const base of tokens) {
+      if (quoteSymbols.includes(base.symbol)) continue;
+  
+      for (const quote of quoteTokens) {
+        if (!isValidPair(base, quote)) continue;
+        createPair(base, quote);
+      }
+    }
+  
+    // 2. QuoteAsset -> QuoteAsset eşleşmeleri
+    for (let i = 0; i < quoteTokens.length; i++) {
+      for (let j = i + 1; j < quoteTokens.length; j++) {
+        const base = quoteTokens[i];
+        const quote = quoteTokens[j];
+        if (!isValidPair(base, quote)) continue;
+        createPair(base, quote);
+      }
+    }
+  
+    return pairs;
+  }
+    
 
     const [selectedCategory, setSelectedCategory] = useState('USDT');
     const [sortBy, setSortBy] = useState<'pair' | 'price' | 'change' | 'volume'>('volume');
@@ -167,7 +207,9 @@ interface TokenPair {
     const sortedPairs = React.useMemo(() => {
         return [...tradingPairs]
             .filter(pair => {
-                if (selectedCategory === 'Favorites') return pair.isFavorite;
+                if (selectedCategory === 'Favorites'){
+                    return pair.isFavorite;
+                } 
                 return pair.quote.symbol.endsWith(selectedCategory);
             })
             .filter(pair =>
@@ -200,20 +242,43 @@ interface TokenPair {
         }
     };
 
-    const handlePriceChange = (value: string) => {
-        setPrice(value);
-        setTotal((parseFloat(value.replace(/,/g, '')) * parseFloat(amount)).toLocaleString());
+    useEffect(()=>{
+        if(amount && price){
+            setTotal((parseFloat(price) * parseFloat(amount) ).toFixed(selectedPair && selectedPair?.quote?.decimals > 8 ? 8 : selectedPair?.quote?.decimals))
+        }else{
+            setTotal(parseFloat("0").toFixed(selectedPair && selectedPair?.quote?.decimals > 8 ? 8 : selectedPair?.quote?.decimals))
+        }
+    },[price,amount])
+
+    const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const regex = /^[0-9]*\.?[0-9]*$/;
+        let value = e.target.value.replace(",", ".")
+        if (regex.test(value)) {
+            setPrice(value)
+        }
+        if (value == "") {
+          setPrice("");
+        }
+      };
+
+
+    const handleAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const regex = /^[0-9]*\.?[0-9]*$/;
+        let value = e.target.value.replace(",", ".")
+        if (regex.test(value)) {
+            setAmount(value)
+        }
+        if (value == "") {
+            setAmount("");
+        }
     };
 
-    const handleAmountChange = (value: string) => {
-        setAmount(value);
-        setTotal((parseFloat(price.replace(/,/g, '')) * parseFloat(value)).toLocaleString());
-    };
+    
 
     const handlePercentageClick = (percentage: number) => {
         const maxAmount = 10; // Dummy max amount
         const newAmount = (maxAmount * percentage / 100).toFixed(2);
-        handleAmountChange(newAmount);
+        handleAmountChange({target:{value:newAmount}} as React.ChangeEvent<HTMLInputElement>);
     };
 
     const toggleSection = (section: 'buyOrders' | 'sellOrders') => {
@@ -222,6 +287,12 @@ interface TokenPair {
             [section]: !prev[section]
         }));
     };
+
+    const handlePlaceOrder = () => {
+        console.log("PLACE ORDER", selectedPair)
+
+        
+    }
 
 
     const totalOrderBookHeight = 60; // Total height for both sections combined
@@ -239,9 +310,15 @@ interface TokenPair {
     };
 
     // Update price, total, and trade type when a price is selected from the order book
-    const handleOrderBookPriceClick = (price: string, type: 'buy' | 'sell') => {
-        setPrice(price);
-        setTotal((parseFloat(price.replace(/,/g, '')) * parseFloat(amount)).toLocaleString());
+    const handleOrderBookPriceClick = (order:PriceLevelOrderBook, type: 'buy' | 'sell') => {
+        const formattedPrice = ethers.formatEther(order.price);
+        const formattedAmount = ethers.formatEther(order.amount ?? 0n);
+
+        console.log(formattedPrice, formattedAmount)
+        setPrice(ethers.formatEther(order.price));
+        setAmount(ethers.formatEther(order.total));
+        const total = parseFloat(formattedPrice) * parseFloat(formattedAmount);
+        setTotal(total.toFixed(8));
         setTradeType(type);
     };
 
@@ -352,10 +429,10 @@ interface TokenPair {
                                             variants={orderBookVariants}
                                             className="my-1 flex flex-col  gap-[1px] overflow-y-auto scrollbar-hide custom-scrollbar flex flex-col-reverse"
                                         >
-                                            {isLoading ? (
+                                            {orderBook.loading || orderBook.sell.length === 0 ? (
                                                 <div className="space-y-0.5">
-                                                    {Array.from({ length: 5 }).map((_, i) => (
-                                                        <div key={i} className={`grid grid-cols-3 text-xs p-1.5 rounded-lg animate-pulse shadow-sm ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                                                    {Array.from({ length: 25 }).map((_, i) => (
+                                                        <div key={i} className={`grid grid-cols-3 text-xs p-1.5 rounded-lg animate-pulse shadow-sm `}>
                                                             <span className={`h-4 w-3/4 rounded-full ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
                                                             <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
                                                             <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
@@ -369,7 +446,7 @@ interface TokenPair {
                                                         className={`relative grid grid-cols-3 text-xs hover:bg-pink-500/20 cursor-pointer p-1.5 rounded-lg group px-2 ${hoveredSellOrder !== null && i <= hoveredSellOrder ? 'bg-pink-500/20' : ''} ${selectedSellRange !== null && i <= selectedSellRange ? 'bg-pink-500/40' : ''}`}
                                                         onMouseEnter={() => handleSellOrderHover(i)}
                                                         onClick={() => {
-                                                            handleOrderBookPriceClick(ethers.formatEther(order.price), 'buy');
+                                                            handleOrderBookPriceClick(order, 'buy');
                                                             toggleSellOrderSelection(i);
                                                         }}
                                                     >
@@ -409,10 +486,10 @@ interface TokenPair {
                                             variants={orderBookVariants}
                                             className="mt-1 flex flex-col gap-[1px] overflow-y-auto scrollbar-hide custom-scrollbar"
                                         >
-                                            {isLoading ? (
+                                            {orderBook.loading || orderBook.buy.length === 0 ? (
                                                 <div className="space-y-0.5">
-                                                    {Array.from({ length: 5 }).map((_, i) => (
-                                                        <div key={i} className={`grid grid-cols-3 text-xs p-1.5 rounded-lg animate-pulse shadow-sm ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
+                                                    {Array.from({ length: 25 }).map((_, i) => (
+                                                        <div key={i} className={`grid grid-cols-3 text-xs p-1.5 rounded-lg animate-pulse shadow-sm`}>
                                                             <span className={`h-4 w-3/4 rounded-full ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
                                                             <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
                                                             <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
@@ -426,7 +503,7 @@ interface TokenPair {
                                                         className={`relative grid grid-cols-3 text-xs hover:bg-green-500/10 cursor-pointer p-1.5 rounded-lg group px-2 ${hoveredBuyOrder !== null && i <= hoveredBuyOrder ? 'bg-green-500/20' : ''} ${selectedBuyRange !== null && i <= selectedBuyRange ? 'bg-green-500/40' : ''}`}
                                                         onMouseEnter={() => handleBuyOrderHover(i)}
                                                         onClick={() => {
-                                                            handleOrderBookPriceClick(ethers.formatEther(order.price), 'sell');
+                                                            handleOrderBookPriceClick(order, 'sell');
                                                             toggleBuyOrderSelection(i);
                                                         }}
                                                     >
@@ -461,10 +538,10 @@ interface TokenPair {
                         transition={{ delay: 0.3 }}>
                         <div className="w-full">
                             {showPairSelector ? (
-                                <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} min-h-[650px]`}>
+                                <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} min-h-[600px] backdrop-blur-sm border ${isDarkMode ? 'border-gray-700/30' : 'border-white/20'}`}>
                                     <div className="flex items-center justify-between mb-4">
-                                        <div className="flex items-center gap-3">
-                                            <h3 className="text-lg font-semibold">Select Market</h3>
+                                        <h3 className="text-lg font-semibold">Select Market</h3>
+                                        <div className="flex items-center gap-2">
                                             <div className="relative">
                                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
                                                 <input
@@ -472,36 +549,44 @@ interface TokenPair {
                                                     value={pairSearch}
                                                     onChange={(e) => setPairSearch(e.target.value)}
                                                     placeholder="Search markets..."
-                                                    className={`w-64 h-9 pl-9 pr-4 rounded-xl text-sm transition-all duration-200
-                ${isDarkMode
-                                                            ? 'bg-gray-900/30 focus:bg-gray-900/50 border-gray-700/50'
-                                                            : 'bg-gray-100/70 focus:bg-white/70 border-gray-200/70'} 
-                border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none`}
+                                                    className={`w-64 h-9 pl-9 pr-4 rounded-lg text-sm transition-all
+                                                    ${isDarkMode
+                                                        ? 'bg-gray-900/30 border-gray-700/50'
+                                                        : 'bg-gray-100/70 border-gray-200/70'} 
+                                                    border focus:border-blue-500/30 outline-none`}
                                                 />
+                                                {pairSearch && (
+                                                    <button 
+                                                        onClick={() => setPairSearch('')}
+                                                        className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-full"
+                                                    >
+                                                        <X className="w-3 h-3" />
+                                                    </button>
+                                                )}
                                             </div>
+                                            <button
+                                                onClick={() => setShowPairSelector(false)}
+                                                className="p-2 rounded-lg hover:bg-gray-200/20"
+                                            >
+                                                <X className="w-5 h-5" />
+                                            </button>
                                         </div>
-                                        <button
-                                            onClick={() => setShowPairSelector(false)}
-                                            className="p-2 rounded-lg hover:bg-gray-200/20 transition-colors"
-                                        >
-                                            <X className="w-5 h-5" />
-                                        </button>
                                     </div>
 
-                                    <div className="flex items-center gap-2 pb-3 overflow-x-auto custom-scrollbar border-b border-gray-200/10">
-                                        {marketCategories.map((category) => (
+                                    <div className="flex items-center gap-2 overflow-x-auto mb-4 pb-2 border-b border-gray-200/10">
+                                        {commonBases.map((category) => (
                                             <button
                                                 key={category}
                                                 onClick={() => setSelectedCategory(category)}
-                                                className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200
-              ${selectedCategory === category
-                                                        ? `${isDarkMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600'}`
-                                                        : `${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'} text-gray-500`
-                                                    }`}
+                                                className={`px-4 py-2 rounded-lg text-sm font-medium whitespace-nowrap
+                                                ${selectedCategory === category
+                                                    ? `${isDarkMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600'}`
+                                                    : `${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'} text-gray-500`
+                                                }`}
                                             >
                                                 {category === 'Favorites' ? (
                                                     <div className="flex items-center gap-1.5">
-                                                        <Star className="w-4 h-4 fill-current" />
+                                                        <Star className="w-4 h-4" />
                                                         <span>{category}</span>
                                                     </div>
                                                 ) : category}
@@ -509,81 +594,76 @@ interface TokenPair {
                                         ))}
                                     </div>
 
-                                    <div className="mt-4">
-                                        <div className="grid grid-cols-4 px-4 py-2 border-b border-gray-200/10">
-                                            <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSort('pair')}>
-                                                <span className="text-xs font-medium text-gray-500">Pair</span>
-                                                {sortBy === 'pair' && (
-                                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                                )}
-                                            </div>
-                                            <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('price')}>
-                                                <span className="text-xs font-medium text-gray-500">Price</span>
-                                                {sortBy === 'price' && (
-                                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                                )}
-                                            </div>
-                                            <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('change')}>
-                                                <span className="text-xs font-medium text-gray-500">24h Change</span>
-                                                {sortBy === 'change' && (
-                                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                                )}
-                                            </div>
-                                            <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('volume')}>
-                                                <span className="text-xs font-medium text-gray-500">24h Volume</span>
-                                                {sortBy === 'volume' && (
-                                                    <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                                )}
-                                            </div>
+                                    <div className="grid grid-cols-4 px-4 py-2 border-b border-gray-200/10 text-xs font-medium text-gray-500">
+                                        <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSort('pair')}>
+                                            <span>Pair</span>
+                                            {sortBy === 'pair' && (
+                                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
+                                            )}
                                         </div>
+                                        <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('price')}>
+                                            <span>Price</span>
+                                            {sortBy === 'price' && (
+                                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
+                                            )}
+                                        </div>
+                                        <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('change')}>
+                                            <span>24h Change</span>
+                                            {sortBy === 'change' && (
+                                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
+                                            )}
+                                        </div>
+                                        <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('volume')}>
+                                            <span>Volume</span>
+                                            {sortBy === 'volume' && (
+                                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
+                                            )}
+                                        </div>
+                                    </div>
 
-                                        <div className="overflow-y-auto max-h-[70dvh] scrollbar-hide custom-scrollbar">
-                                            {sortedPairs.map((pair) => (
+                                    <div className="overflow-y-auto max-h-[69dvh] scrollbar-hide custom-scrollbar">
+                                        {sortedPairs.length > 0 ? (
+                                            sortedPairs.map((pair, index) => (
                                                 <div
                                                     key={pair.pair}
                                                     onClick={() => {
                                                         setSelectedPair(pair);
                                                         setShowPairSelector(false);
                                                     }}
-                                                    className={`grid grid-cols-4 px-4 py-3 cursor-pointer transition-all duration-200 hover:scale-[0.99]
-                ${isDarkMode
-                                                            ? 'hover:bg-gray-700/30'
-                                                            : 'hover:bg-gray-100/70'}`}
+                                                    className={`grid grid-cols-4 px-4 py-3 cursor-pointer transition-colors
+                                                    ${index % 2 === 0 ? (isDarkMode ? 'bg-gray-800/10' : 'bg-gray-50/50') : ''}
+                                                    ${isDarkMode ? 'hover:bg-blue-900/10' : 'hover:bg-blue-50/70'}`}
                                                 >
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="relative">
-                                                            <div className='flex flex-row gap-1'>
-                                                            <img src={pair.base.logoURI} alt={pair.pair} className="w-6 h-6 min-w-6 min-h-6 rounded-full" />
-                                                            <img src={pair.quote.logoURI} alt={pair.pair} className="w-6 h-6 min-w-6 min-h-6 rounded-full" />
-                                                            </div>
-                                                            {pair.isFavorite && (
-                                                                <Star className="absolute -top-1 -right-1 w-3.5 h-3.5 text-yellow-400 fill-current" />
-                                                            )}
+                                                    <div className="flex items-center gap-2">
+                                                        <div className="flex -space-x-1">
+                                                            <img src={pair.base.logoURI} alt={pair.base.symbol} className="w-5 h-5 min-w-5 min-h-5 rounded-full border" />
+                                                            <img src={pair.quote.logoURI} alt={pair.quote.symbol} className="w-5 h-5 min-w-5 min-h-5 rounded-full border" />
                                                         </div>
-                                                        <div className="flex flex-col">
-                                                            <span className="text-xs font-medium">{pair.symbol}</span>
-                                                        </div>
+                                                        <span className="font-medium text-sm">{pair.symbol}</span>
+                                                        {pair.isFavorite && (
+                                                            <Star className="w-3.5 h-3.5 text-yellow-400 fill-current" />
+                                                        )}
                                                     </div>
-                                                    <div className="flex items-center justify-end">
-                                                        <span className="font-medium">{pair.price}</span>
-                                                    </div>
-                                                    <div className={`flex items-center justify-end font-medium ${pair.change.startsWith('+') ? 'text-green-500' : 'text-pink-500'
-                                                        }`}>
+                                                    <div className="text-right font-medium text-sm">{pair.price}</div>
+                                                    <div className={`text-right font-medium text-sm ${pair.change.startsWith('+') ? 'text-green-500' : 'text-pink-500'}`}>
                                                         {pair.change}
                                                     </div>
-                                                    <div className="flex items-center justify-end font-medium text-gray-500">
-                                                        {pair.volume}
-                                                    </div>
+                                                    <div className="text-right font-medium text-sm text-gray-500">{pair.volume}</div>
                                                 </div>
-                                            ))}
-                                            {sortedPairs.length === 0 && (
-                                                <div className="flex flex-col items-center justify-center h-[400px] text-gray-500">
-                                                    <Search className="w-8 h-8 mb-3" />
-                                                    <span className="text-lg">No markets found</span>
-                                                    <span className="text-sm text-gray-400 mt-1">Try adjusting your search</span>
-                                                </div>
-                                            )}
-                                        </div>
+                                            ))
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center h-[300px] text-center">
+                                                <Search className="w-8 h-8 text-gray-400 mb-2" />
+                                                <span className="text-lg font-medium mb-1">No trading pairs found</span>
+                                                <span className="text-sm text-gray-400">Try adjusting your search</span>
+                                                <button 
+                                                    onClick={() => {setPairSearch(''); setSelectedCategory(commonBases[1])}}
+                                                    className="mt-4 px-4 py-2 rounded-lg text-sm font-medium bg-blue-500/20 text-blue-400"
+                                                >
+                                                    Clear Filters
+                                                </button>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             ) : (
@@ -626,7 +706,7 @@ interface TokenPair {
                                                         </div>
 
                                                         <div className="flex items-center gap-2 px-4 pb-3 overflow-x-auto custom-scrollbar border-b border-gray-200/10">
-                                                            {marketCategories.map((category) => (
+                                                            {commonBases.map((category) => (
                                                                 <button
                                                                     key={category}
                                                                     onClick={() => setSelectedCategory(category)}
@@ -638,7 +718,7 @@ interface TokenPair {
                                                                 >
                                                                     {category === 'Favorites' ? (
                                                                         <div className="flex items-center gap-1.5">
-                                                                            <Star className="w-4 h-4 fill-current" />
+                                                                            <Star className="w-4 h-4" />
                                                                             <span>{category}</span>
                                                                         </div>
                                                                     ) : category}
@@ -694,7 +774,7 @@ interface TokenPair {
                                                                                     <Star className="absolute -top-1 -right-1 w-3.5 h-3.5 text-yellow-400 fill-current" />
                                                                                 )}
                                                                             </div>
-                                                                            <span className="font-medium">{pair.pair}</span>
+                                                                            <span className="font-medium">{pair.symbol}</span>
                                                                         </div>
                                                                         <div className="w-[20%] text-right font-medium">{pair.price}</div>
                                                                         <div className={`w-[25%] text-right font-medium ${pair.change.startsWith('+') ? 'text-green-500' : 'text-pink-500'
@@ -783,7 +863,12 @@ interface TokenPair {
                                                     <input
                                                         type="text"
                                                         value={price}
-                                                        onChange={(e) => handlePriceChange(e.target.value)}
+                                                        onChange={handlePriceChange}
+                                                        onBlur={() => {
+                                                            if(price){
+                                                                setPrice(parseFloat(price).toFixed(selectedPair && selectedPair?.quote?.decimals > 8 ? 8 : selectedPair?.quote?.decimals))
+                                                            }
+                                                        }}
                                                         className={`w-full h-14 pl-11 pr-24 rounded-2xl text-base font-medium transition-all duration-200 
                                                              ${isDarkMode
                                                                 ? 'bg-gray-900/20 focus:bg-gray-900/30 border-gray-700/30 text-white'
@@ -794,14 +879,30 @@ interface TokenPair {
                                                         <span className="text-sm font-medium text-gray-500 mr-2">{selectedPair?.quote.symbol}</span>
                                                         <div className="flex items-center gap-0.5 bg-gray-200/10 rounded-lg backdrop-blur-sm">
                                                             <button
-                                                                onClick={() => handlePriceChange((parseFloat(price.replace(/,/g, '')) + 1).toLocaleString())}
+                                                                onClick={() => {
+                                                                    
+                                                                    const decimals = selectedPair?.quote?.decimals ?? 18;
+                                                                    const precision = decimals > 8 ? 8 : decimals;
+                                                                    const parsedPrice = parseFloat(price || '0');
+                                                                    const increasedPrice = (parsedPrice * 1.01).toFixed(precision);  
+                                                                    handlePriceChange({target:{value:increasedPrice}} as React.ChangeEvent<HTMLInputElement>);
+                                        
+                                                                }}
                                                                 className="p-2 rounded-l-lg hover:bg-gray-200/20 transition-all duration-200 active:scale-95"
                                                             >
                                                                 <Plus className="w-3.5 h-3.5" />
                                                             </button>
                                                             <div className="h-5 w-px bg-gray-400/10" />
                                                             <button
-                                                                onClick={() => handlePriceChange((parseFloat(price.replace(/,/g, '')) - 1).toLocaleString())}
+                                                                onClick={() =>{
+
+                                                                    const decimals = selectedPair?.quote?.decimals ?? 18;
+                                                                    const precision = decimals > 8 ? 8 : decimals;
+                                                                    const parsedPrice = parseFloat(price || '0');
+                                                    
+                                                                    const decreasedPrice = (parsedPrice * 0.99).toFixed(precision);
+                                                                    handlePriceChange({target:{value:decreasedPrice}} as React.ChangeEvent<HTMLInputElement>);
+                                                                 }}
                                                                 className="p-2 rounded-r-lg hover:bg-gray-200/20 transition-all duration-200 active:scale-95"
                                                             >
                                                                 <Minus className="w-3.5 h-3.5" />
@@ -823,7 +924,16 @@ interface TokenPair {
                                                     <input
                                                         type="text"
                                                         value={amount}
-                                                        onChange={(e) => handleAmountChange(e.target.value)}
+                                                        onBlur={() => {
+                                                            if(amount){
+                                                                const decimals = selectedPair?.base?.decimals ?? 18;
+                                                                const precision = decimals > 8 ? 8 : decimals;
+                                                                const parsedAmount = parseFloat(amount || '0');
+                                                                const fixedAmount = parsedAmount.toFixed(precision);    
+                                                                setAmount(fixedAmount)
+                                                            }
+                                                        }}
+                                                        onChange={ handleAmountChange}
                                                         className={`w-full h-14 pl-11 pr-24 rounded-2xl text-base font-medium transition-all duration-200 
                     ${isDarkMode
                                                                 ? 'bg-gray-900/20 focus:bg-gray-900/30 border-gray-700/30 text-white'
@@ -835,14 +945,32 @@ interface TokenPair {
                                                         <span className="text-sm font-medium text-gray-500 mr-2">{selectedPair?.base.symbol}</span>
                                                         <div className="flex items-center gap-0.5 bg-gray-200/10 rounded-lg backdrop-blur-sm">
                                                             <button
-                                                                onClick={() => handleAmountChange((parseFloat(amount) + 0.01).toFixed(2))}
+                                                                onClick={() => {
+
+                                                                    const decimals = selectedPair?.base?.decimals ?? 18;
+                                                                    const precision = decimals > 8 ? 8 : decimals;
+                                                                    const parsedAmount = parseFloat(amount || '0');
+                                                    
+                                                                    const increasedAmount = (parsedAmount * 1.01).toFixed(precision);                                                                                                        
+                                                                    handleAmountChange({target:{value:increasedAmount}} as React.ChangeEvent<HTMLInputElement>);
+                                                               
+                                                                }}
                                                                 className="p-2 rounded-l-lg hover:bg-gray-200/20 transition-all duration-200 active:scale-95"
                                                             >
                                                                 <Plus className="w-3.5 h-3.5" />
                                                             </button>
                                                             <div className="h-5 w-px bg-gray-400/10" />
                                                             <button
-                                                                onClick={() => handleAmountChange((parseFloat(amount) - 0.01).toFixed(2))}
+                                                                onClick={() => {
+
+                                                                    const decimals = selectedPair?.base?.decimals ?? 18;
+                                                                    const precision = decimals > 8 ? 8 : decimals;
+                                                                    const parsedAmount = parseFloat(amount || '0');
+                                                    
+                                                                    const decreasedAmount = (parsedAmount * 0.99).toFixed(precision);
+        
+                                                                    handleAmountChange({target:{value:decreasedAmount}} as React.ChangeEvent<HTMLInputElement>);
+                                                                }}
                                                                 className="p-2 rounded-r-lg hover:bg-gray-200/20 transition-all duration-200 active:scale-95"
                                                             >
                                                                 <Minus className="w-3.5 h-3.5" />
@@ -891,6 +1019,9 @@ interface TokenPair {
                                             </div>
 
                                             <button
+                                            onClick={(()=>{
+                                                handlePlaceOrder();
+                                            })}
                                                 className={`w-full h-14 sm:h-12 rounded-2xl sm:rounded-xl text-white text-sm font-medium transition-all duration-300 mt-6 sm:mt-4
                                                 ${tradeType === 'buy'
                                                         ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
