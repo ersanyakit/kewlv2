@@ -57,6 +57,16 @@ export interface ClaimModalState {
   visible: boolean;
 }
 
+export interface LimitOrderParam {
+  kind: OrderKind;
+  token0: string;        // Ethereum adresi olduğu için string
+  token1: string;
+  price: bigint;         // uint256 için bigint uygun
+  amount: bigint;
+  ticks: bigint[];       // uint256[] dizisi için bigint[]
+}
+
+
 const initialPairState: TPairState = {
   pairInfo: null,
   userLiquidity: "0.0000",
@@ -146,6 +156,9 @@ interface SwapContextProps {
   fetchUseTradeStats: (chainId: string | number, walletProvider: any | undefined, account: string | undefined) => void;
   fetchOrderBook: (walletProvider: any) => void;  
   placeLimitOrder: (walletProvider: any, params: LimitOrderParam) => void;
+  fetchLimitOrderPairInfo: (walletProvider: any) => void;
+  limitOrderPairs: LimotOrderPairs;
+  setLimitOrderPairs: (limitOrderPairs: LimotOrderPairs) => void;
 }
 
 // Context varsayılan değeri
@@ -233,6 +246,12 @@ const defaultContext: SwapContextProps = {
   setOrderBook: () => { },  
   fetchOrderBook: () => { },
   placeLimitOrder: () => { },
+  fetchLimitOrderPairInfo: () => { },
+  limitOrderPairs: {
+    loading: false,
+    pairs: [],
+  },
+  setLimitOrderPairs: () => { },  
 };
 
 // Context oluşturma
@@ -415,42 +434,51 @@ interface TPairState {
 
 /** LIMIT ORDER PROTOCOL */
 
-export interface PriceLevel {//contract
-  price: bigint;
-  baseLiquidity: bigint;
+export interface PriceLevel {
+  price: bigint;           // Encoded fixed-point price
+  baseLiquidity: bigint;   // Total base token liquidity
   quoteLiquidity: bigint;
+  baseTotalPrice: bigint;
+  quoteTotalPrice: bigint;
+  head: bigint;            // ID of first order in linked list
+  tail: bigint;            // ID of last order in linked list
+  orderCount: bigint;      // Number of live orders at this level
 
-  head: bigint;
-  tail: bigint;
-  orderCount: bigint;
+  tick: bigint;
+  nextTick: bigint;        // Price of next higher tick (0 if none)
+  prevTick: bigint;        // Price of next lower tick (0 if none)
 
-  nextTickPrice: bigint;
-  prevTickPrice: bigint;
-
-  sequence: bigint;
+  sequence: bigint;        // Unique ID
 
   exists: boolean;
 }
 
-export interface PriceLevelOrderBook {//ui
-  price: bigint;
-  baseLiquidity: bigint;
+
+
+export interface PriceLevelOrderBook {
+  price: bigint;           // Encoded fixed-point price
+  baseLiquidity: bigint;   // Total base token liquidity
   quoteLiquidity: bigint;
+  baseTotalPrice: bigint;
+  quoteTotalPrice: bigint;
+  head: bigint;            // ID of first order in linked list
+  tail: bigint;            // ID of last order in linked list
+  orderCount: bigint;      // Number of live orders at this level
 
-  head: bigint;
-  tail: bigint;
-  orderCount: bigint;
+  tick: bigint;
+  nextTick: bigint;        // Price of next higher tick (0 if none)
+  prevTick: bigint;        // Price of next lower tick (0 if none)
 
-  nextTickPrice: bigint;
-  prevTickPrice: bigint;
+  sequence: bigint;        // Unique ID
 
-  total:bigint;
+  exists: boolean;
+
+  totalAmount:bigint;
+  totalPrice:bigint;
   amount:bigint;
-
-  sequence: bigint;
-
-  exists: boolean;
 }
+
+
 
 export interface OrderBook {
   buy: PriceLevelOrderBook[];
@@ -482,6 +510,35 @@ export interface LimitOrderParam {
   price: bigint;         // uint256 için bigint uygun
   amount: bigint;
   ticks: bigint[];       // uint256[] dizisi için bigint[]
+}
+
+
+export interface LimotOrderPairs{
+  loading : boolean;
+  pairs : LimitOrderPairInfo[];
+}
+
+export interface LimitOrderPairInfo {
+  valid: boolean;
+  base: string;
+  quote: string;
+  takerFeeBps: number;
+  makerFeeBps: number;
+  priceDecimals: number;
+  nextOrderId: bigint;
+
+  baseDecimals: bigint;
+  quoteDecimals: bigint;
+
+  lastPrice: bigint;
+  priceMin: bigint;
+  priceMax: bigint;
+  change: bigint; // signed int
+  lastPriceTimestamp: bigint;
+
+  baseVolume: bigint;
+  quoteVolume: bigint;
+  pairId: string; // bytes32 as hex string
 }
 
 export interface TokenPair {
@@ -569,6 +626,10 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     loading: false,
   });
   const [selectedPair, setSelectedPair] = useState<TokenPair | null>(null);
+  const [limitOrderPairs, setLimitOrderPairs] = useState<LimotOrderPairs>({
+    loading: false,
+    pairs: [],
+  });
 
 
   const [userTradingStats, setUserTradingStats] = useState<UserTradingStats | null>(null);
@@ -2488,6 +2549,43 @@ const formatted = date.toLocaleString('en-US', {
     
   }
 
+
+  const fetchLimitOrderPairInfo = async (walletProvider: any) => {
+    const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+    setLimitOrderPairs({
+      loading: true,
+      pairs: [],
+    })
+
+    
+    
+    const _pairs: any = await dexContract.client.readContract({
+      address: dexContract.caller.address,
+      abi: dexContract.abi,
+      functionName: 'getAllPairStats',
+      args: [],
+      account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
+    }) as [LimitOrderPairInfo[]]
+
+    console.log("getAllPairStats", _pairs)
+
+    setLimitOrderPairs({
+      loading: false,
+      pairs: _pairs,
+    })
+
+
+
+    
+
+
+   
+  }
+
+
+  
+
+  
   const fetchOrderBook = async (walletProvider: any) => {
     const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
     setOrderBook({
@@ -2515,32 +2613,55 @@ const formatted = date.toLocaleString('en-US', {
       const buy: PriceLevelOrderBook[] = [];
       const sell: PriceLevelOrderBook[] = [];
     
-      let buyTotal = 0n;
-      let sellTotal = 0n;
-    
       for (const level of levels) {
         if (!level.exists) continue;
     
         if (level.quoteLiquidity > 0n) {
-          buyTotal += level.quoteLiquidity;
           buy.push({
             ...level,
-            total: buyTotal,
-            amount: level.quoteLiquidity
+            amount: level.quoteLiquidity,
+            totalAmount:0n,
+            totalPrice:0n,
           });
         }
     
         if (level.baseLiquidity > 0n) {
-          sellTotal += level.baseLiquidity;
           sell.push({
             ...level,
-            total: sellTotal,
-            amount: level.baseLiquidity
+            totalAmount:0n,
+            totalPrice:0n,
+            amount: level.baseLiquidity,
           });
         }
       }
-      const maxSellTotal = sell.length > 0 ? sell[sell.length - 1].total : 1n;
-      const maxBuyTotal = buy.length > 0 ? buy[buy.length - 1].total : 1n;
+    
+      // Buyları fiyata göre azalan sırala (short logic)
+      buy.sort((a, b) => (a.price > b.price ? -1 : a.price < b.price ? 1 : 0));
+      // Sell'leri fiyata göre artan sırala (normal)
+      sell.sort((a, b) => (a.price < b.price ? -1 : a.price > b.price ? 1 : 0));
+    
+      // Buy total'larını sıraya göre hesapla
+      let buyTotal = 0n;
+      let buyTotalPrice = 0n;
+      for (const b of buy) {
+        buyTotal += b.amount;
+        b.totalAmount = buyTotal;
+        buyTotalPrice += (b.price * b.amount) / 1000000000000000000n;
+        b.totalPrice = buyTotalPrice;
+      }
+    
+      // Sell total'larını sıraya göre hesapla
+      let sellTotal = 0n;
+      let sellTotalPrice = 0n;
+      for (const s of sell) {
+        sellTotal += s.amount;
+        s.totalAmount = sellTotal;
+        sellTotalPrice += (s.price * s.amount) / 1000000000000000000n;
+        s.totalPrice = sellTotalPrice;
+      }
+    
+      const maxSellTotal = sell.length > 0 ? sell[sell.length - 1].totalAmount : 1n;
+      const maxBuyTotal = buy.length > 0 ? buy[buy.length - 1].totalAmount : 1n;
     
       return {
         loading: false,
@@ -2550,6 +2671,7 @@ const formatted = date.toLocaleString('en-US', {
         maxSellTotal
       };
     };
+
     const _orderBook = mapOrderBookLevels(_levels)
     console.log("orderBook", _orderBook)
     setOrderBook(_orderBook)
@@ -2573,7 +2695,7 @@ const formatted = date.toLocaleString('en-US', {
       address: dexContract.caller.address as `0x${string}`,
       abi: dexContract.abi,
       functionName: "create",
-      args: params as any,
+      args: [params as any],
       account: signerAccount,
       value: undefined
     })
@@ -2654,6 +2776,10 @@ const formatted = date.toLocaleString('en-US', {
     placeLimitOrder,
     selectedPair,
     setSelectedPair,
+
+    limitOrderPairs,
+    setLimitOrderPairs,
+    fetchLimitOrderPairInfo,
   };
 
   return (

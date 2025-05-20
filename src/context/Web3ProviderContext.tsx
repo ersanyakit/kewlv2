@@ -72,7 +72,7 @@ export const appkitOptions: AppKitOptions = {
   themeMode: "light",
   features: {
     email: false,
-    socials: false,
+    socials: ["google","github","apple","facebook","x","discord","farcaster"],
     allWallets: true,
     swaps: false,
     history: false,

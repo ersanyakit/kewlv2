@@ -1807,6 +1807,11 @@
     },
     {
       "inputs": [],
+      "name": "InvalidTickSpacing",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "NotOrderOwner",
       "type": "error"
     },
@@ -1833,6 +1838,27 @@
     {
       "inputs": [],
       "name": "ReentrancyGuard__ReentrantCall",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "TickDoesNotExist",
+      "type": "error"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "int24",
+          "name": "tick",
+          "type": "int24"
+        },
+        {
+          "internalType": "int24",
+          "name": "tickSpacing",
+          "type": "int24"
+        }
+      ],
+      "name": "TickMisaligned",
       "type": "error"
     },
     {
@@ -1993,7 +2019,7 @@
         {
           "indexed": true,
           "internalType": "uint256",
-          "name": "tick",
+          "name": "price",
           "type": "uint256"
         }
       ],
@@ -2018,6 +2044,38 @@
       ],
       "name": "TickRemoved",
       "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "allLimitPairs",
+      "outputs": [
+        {
+          "internalType": "bytes32",
+          "name": "",
+          "type": "bytes32"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [],
+      "name": "allLimitPairsLength",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
     },
     {
       "inputs": [
@@ -2085,40 +2143,6 @@
     {
       "inputs": [
         {
-          "internalType": "bytes32",
-          "name": "pairId",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "uint256",
-          "name": "maxTicks",
-          "type": "uint256"
-        }
-      ],
-      "name": "debugPriceLevels",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "prices",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "baseLiq",
-          "type": "uint256[]"
-        },
-        {
-          "internalType": "uint256[]",
-          "name": "quoteLiq",
-          "type": "uint256[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "uint256",
           "name": "scaledPrice",
           "type": "uint256"
@@ -2160,6 +2184,111 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "getAllPairStats",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bool",
+              "name": "valid",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "base",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "quote",
+              "type": "address"
+            },
+            {
+              "internalType": "uint16",
+              "name": "takerFeeBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "makerFeeBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nextOrderId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "baseDecimals",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quoteDecimals",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint16",
+              "name": "priceDecimals",
+              "type": "uint16"
+            },
+            {
+              "internalType": "int24",
+              "name": "tickSpacing",
+              "type": "int24"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lastPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "priceMin",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "priceMax",
+              "type": "uint256"
+            },
+            {
+              "internalType": "int256",
+              "name": "change",
+              "type": "int256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lastPriceTimestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "baseVolume",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quoteVolume",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "pairId",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct LibLimitOrders.LimitOrderPairInfo[]",
+          "name": "pairs",
+          "type": "tuple[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "bytes32",
@@ -2181,89 +2310,220 @@
     {
       "inputs": [
         {
+          "internalType": "uint256",
+          "name": "index",
+          "type": "uint256"
+        }
+      ],
+      "name": "getLimitPair",
+      "outputs": [
+        {
+          "components": [
+            {
+              "internalType": "bool",
+              "name": "valid",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "base",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "quote",
+              "type": "address"
+            },
+            {
+              "internalType": "uint16",
+              "name": "takerFeeBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "makerFeeBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nextOrderId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "baseDecimals",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quoteDecimals",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint16",
+              "name": "priceDecimals",
+              "type": "uint16"
+            },
+            {
+              "internalType": "int24",
+              "name": "tickSpacing",
+              "type": "int24"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lastPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "priceMin",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "priceMax",
+              "type": "uint256"
+            },
+            {
+              "internalType": "int256",
+              "name": "change",
+              "type": "int256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lastPriceTimestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "baseVolume",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quoteVolume",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "pairId",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct LibLimitOrders.LimitOrderPairInfo",
+          "name": "pair",
+          "type": "tuple"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "bytes32",
           "name": "pairId",
           "type": "bytes32"
-        },
-        {
-          "internalType": "enum LibLimitOrders.OrderKind",
-          "name": "kind",
-          "type": "uint8"
         }
       ],
-      "name": "getBestPrice",
+      "name": "getLimitPairByPairId",
       "outputs": [
         {
-          "internalType": "uint256",
-          "name": "bestTick",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "pairHash",
-          "type": "bytes32"
-        }
-      ],
-      "name": "getCurrentBuyPriceLevel",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "price",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "pairHash",
-          "type": "bytes32"
-        }
-      ],
-      "name": "getCurrentSellPriceLevel",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "price",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "pairHash",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "uint256",
-          "name": "startTick",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "count",
-          "type": "uint256"
-        }
-      ],
-      "name": "getNextTicks",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "ticks",
-          "type": "uint256[]"
+          "components": [
+            {
+              "internalType": "bool",
+              "name": "valid",
+              "type": "bool"
+            },
+            {
+              "internalType": "address",
+              "name": "base",
+              "type": "address"
+            },
+            {
+              "internalType": "address",
+              "name": "quote",
+              "type": "address"
+            },
+            {
+              "internalType": "uint16",
+              "name": "takerFeeBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint16",
+              "name": "makerFeeBps",
+              "type": "uint16"
+            },
+            {
+              "internalType": "uint256",
+              "name": "nextOrderId",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "baseDecimals",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quoteDecimals",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint16",
+              "name": "priceDecimals",
+              "type": "uint16"
+            },
+            {
+              "internalType": "int24",
+              "name": "tickSpacing",
+              "type": "int24"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lastPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "priceMin",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "priceMax",
+              "type": "uint256"
+            },
+            {
+              "internalType": "int256",
+              "name": "change",
+              "type": "int256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "lastPriceTimestamp",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "baseVolume",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quoteVolume",
+              "type": "uint256"
+            },
+            {
+              "internalType": "bytes32",
+              "name": "pairId",
+              "type": "bytes32"
+            }
+          ],
+          "internalType": "struct LibLimitOrders.LimitOrderPairInfo",
+          "name": "pair",
+          "type": "tuple"
         }
       ],
       "stateMutability": "view",
@@ -2291,35 +2551,6 @@
         }
       ],
       "stateMutability": "pure",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "pairHash",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "uint256",
-          "name": "startTick",
-          "type": "uint256"
-        },
-        {
-          "internalType": "uint256",
-          "name": "count",
-          "type": "uint256"
-        }
-      ],
-      "name": "getPrevTicks",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "ticks",
-          "type": "uint256[]"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -2373,30 +2604,6 @@
         },
         {
           "internalType": "uint256",
-          "name": "tick",
-          "type": "uint256"
-        }
-      ],
-      "name": "isTickSetInBitmap",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "pairHash",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "uint256",
           "name": "limit",
           "type": "uint256"
         }
@@ -2422,6 +2629,16 @@
             },
             {
               "internalType": "uint256",
+              "name": "baseTotalPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "quoteTotalPrice",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
               "name": "head",
               "type": "uint256"
             },
@@ -2437,12 +2654,17 @@
             },
             {
               "internalType": "uint256",
-              "name": "nextTickPrice",
+              "name": "tick",
               "type": "uint256"
             },
             {
               "internalType": "uint256",
-              "name": "prevTickPrice",
+              "name": "nextTick",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "prevTick",
               "type": "uint256"
             },
             {
@@ -4654,19 +4876,6 @@
     {
       "inputs": [],
       "name": "SENTINEL",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "TICK_SPACING",
       "outputs": [
         {
           "internalType": "uint256",

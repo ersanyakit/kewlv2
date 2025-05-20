@@ -41,9 +41,9 @@ import {
     RefreshCw
 } from 'lucide-react';
 import ChartView from './ChartView';
-import { PriceLevel, PriceLevelOrderBook, TokenPair, useSwapContext } from '../../../context/SwapContext';
+import { LimitOrderParam, OrderKind, PriceLevel, PriceLevelOrderBook, TokenPair, useSwapContext } from '../../../context/SwapContext';
 import { ethers } from 'ethers';
-import { encodePacked, keccak256 } from 'viem';
+import { encodePacked, keccak256, parseEther, parseUnits } from 'viem';
 import { WETH9 } from '../../../constants/entities';
 
 const ExchangePage = () => {
@@ -68,7 +68,7 @@ const ExchangePage = () => {
         tokens
     } = useTokenContext();
 
-    const { fetchOrderBook, orderBook,placeLimitOrder, selectedPair, setSelectedPair } = useSwapContext();
+    const { fetchOrderBook, orderBook,placeLimitOrder, selectedPair, setSelectedPair, fetchLimitOrderPairInfo, limitOrderPairs, setLimitOrderPairs } = useSwapContext();
     const { walletProvider } = useAppKitProvider('eip155');
     const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
     const { address, isConnected } = useAppKitAccount();
@@ -88,7 +88,7 @@ const ExchangePage = () => {
     const [hoveredBuyOrder, setHoveredBuyOrder] = useState<number | null>(null);
     const [selectedSellRange, setSelectedSellRange] = useState<number | null>(null);
     const [selectedBuyRange, setSelectedBuyRange] = useState<number | null>(null);
-
+    
 
     const commonBases = ['Favorites', nativeToken?.symbol.toUpperCase(), 'USDT', 'USDC','KWL'] as string[];;
 
@@ -108,37 +108,8 @@ const ExchangePage = () => {
     return keccak256(encodePacked(['address', 'address'], [tokenA as `0x${string}`, tokenB as `0x${string}`])) as `0x${string}`;
   }
   
-  /*
-  function generateQuotePairs(tokens: Token[], quoteAssets: string[]): TokenPair[] {
-    const pairs: TokenPair[] = [];
+
   
-    const weth = WETH9[Number(chainId)].address
-    for (const base of tokens) {
-      if (quoteAssets.includes(base.symbol)) continue; // quote olanlar base olamaz
-  
-      for (const quote of tokens) {
-        if (base.address === quote.address) continue;
-        if(base.address === weth || quote.address === weth) continue;
-    
-        if (quoteAssets.includes(quote.symbol)) {
-          pairs.push({
-            base:{...base, logoURI:base.logoURI ? base.logoURI : base.icon},
-            quote:{...quote, logoURI:quote.logoURI ? quote.logoURI : quote.icon},
-            symbol: `${base.symbol}/${quote.symbol}`,
-            pair:getPairId(base.address, quote.address),
-            isFavorite:parseFloat(base.balance) > 0 && parseFloat(quote.balance) > 0,
-            price:'-',
-            change:'-',
-            volume:'-',
-            logo:base.icon
-          });
-        }
-      }
-    }
-  
-    return pairs;
-  }
-    */
 
   function generateQuotePairs(tokens: Token[], quoteSymbols: string[]): TokenPair[] {
     const pairs: TokenPair[] = [];
@@ -242,13 +213,7 @@ const ExchangePage = () => {
         }
     };
 
-    useEffect(()=>{
-        if(amount && price){
-            setTotal((parseFloat(price) * parseFloat(amount) ).toFixed(selectedPair && selectedPair?.quote?.decimals > 8 ? 8 : selectedPair?.quote?.decimals))
-        }else{
-            setTotal(parseFloat("0").toFixed(selectedPair && selectedPair?.quote?.decimals > 8 ? 8 : selectedPair?.quote?.decimals))
-        }
-    },[price,amount])
+
 
     const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const regex = /^[0-9]*\.?[0-9]*$/;
@@ -288,9 +253,39 @@ const ExchangePage = () => {
         }));
     };
 
-    const handlePlaceOrder = () => {
+    const handlePlaceOrder = async () => {
         console.log("PLACE ORDER", selectedPair)
 
+        const _inputPrice = ethers.parseUnits  (price || '0', selectedPair?.quote.decimals ?? 18)
+
+        const getPriceTicks = (targetPrice: bigint,side: 'buy' | 'sell'): bigint[] => {
+
+            const orders = side == "buy" ? orderBook.sell : orderBook.buy
+            const filteredPrices = orders.filter((item) => item.price <= targetPrice).map(item => item.price);
+            if(filteredPrices.length == 0){
+                return [targetPrice]
+            }
+            return filteredPrices
+          };
+
+          let priceTicks = getPriceTicks(_inputPrice,tradeType)
+
+          const pairInfo = limitOrderPairs.pairs[0];
+
+
+
+          const limirOrderParams : LimitOrderParam = {
+            kind: tradeType == "buy" ? OrderKind.BUY_MARKET : OrderKind.SELL_MARKET,
+            token0: pairInfo.base,        // Ethereum adresi olduğu için string
+            token1: pairInfo.quote,
+            price: ethers.parseUnits(price || '0', selectedPair?.quote.decimals ?? 18),         // uint256 için bigint uygun
+            amount: ethers.parseUnits(amount || '0', selectedPair?.base.decimals ?? 18),
+            ticks: priceTicks,       // uint256[] dizisi için bigint[]
+          }
+
+          console.log("priceticks",priceTicks)
+
+          await placeLimitOrder(walletProvider,limirOrderParams)
         
     }
 
@@ -311,16 +306,28 @@ const ExchangePage = () => {
 
     // Update price, total, and trade type when a price is selected from the order book
     const handleOrderBookPriceClick = (order:PriceLevelOrderBook, type: 'buy' | 'sell') => {
+
+        //todo:decimal scale
         const formattedPrice = ethers.formatEther(order.price);
         const formattedAmount = ethers.formatEther(order.amount ?? 0n);
 
         console.log(formattedPrice, formattedAmount)
         setPrice(ethers.formatEther(order.price));
-        setAmount(ethers.formatEther(order.total));
+        setAmount(ethers.formatEther(order.totalAmount));
         const total = parseFloat(formattedPrice) * parseFloat(formattedAmount);
-        setTotal(total.toFixed(8));
+        //setTotal(total.toFixed(8));
         setTradeType(type);
     };
+
+    useEffect(()=>{
+
+        if(amount && price){
+            const decimals = selectedPair?.quote?.decimals ?? 18;
+            const precision = decimals > 8 ? 8 : decimals;            
+            const total = parseFloat(amount) * parseFloat(price);
+            setTotal(total.toFixed(precision));
+        }
+    },[amount,price])
 
     const handleSellOrderHover = (index: number) => {
         setHoveredSellOrder(index);
@@ -348,8 +355,13 @@ const ExchangePage = () => {
 
     const loadData = async () => {
         setSwapMode(SWAP_MODE.LIMIT_ORDERS);
-        await fetchOrderBook(walletProvider);
+       // await fetchOrderBook(walletProvider);
+        await fetchLimitOrderPairInfo(walletProvider);
     }
+
+    useEffect(()=>{
+        fetchOrderBook(walletProvider)
+    },[selectedPair])
     useEffect(() => {
         console.log("LIMIT PROTOCOL", chainId)
         loadData();
@@ -452,13 +464,13 @@ const ExchangePage = () => {
                                                     >
                                                         <div className="absolute inset-0 bg-pink-500/10 rounded-lg"
                                                             style={{
-                                                                width: `${(order.total * 100n) / orderBook.maxSellTotal}%`
+                                                                width: `${(order.totalAmount * 100n) / orderBook.maxSellTotal}%`
                                                             }}>
 
                                                         </div>
                                                         <span className="group-hover:text-pink-400 relative">{ethers.formatEther(order.price)}</span>
-                                                        <span className="text-right relative">{ethers.formatEther(order.amount)}</span>
-                                                        <span className="text-right text-gray-500 relative">{ethers.formatEther(order.total)}</span>
+                                                        <span className="text-right relative">{ethers.formatEther(order.totalAmount)}</span>
+                                                        <span className="text-right text-gray-500 relative">{ethers.formatEther(order.totalPrice)}</span>
                                                     </div>
                                                 ))
                                             )}
@@ -509,12 +521,12 @@ const ExchangePage = () => {
                                                     >
                                                         <div className="absolute inset-0 bg-green-500/10 rounded-lg"
                                                             style={{
-                                                                width: `${(order.total * 100n) / orderBook.maxBuyTotal}%`
+                                                                width: `${(order.totalAmount * 100n) / orderBook.maxBuyTotal}%`
                                                             }}
                                                         ></div>
                                                         <span className="group-hover:text-green-500 relative">{ethers.formatEther(order.price)}</span>
-                                                        <span className="text-right relative">{ethers.formatEther(order.amount)}</span>
-                                                        <span className="text-right text-gray-500 relative">{ethers.formatEther(order.total)}</span>
+                                                        <span className="text-right relative">{ethers.formatEther(order.totalAmount)}</span>
+                                                        <span className="text-right text-gray-500 relative">{ethers.formatEther(order.totalPrice)}</span>
                                                     </div>
                                                 ))
                                             )}
@@ -867,6 +879,12 @@ const ExchangePage = () => {
                                                         onBlur={() => {
                                                             if(price){
                                                                 setPrice(parseFloat(price).toFixed(selectedPair && selectedPair?.quote?.decimals > 8 ? 8 : selectedPair?.quote?.decimals))
+
+                                                                const decimals = selectedPair?.quote?.decimals ?? 18;
+                                                                const precision = decimals > 8 ? 8 : decimals;
+                                                                const parsedPrice = parseFloat(price || '0').toFixed(precision);  
+                                                                handlePriceChange({target:{value:parsedPrice}} as React.ChangeEvent<HTMLInputElement>);
+                                    
                                                             }
                                                         }}
                                                         className={`w-full h-14 pl-11 pr-24 rounded-2xl text-base font-medium transition-all duration-200 
