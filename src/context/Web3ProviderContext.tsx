@@ -53,7 +53,7 @@ export function getChainDefaultAssetsURI(chainId: number): string {
 const metadata = {
   name: 'KEWL',
   description: 'Intelligent Asset Swapping for the Next Generation of DeFi.',
-  url: 'https://kewl.exchange',
+  url: 'https://www.kewl.exchange',
   icons: ['/assets/logo/logo.svg'],
 };
 
