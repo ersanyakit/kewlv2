@@ -1647,7 +1647,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     let _baseAddress = baseToken.address == ZeroAddress ? WRAPPED_TOKEN : baseToken.address;
     let _quoteAddress = quoteToken.address == ZeroAddress ? WRAPPED_TOKEN : quoteToken.address;
 
-    let dexContract = await getContractByName(TContractType.DEX, Number(chainId));
+    let dexContract = await getContractByName(TContractType.DEX, Number(chainId),walletProvider);
 
 
     const _pairInfo: any = await dexContract.client.readContract({
@@ -1945,9 +1945,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     let _baseAddress = baseToken.address == ZeroAddress ? WRAPPED_TOKEN : baseToken.address;
     let _quoteAddress = quoteToken.address == ZeroAddress ? WRAPPED_TOKEN : quoteToken.address;
 
-    let dexContract = await getContractByName(TContractType.DEX, Number(chainId));
+    let dexContract = await getContractByName(TContractType.DEX, Number(chainId),walletProvider);
 
-    const [signerAccount] = await dexContract.wallet.getAddresses();
 
     const etherIn = baseToken.address == ZeroAddress
     const etherOut = quoteToken.address == ZeroAddress
@@ -1975,6 +1974,10 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
     const amountAIndex = 0//tradeType === TradeType.EXACT_OUTPUT ? 1 : 0;
     const amountBIndex = 0//tradeType === TradeType.EXACT_OUTPUT ? 1 : 0;
+
+
+
+    const [signerAccount] = await dexContract.wallet.getAddresses();
 
     const amountAMin = calculateSlippageAmount(reserve0, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[amountAIndex].toString()
     const amountBMin = calculateSlippageAmount(reserve1, pairState.noLiquidity ? ZERO_PERCENT : DEFAULT_ADD_SLIPPAGE_TOLERANCE)[amountBIndex].toString();
@@ -2010,6 +2013,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
           console.log("receiptApproval", receiptApproval)
         }
       } catch (error) {
+        console.log("error", error)
         setSwapResult({
           type: SwapStatusType.APPROVAL_FAILED,
           message: "Approval Failed",
@@ -2047,6 +2051,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
           console.log("receiptApproval", receiptApproval)
         }
       } catch (error) {
+        console.log("error", error)
         setSwapResult({
           type: SwapStatusType.APPROVAL_FAILED,
           message: "Approval Failed",
@@ -2060,7 +2065,6 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     let depositOverrides = {
       value: etherIn || etherOut ? (baseAsset.address === WRAPPED_TOKEN ? amountADesired : amountBDesired) : undefined
     }
-
 
 
 
@@ -2153,7 +2157,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     let _baseAddress = baseToken.address == ZeroAddress ? WRAPPED_TOKEN : baseToken.address;
     let _quoteAddress = quoteToken.address == ZeroAddress ? WRAPPED_TOKEN : quoteToken.address;
 
-    let dexContract = await getContractByName(TContractType.DEX, Number(chainId));
+    let dexContract = await getContractByName(TContractType.DEX, Number(chainId),walletProvider);
 
     const [signerAccount] = await dexContract.wallet.getAddresses();
 
