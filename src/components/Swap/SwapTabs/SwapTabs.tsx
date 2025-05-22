@@ -37,7 +37,7 @@ const SwapTabs: React.FC<SwapTabsProps> = ({
           Swap
         </button>
         <button 
-          className={` hidden text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'etf' 
+          className={`hidden  text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'etf' 
             ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white shadow-lg' 
             : isDarkMode 
               ? 'text-gray-300 hover:bg-gray-700/50' 

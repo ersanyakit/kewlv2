@@ -256,34 +256,40 @@ const ExchangePage = () => {
     const handlePlaceOrder = async () => {
         console.log("PLACE ORDER", selectedPair)
 
-        const _inputPrice = ethers.parseUnits  (price || '0', selectedPair?.quote.decimals ?? 18)
-
-        const getPriceTicks = (targetPrice: bigint,side: 'buy' | 'sell'): bigint[] => {
-
-            const orders = side == "buy" ? orderBook.sell : orderBook.buy
-            const filteredPrices = orders.filter((item) => item.price <= targetPrice).map(item => item.price);
-            if(filteredPrices.length == 0){
-                return [targetPrice]
-            }
-            return filteredPrices
-          };
-
-          let priceTicks = getPriceTicks(_inputPrice,tradeType)
-
-          const pairInfo = limitOrderPairs.pairs[0];
 
 
 
+
+
+
+        if(!selectedPair){
+            return
+        }
+       
+          //const pairInfo = limitOrderPairs.pairs[0];
+
+          const _inputPrice = ethers.parseUnits  (price || '0', selectedPair?.quote.decimals ?? 18)
+
+       
+
+          var priceTick = ethers.parseUnits(price || '0', selectedPair?.quote.decimals ?? 18)
+          
+      
+          let WRAPPED_TOKEN = WETH9[Number(chainId)].address;
+
+          let _baseAddress = selectedPair.base.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.base.address;
+          let _quoteAddress = selectedPair.quote.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.quote.address;
+      
+          
           const limirOrderParams : LimitOrderParam = {
             kind: tradeType == "buy" ? OrderKind.BUY_MARKET : OrderKind.SELL_MARKET,
-            token0: pairInfo.base,        // Ethereum adresi olduğu için string
-            token1: pairInfo.quote,
+            token0: _baseAddress,        // Ethereum adresi olduğu için string
+            token1: _quoteAddress,
             price: ethers.parseUnits(price || '0', selectedPair?.quote.decimals ?? 18),         // uint256 için bigint uygun
             amount: ethers.parseUnits(amount || '0', selectedPair?.base.decimals ?? 18),
-            ticks: priceTicks,       // uint256[] dizisi için bigint[]
+            entrypoint: priceTick,       // uint256[] dizisi için bigint[]
           }
 
-          console.log("priceticks",priceTicks)
 
           await placeLimitOrder(walletProvider,limirOrderParams)
         

@@ -272,13 +272,22 @@ const FushionForm: React.FC = () => {
                         {aggregatorPairs.map((dex: TCustomPair, index: number) => {
 
 
+
+
                             return (
                                 <motion.div
                                     key={dex.pair.pair.toString()}
-                                    className={`cursor-pointer rounded-xl ${isDarkMode
-                                        ? dex.isSelected ? 'bg-[#ff1356]/15 border border-[#ff4080]/30' : 'bg-gray-700/50 border border-gray-600/30'
-                                        : dex.isSelected ? 'bg-pink-50 border border-pink-200' : 'bg-white/70 border border-gray-200/70'
-                                        } transition-all duration-200 ${dex.isSelected ? 'shadow-sm' : ''}`}
+                                    className={`cursor-pointer select-none rounded-xl 
+                                        ${
+                                            dex.isSelected
+                                              ? isDarkMode
+                                                ? 'bg-gradient-to-r from-gray-700/90 to-gray-800/90 border border-gray-800/80'
+                                                : 'bg-gradient-to-r from-pink-50 to-white border border-pink-200'
+                                              : isDarkMode
+                                                ? 'bg-gray-700/50 border border-gray-600/50 hover:border-gray-500/50'
+                                                : 'bg-gray-50/70 border border-gray-200/50 hover:border-gray-300/50'
+                                          }
+                                        transition-all duration-200 ${dex.isSelected ? 'shadow-sm' : ''}`}
                                         whileHover={{
                                             scale: 1.03,
                                             boxShadow: isDarkMode

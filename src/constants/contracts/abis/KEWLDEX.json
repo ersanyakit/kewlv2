@@ -1787,11 +1787,6 @@
     },
     {
       "inputs": [],
-      "name": "InvalidOrderKind",
-      "type": "error"
-    },
-    {
-      "inputs": [],
       "name": "InvalidPair",
       "type": "error"
     },
@@ -1841,11 +1836,6 @@
       "type": "error"
     },
     {
-      "inputs": [],
-      "name": "TickDoesNotExist",
-      "type": "error"
-    },
-    {
       "inputs": [
         {
           "internalType": "int24",
@@ -1863,7 +1853,7 @@
     },
     {
       "inputs": [],
-      "name": "TooManyTicks",
+      "name": "TickStillHasLiquidity",
       "type": "error"
     },
     {
@@ -2125,9 +2115,9 @@
               "type": "uint256"
             },
             {
-              "internalType": "uint256[]",
-              "name": "ticks",
-              "type": "uint256[]"
+              "internalType": "uint256",
+              "name": "entrypoint",
+              "type": "uint256"
             }
           ],
           "internalType": "struct LibLimitOrders.LimitOrderParam",
@@ -2178,6 +2168,40 @@
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "pairId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "int24",
+          "name": "tickLower",
+          "type": "int24"
+        },
+        {
+          "internalType": "int24",
+          "name": "tickUpper",
+          "type": "int24"
+        },
+        {
+          "internalType": "int24",
+          "name": "tickSpacing",
+          "type": "int24"
+        }
+      ],
+      "name": "getActiveTicks",
+      "outputs": [
+        {
+          "internalType": "int24[]",
+          "name": "",
+          "type": "int24[]"
         }
       ],
       "stateMutability": "view",
@@ -2275,6 +2299,26 @@
               "type": "uint256"
             },
             {
+              "internalType": "uint256",
+              "name": "minBuy",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minSell",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxBuy",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxSell",
+              "type": "uint256"
+            },
+            {
               "internalType": "bytes32",
               "name": "pairId",
               "type": "bytes32"
@@ -2283,25 +2327,6 @@
           "internalType": "struct LibLimitOrders.LimitOrderPairInfo[]",
           "name": "pairs",
           "type": "tuple[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "pairHash",
-          "type": "bytes32"
-        }
-      ],
-      "name": "getAllTicks",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "ticks",
-          "type": "uint256[]"
         }
       ],
       "stateMutability": "view",
@@ -2402,6 +2427,26 @@
             {
               "internalType": "uint256",
               "name": "quoteVolume",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minBuy",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minSell",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxBuy",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxSell",
               "type": "uint256"
             },
             {
@@ -2516,6 +2561,26 @@
               "type": "uint256"
             },
             {
+              "internalType": "uint256",
+              "name": "minBuy",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "minSell",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxBuy",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "maxSell",
+              "type": "uint256"
+            },
+            {
               "internalType": "bytes32",
               "name": "pairId",
               "type": "bytes32"
@@ -2572,6 +2637,64 @@
           "internalType": "uint256[]",
           "name": "ticks",
           "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "pairId",
+          "type": "bytes32"
+        }
+      ],
+      "name": "getTickList",
+      "outputs": [
+        {
+          "internalType": "int24[]",
+          "name": "ticks",
+          "type": "int24[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "pairId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "int24",
+          "name": "startTick",
+          "type": "int24"
+        },
+        {
+          "internalType": "int24",
+          "name": "tickSpacing",
+          "type": "int24"
+        },
+        {
+          "internalType": "uint8",
+          "name": "limit",
+          "type": "uint8"
+        },
+        {
+          "internalType": "bool",
+          "name": "orderSide",
+          "type": "bool"
+        }
+      ],
+      "name": "getTicksInDirection",
+      "outputs": [
+        {
+          "internalType": "int24[]",
+          "name": "",
+          "type": "int24[]"
         }
       ],
       "stateMutability": "view",

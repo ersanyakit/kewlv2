@@ -57,14 +57,6 @@ export interface ClaimModalState {
   visible: boolean;
 }
 
-export interface LimitOrderParam {
-  kind: OrderKind;
-  token0: string;        // Ethereum adresi olduğu için string
-  token1: string;
-  price: bigint;         // uint256 için bigint uygun
-  amount: bigint;
-  ticks: bigint[];       // uint256[] dizisi için bigint[]
-}
 
 
 const initialPairState: TPairState = {
@@ -509,7 +501,7 @@ export interface LimitOrderParam {
   token1: string;
   price: bigint;         // uint256 için bigint uygun
   amount: bigint;
-  ticks: bigint[];       // uint256[] dizisi için bigint[]
+  entrypoint: bigint;       // uint256[] dizisi için bigint[]
 }
 
 
@@ -536,6 +528,8 @@ export interface LimitOrderPairInfo {
   change: bigint; // signed int
   lastPriceTimestamp: bigint;
 
+  bestBuy:bigint;
+  bestSell:bigint;  
   baseVolume: bigint;
   quoteVolume: bigint;
   pairId: string; // bytes32 as hex string
@@ -2601,14 +2595,14 @@ const formatted = date.toLocaleString('en-US', {
     });
     
     const limit = 100;
-    const pairHash = "0x476fa95dd4b9e538daae00223eddea9a2d89d85c196266748cc1a1d0fddb7362";
+    const pairHash = "0x3700f6a081b22081a8392fb9d34c1c0d609016d4a62b9d29fdebc8975008ac32";
     const _levels: any = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
       functionName: 'orderBook',
       args: [pairHash, limit],
       account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
-    }) as [PriceLevel[]]
+    }) as [PriceLevel[] | any]
 
     console.log("_gelenLevels", _levels)
 

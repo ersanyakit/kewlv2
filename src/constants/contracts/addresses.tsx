@@ -41,6 +41,9 @@ export const ContractList: MultiContractConfig = {
             88888: {
                 address: "0xA0BB8f9865f732C277d0C162249A4F6c157ae9D0",
             },
+            88882: {
+                address: "0xA0BB8f9865f732C277d0C162249A4F6c157ae9D0",
+            },
             42161: {
                 address: "0xA0BB8f9865f732C277d0C162249A4F6c157ae9D0",
             },
@@ -59,6 +62,9 @@ export const ContractList: MultiContractConfig = {
         abi: ERC20_ABI.abi,
         contracts: {
             88888: {
+                address: "0x570e91fe0D25D46C5e0C83aF6bc95afB0072C321",
+            },
+            88882: {
                 address: "0x570e91fe0D25D46C5e0C83aF6bc95afB0072C321",
             },
             42161: {

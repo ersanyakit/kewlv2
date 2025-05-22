@@ -1,7 +1,7 @@
 'use client';
 
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
-import { chiliz as originalChiliz,  avalanche, arbitrum, sonic,hardhat, Chain, AppKitNetwork } from '@reown/appkit/networks';
+import { chiliz as originalChiliz,spicy,  avalanche, arbitrum, sonic,hardhat, Chain, AppKitNetwork } from '@reown/appkit/networks';
 import { AppKitOptions, createAppKit } from '@reown/appkit/react';
 import { ReactNode } from 'react';
 import { createPublicClient, createWalletClient, http } from 'viem';
@@ -37,6 +37,7 @@ const DEFAULT_CHAIN_ID = 88888;
 export function getChainName(chainId: number): string {
   const chains: Record<number, string> = {
     88888: "chiliz",
+    88882: "spicy",
     43114: "avax",
     42161: "arbitrum",
     146: "sonic",
@@ -62,10 +63,11 @@ const metadata = {
 export const appkitOptions: AppKitOptions = {
   adapters: [new EthersAdapter()],
   metadata: metadata,
-  networks: [chiliz,sonic, avalanche, arbitrum,hardhat],
+  networks: [chiliz,sonic, avalanche, arbitrum,hardhat,spicy],
   defaultNetwork: chiliz,
   chainImages: {
     88888: "/assets/chains/chz.svg",
+    88882: "/assets/chains/chz.svg",
     146: "/assets/chains/sonic.svg"
   },
   projectId,
