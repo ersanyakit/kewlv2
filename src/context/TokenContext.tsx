@@ -63,6 +63,9 @@ interface TokenContextType {
   account: string;
   isDarkMode: boolean; // Tema durumu
   isLoading: boolean; // Token listesi yüklenme durumu
+
+  activeView: string;
+  setActiveView: (activeView: string) => void;
   setEnableTaxesContract: (enableTaxesContract: boolean) => void;
   setNativeToken: (nativeToken: Token) => void;
   setSwapMode: (swapMode: SWAP_MODE) => void;
@@ -84,6 +87,8 @@ interface TokenContextType {
 // Default context değeri
 const defaultContext: TokenContextType = {
   isSettingsModalOpen: false,
+  activeView: 'swap',
+  setActiveView: () => {},
   setIsSettingsModalOpen: () => {},
   swapMode: SWAP_MODE.AGGREGATOR,
   nativeToken: null,
@@ -243,6 +248,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [riskTolerance, setRiskTolerance] = useState<number>(10);
   const [nativeToken, setNativeToken] = useState<Token | null>(null);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState<boolean>(false);
+  const [activeView, setActiveView] = useState<string>('swap');
   // Input değerleri için state
 
   
@@ -359,7 +365,9 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     handleSwapTokens,
     toggleDarkMode,
     setTokenList,
-    setTokens
+    setTokens,
+    activeView,
+    setActiveView
 
   };
 

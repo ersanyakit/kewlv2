@@ -60,6 +60,7 @@ import PoolsView from './Pools/PoolsView';
 import ETFView from './ETF/ETFView';
 import SwapLayout from './SwapForm/SwapLayout';
 import SwapSettingsForm from './SwapForm/SwapSettingsForm';
+import { useLocation } from 'react-router-dom';
 
 export default function TradeTerminal() {
   // Token context'inden verileri alıyoruz
@@ -69,8 +70,11 @@ export default function TradeTerminal() {
     quoteToken,
     isDarkMode,
     isSettingsModalOpen,
+    activeView,
+    setActiveView,
     setIsSettingsModalOpen
   } = useTokenContext();
+  const location = useLocation();
 
   // TradeTerminal'a özgü diğer state'ler
   const [swapDirection, setSwapDirection] = useState('horizontal');
@@ -78,7 +82,6 @@ export default function TradeTerminal() {
   const [isExpanded, setIsExpanded] = useState(true);
   const [showAdvanced, setShowAdvanced] = useState(true);
   const [slippageTolerance, setSlippageTolerance] = useState(0.5);
-  const [activeView, setActiveView] = useState('swap');
   const [showHistory, setShowHistory] = useState(true);
 
   // Reference for draggable elements (eğer kullanılıyorsa)
@@ -89,7 +92,17 @@ export default function TradeTerminal() {
   const y = useMotionValue(0);
   const rotate = useTransform(x, [-100, 100], [-10, 10]);
 
-  
+  useEffect(() => {
+   
+  }, []);
+
+  useEffect(() => {
+    if (location.state?.activeView) {
+      setActiveView(location.state.activeView);
+    }else{
+      setActiveView('swap');
+    }
+  }, [location.state]);
   return (
     <div className={`flex flex-col px-0 py-4 md:p-4 transition-colors duration-300`}>
       {/* Main Content - Three Column Grid */}
@@ -106,8 +119,7 @@ export default function TradeTerminal() {
             )
           }
           <SwapTabs
-            activeView={activeView}
-            setActiveView={setActiveView}
+            isLimitOrder={false}
             isDarkMode={isDarkMode}
           />
 

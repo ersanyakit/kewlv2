@@ -45,6 +45,7 @@ import { LimitOrderParam, OrderKind, PriceLevel, PriceLevelOrderBook, TokenPair,
 import { ethers } from 'ethers';
 import { encodePacked, keccak256, parseEther, parseUnits } from 'viem';
 import { WETH9 } from '../../../constants/entities';
+import SwapTabs from '../../Swap/SwapTabs';
 
 const ExchangePage = () => {
     const {
@@ -65,7 +66,9 @@ const ExchangePage = () => {
         handleSwapTokens,
         nativeToken,
         setSwapMode,
-        tokens
+        tokens,
+        setActiveView,
+        activeView
     } = useTokenContext();
 
     const { fetchOrderBook, orderBook,placeLimitOrder, selectedPair, setSelectedPair, fetchLimitOrderPairInfo, limitOrderPairs, setLimitOrderPairs } = useSwapContext();
@@ -300,6 +303,9 @@ const ExchangePage = () => {
     }
 
 
+    useEffect(()=>{
+        setActiveView('limit')
+    },[])
     const totalOrderBookHeight = 60; // Total height for both sections combined
 
     const orderBookVariants = {
@@ -396,7 +402,7 @@ const ExchangePage = () => {
                                 <div className="w-full">
                                     <button
                                         onClick={() => setShowPairSelector(!showPairSelector)}
-                                        className="flex w-full items-center justify-between gap-2 px-3 py-1.5 rounded-lg bg-gray-200/20 hover:bg-gray-200/30 transition-colors"
+                                        className="flex w-full items-center justify-between gap-2 px-3 py-1.5 rounded-3xl bg-gray-200/20 hover:bg-gray-200/30 transition-colors"
                                     >
                                         <div className='flex flex-row gap-1 col-center gap-2'>
                                             <img src={selectedPair?.base?.logoURI} alt={selectedPair?.base?.symbol} className='w-4 h-4 rounded-full min-w-4 min-h-4' />
@@ -488,7 +494,7 @@ const ExchangePage = () => {
                                     </div>
 
                                     <div className="text-center py-2 text-xs font-medium bg-gray-200/20 rounded-lg my-2">
-                                        <div className="text-sm font-bold">42,350.00</div>
+                                        <div className="text-sm font-bold">5.00</div>
                                         <div className="text-[10px] text-gray-500">Last Price</div>
                                     </div>
 
@@ -550,6 +556,9 @@ const ExchangePage = () => {
                 </div>
 
                 <div className="order-1 sm:order-2 lg:col-span-3 flex flex-col gap-4">
+                <div className='flex flex-col gap-4'>
+                                        <SwapTabs isLimitOrder={true} isDarkMode={isDarkMode} />
+                                    </div>
                     <motion.div
                         className={`relative ${isDarkMode
                             ? 'bg-gray-800/30 border-gray-700/30'
@@ -560,7 +569,7 @@ const ExchangePage = () => {
                         transition={{ delay: 0.3 }}>
                         <div className="w-full">
                             {showPairSelector ? (
-                                <div className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} min-h-[600px] backdrop-blur-sm border ${isDarkMode ? 'border-gray-700/30' : 'border-white/20'}`}>
+                                <div className={`p-4 rounded-3xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} min-h-[600px]   }`}>
                                     <div className="flex items-center justify-between mb-4">
                                         <h3 className="text-lg font-semibold">Select Market</h3>
                                         <div className="flex items-center gap-2">
@@ -690,138 +699,24 @@ const ExchangePage = () => {
                                 </div>
                             ) : (
                                 <div className='flex flex-col gap-4 p-4'>
-                                    {/* Chart */}
-                                    <div className={`w-full h-full`}>
-                                        {!showPairSelector ? (
-
-                                            <ChartView />
-
-
-                                        ) : (
-                                            <div className="h-[50dvh] relative">
-                                                <div className="absolute inset-0 z-50 backdrop-blur-sm">
-                                                    <div className="h-full flex flex-col">
-                                                        <div className="flex items-center justify-between p-4">
-                                                            <div className="flex items-center gap-3">
-                                                                <h3 className="text-lg font-semibold">Select Market</h3>
-                                                                <div className="relative">
-                                                                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-                                                                    <input
-                                                                        type="text"
-                                                                        value={pairSearch}
-                                                                        onChange={(e) => setPairSearch(e.target.value)}
-                                                                        placeholder="Search markets..."
-                                                                        className={`w-64 h-9 pl-9 pr-4 rounded-xl text-sm transition-all duration-200
-                          ${isDarkMode
-                                                                                ? 'bg-gray-900/30 focus:bg-gray-900/50 border-gray-700/50'
-                                                                                : 'bg-gray-100/70 focus:bg-white/70 border-gray-200/70'} 
-                          border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none`}
-                                                                    />
-                                                                </div>
-                                                            </div>
-                                                            <button
-                                                                onClick={() => setShowPairSelector(false)}
-                                                                className="p-2 rounded-lg hover:bg-gray-200/20 transition-colors"
-                                                            >
-                                                                <X className="w-5 h-5" />
-                                                            </button>
-                                                        </div>
-
-                                                        <div className="flex items-center gap-2 px-4 pb-3 overflow-x-auto custom-scrollbar border-b border-gray-200/10">
-                                                            {commonBases.map((category) => (
-                                                                <button
-                                                                    key={category}
-                                                                    onClick={() => setSelectedCategory(category)}
-                                                                    className={`px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all duration-200
-                        ${selectedCategory === category
-                                                                            ? `${isDarkMode ? 'bg-blue-500/20 text-blue-400' : 'bg-blue-100 text-blue-600'}`
-                                                                            : `${isDarkMode ? 'hover:bg-gray-700/50' : 'hover:bg-gray-100'} text-gray-500`
-                                                                        }`}
-                                                                >
-                                                                    {category === 'Favorites' ? (
-                                                                        <div className="flex items-center gap-1.5">
-                                                                            <Star className="w-4 h-4" />
-                                                                            <span>{category}</span>
-                                                                        </div>
-                                                                    ) : category}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-
-                                                        <div className="flex-1 overflow-hidden">
-                                                            <div className="flex items-center justify-between px-4 py-2 border-b border-gray-200/10">
-                                                                <div className="flex items-center gap-2 w-[30%] cursor-pointer" onClick={() => handleSort('pair')}>
-                                                                    <span className="text-xs font-medium text-gray-500">Pair</span>
-                                                                    {sortBy === 'pair' && (
-                                                                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                                                    )}
-                                                                </div>
-                                                                <div className="flex items-center justify-end gap-2 w-[20%] cursor-pointer" onClick={() => handleSort('price')}>
-                                                                    <span className="text-xs font-medium text-gray-500">Price</span>
-                                                                    {sortBy === 'price' && (
-                                                                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                                                    )}
-                                                                </div>
-                                                                <div className="flex items-center justify-end gap-2 w-[25%] cursor-pointer" onClick={() => handleSort('change')}>
-                                                                    <span className="text-xs font-medium text-gray-500">24h Change</span>
-                                                                    {sortBy === 'change' && (
-                                                                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                                                    )}
-                                                                </div>
-                                                                <div className="flex items-center justify-end gap-2 w-[25%] cursor-pointer" onClick={() => handleSort('volume')}>
-                                                                    <span className="text-xs font-medium text-gray-500">24h Volume</span>
-                                                                    {sortBy === 'volume' && (
-                                                                        <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                                                    )}
-                                                                </div>
-                                                            </div>
-
-                                                            <div className="h-[calc(100%-40px)] overflow-y-auto custom-scrollbar">
-                                                                {sortedPairs.map((pair) => (
-                                                                    <div
-                                                                        key={pair.pair}
-                                                                        onClick={() => {
-                                                                            setSelectedPair(pair);
-                                                                            setShowPairSelector(false);
-                                                                        }}
-                                                                        className={`flex items-center justify-between px-4 py-3 cursor-pointer transition-colors
-                          ${isDarkMode
-                                                                                ? 'hover:bg-gray-700/30'
-                                                                                : 'hover:bg-gray-100/70'}`}
-                                                                    >
-                                                                        <div className="flex items-center gap-3 w-[30%]">
-                                                                            <div className="relative">
-                                                                                <img src={pair.logo} alt={pair.pair} className="w-7 h-7" />
-                                                                                {pair.isFavorite && (
-                                                                                    <Star className="absolute -top-1 -right-1 w-3.5 h-3.5 text-yellow-400 fill-current" />
-                                                                                )}
-                                                                            </div>
-                                                                            <span className="font-medium">{pair.symbol}</span>
-                                                                        </div>
-                                                                        <div className="w-[20%] text-right font-medium">{pair.price}</div>
-                                                                        <div className={`w-[25%] text-right font-medium ${pair.change.startsWith('+') ? 'text-green-500' : 'text-pink-500'
-                                                                            }`}>
-                                                                            {pair.change}
-                                                                        </div>
-                                                                        <div className="w-[25%] text-right font-medium text-gray-500">{pair.volume}</div>
-                                                                    </div>
-                                                                ))}
-                                                                {sortedPairs.length === 0 && (
-                                                                    <div className="flex flex-col items-center justify-center h-full text-gray-500">
-                                                                        <Search className="w-6 h-6 mb-2" />
-                                                                        <span>No markets found</span>
-                                                                    </div>
-                                                                )}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        )}
-                                    </div>
-
-
-                                    <div className={`p-5 rounded-2xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} backdrop-blur-sm shadow-sm `}>
+                                        <ChartView />
+                                </div>
+                            )}
+                        </div>
+                    </motion.div>
+                    {
+                        !showPairSelector &&  <motion.div
+                        className={`relative ${isDarkMode
+                            ? 'bg-gray-800/30 border-gray-700/30'
+                            : 'bg-white/40 border-white/20'
+                            } backdrop-blur-sm p-0.5 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border overflow-hidden transition-all duration-300 w-full`}
+                        initial={{ y: 20, opacity: 0 }}
+                        animate={{ y: 0, opacity: 1 }}
+                        transition={{ delay: 0.3 }}>
+                        <div className="w-full">
+                           
+            
+                                    <div className={`p-5 rounded-3xl backdrop-blur-sm shadow-sm `}>
                                         {/* Buy/Sell Tab */}
                                         <div className="mb-2">
                                             <div className={`flex p-0.5 rounded-xl backdrop-blur-sm transition-all duration-300 ${isDarkMode
@@ -1062,10 +957,11 @@ const ExchangePage = () => {
                                             </button>
                                         </div>
                                     </div>
-                                </div>
-                            )}
+                               
                         </div>
                     </motion.div>
+                    }
+                   
                 </div>
 
                 <div className="order-3 sm:order-3 lg:col-span-2">
@@ -1090,77 +986,106 @@ const ExchangePage = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-1">
-                                    {[
-                                        { type: 'buy', price: '42,350.00', amount: '0.1', filled: '0.05', status: 'Open' },
-                                        { type: 'sell', price: '42,400.00', amount: '0.05', filled: '0.02', status: 'Open' },
-                                        { type: 'buy', price: '42,300.00', amount: '0.2', filled: '0.1', status: 'Open' }
-                                    ].map((order, i) => (
-                                        <motion.div
-                                            key={i}
-                                            className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${order.type === 'buy'
-                                                ? isDarkMode
-                                                    ? 'bg-transparent hover:bg-green-500/20'
-                                                    : 'bg-transparent hover:bg-green-100'
-                                                : isDarkMode
-                                                    ? 'bg-transparent hover:bg-pink-500/20'
-                                                    : 'bg-transparent hover:bg-pink-100'
-                                                }`}
-                                            whileHover={{ scale: 1.02 }}
-                                            onClick={() => setSelectedOrder(i)}
-                                        >
-                                            <div className="flex justify-between text-xs">
-                                                <span className={`font-medium ${order.type === 'buy'
-                                                    ? isDarkMode ? 'text-green-400' : 'text-green-600'
-                                                    : isDarkMode
-                                                        ? 'text-pink-400'
-                                                        : 'text-pink-600'
-                                                    }`}>
-                                                    {order.type.toUpperCase()}
-                                                </span>
-                                                <span className={`px-1 py-0.5 rounded-full ${order.status === 'Filled'
-                                                    ? 'bg-green-500/10 text-green-500'
-                                                    : order.type === 'buy'
-                                                        ? isDarkMode
-                                                            ? 'bg-green-500/20 text-green-400'
-                                                            : 'bg-green-50 text-green-600 border border-green-200'
-                                                        : isDarkMode
-                                                            ? 'bg-pink-500/20 text-pink-400'
-                                                            : 'bg-pink-50 text-pink-600 border border-pink-200'
-                                                    } text-[10px]`}>
-                                                    {order.status}
-                                                </span>
+                                    {orderBook.loading ? (
+                                        Array.from({ length: 3 }).map((_, i) => (
+                                            <div key={i} className="p-1.5 rounded-lg animate-pulse">
+                                                <div className="flex justify-between">
+                                                    <div className="h-3 w-12 bg-gray-300 rounded"></div>
+                                                    <div className="h-3 w-16 bg-gray-300 rounded-full"></div>
+                                                </div>
+                                                <div className="flex justify-between mt-2">
+                                                    <div className="space-y-1">
+                                                        <div className="h-2 w-8 bg-gray-300 rounded"></div>
+                                                        <div className="h-3 w-16 bg-gray-300 rounded"></div>
+                                                    </div>
+                                                    <div className="space-y-1">
+                                                        <div className="h-2 w-8 bg-gray-300 rounded"></div>
+                                                        <div className="h-3 w-16 bg-gray-300 rounded"></div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex justify-between items-center mt-2">
+                                                    <div className="space-y-1">
+                                                        <div className="h-2 w-8 bg-gray-300 rounded"></div>
+                                                        <div className="h-3 w-12 bg-gray-300 rounded"></div>
+                                                    </div>
+                                                    <div className="h-6 w-16 bg-gray-300 rounded"></div>
+                                                </div>
+                                                <div className="w-full bg-gray-300 rounded-full h-1.5 mt-2"></div>
                                             </div>
-                                            <div className="flex justify-between text-xs mt-0.5">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] text-gray-500">Price</span>
-                                                    <span>{order.price}</span>
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] text-gray-500">Amount</span>
-                                                    <span>{order.amount}</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex justify-between items-center text-xs mt-0.5">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] text-gray-500">Filled</span>
-                                                    <span>{order.filled}</span>
-                                                </div>
-                                                <button className={`px-2 py-1 rounded text-xs font-medium transition-colors border ${order.type === 'buy'
+                                        ))
+                                    ) : (
+                                        [
+                                            { type: 'buy', price: '1.00 Test', amount: '0.1', filled: '0.05', status: 'Open' },
+                                            { type: 'sell', price: '2.Test', amount: '0.05', filled: '0.02', status: 'Open' },
+                                            { type: 'buy', price: '3,Test', amount: '0.2', filled: '0.1', status: 'Open' }
+                                        ].map((order, i) => (
+                                            <motion.div
+                                                key={i}
+                                                className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${order.type === 'buy'
                                                     ? isDarkMode
-                                                        ? 'text-green-400 border-green-400 hover:bg-green-500/30'
-                                                        : 'text-green-600 border-green-600 hover:bg-green-200'
+                                                        ? 'bg-transparent hover:bg-green-500/20'
+                                                        : 'bg-transparent hover:bg-green-100'
                                                     : isDarkMode
-                                                        ? 'text-pink-400 border-pink-400 hover:bg-pink-500/30'
-                                                        : 'text-pink-600 border-pink-600 hover:bg-pink-200'
-                                                    }`}>
-                                                    Cancel
-                                                </button>
-                                            </div>
-                                            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                                                <div className={`h-1.5 rounded-full ${order.type === 'buy' ? 'bg-green-500' : 'bg-pink-500'}`} style={{ width: `${(parseFloat(order.filled) / parseFloat(order.amount)) * 100}%` }}></div>
-                                            </div>
-                                        </motion.div>
-                                    ))}
+                                                        ? 'bg-transparent hover:bg-pink-500/20'
+                                                        : 'bg-transparent hover:bg-pink-100'
+                                                    }`}
+                                                whileHover={{ scale: 1.02 }}
+                                                onClick={() => setSelectedOrder(i)}
+                                            >
+                                                <div className="flex justify-between text-xs">
+                                                    <span className={`font-medium ${order.type === 'buy'
+                                                        ? isDarkMode ? 'text-green-400' : 'text-green-600'
+                                                        : isDarkMode
+                                                            ? 'text-pink-400'
+                                                            : 'text-pink-600'
+                                                        }`}>
+                                                        {order.type.toUpperCase()}
+                                                    </span>
+                                                    <span className={`px-1 py-0.5 rounded-full ${order.status === 'Filled'
+                                                        ? 'bg-green-500/10 text-green-500'
+                                                        : order.type === 'buy'
+                                                            ? isDarkMode
+                                                                ? 'bg-green-500/20 text-green-400'
+                                                                : 'bg-green-50 text-green-600 border border-green-200'
+                                                            : isDarkMode
+                                                                ? 'bg-pink-500/20 text-pink-400'
+                                                                : 'bg-pink-50 text-pink-600 border border-pink-200'
+                                                        } text-[10px]`}>
+                                                        {order.status}
+                                                    </span>
+                                                </div>
+                                                <div className="flex justify-between text-xs mt-0.5">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] text-gray-500">Price</span>
+                                                        <span>{order.price}</span>
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] text-gray-500">Amount</span>
+                                                        <span>{order.amount}</span>
+                                                    </div>
+                                                </div>
+                                                <div className="flex justify-between items-center text-xs mt-0.5">
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] text-gray-500">Filled</span>
+                                                        <span>{order.filled}</span>
+                                                    </div>
+                                                    <button className={`px-2 py-1 rounded text-xs font-medium transition-colors border ${order.type === 'buy'
+                                                        ? isDarkMode
+                                                            ? 'text-green-400 border-green-400 hover:bg-green-500/30'
+                                                            : 'text-green-600 border-green-600 hover:bg-green-200'
+                                                        : isDarkMode
+                                                            ? 'text-pink-400 border-pink-400 hover:bg-pink-500/30'
+                                                            : 'text-pink-600 border-pink-600 hover:bg-pink-200'
+                                                        }`}>
+                                                        Cancel
+                                                    </button>
+                                                </div>
+                                                <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                                    <div className={`h-1.5 rounded-full ${order.type === 'buy' ? 'bg-green-500' : 'bg-pink-500'}`} style={{ width: `${(parseFloat(order.filled) / parseFloat(order.amount)) * 100}%` }}></div>
+                                                </div>
+                                            </motion.div>
+                                        ))
+                                    )}
                                 </div>
                             </div>
 
@@ -1177,10 +1102,10 @@ const ExchangePage = () => {
                                 </div>
                                 <div className="space-y-1">
                                     {[
-                                        { type: 'buy', price: '42,350.00', amount: '0.1', time: '10:45:23', status: 'Filled' },
-                                        { type: 'sell', price: '42,400.00', amount: '0.05', time: '10:44:15', status: 'Filled' },
-                                        { type: 'sell', price: '42,400.00', amount: '0.05', time: '10:44:15', status: 'Filled' },
-                                        { type: 'buy', price: '42,300.00', amount: '0.2', time: '10:43:01', status: 'Cancelled' }
+                                        { type: 'buy', price: '5.00', amount: '0.1', time: '10:45:23', status: 'Filled' },
+                                        { type: 'sell', price: '5.00', amount: '0.05', time: '10:44:15', status: 'Filled' },
+                                        { type: 'sell', price: '5.00', amount: '0.05', time: '10:44:15', status: 'Filled' },
+                                        { type: 'buy', price: '5.00', amount: '0.2', time: '10:43:01', status: 'Cancelled' }
                                     ].map((order, i) => (
                                         <div key={i} className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${isDarkMode
                                             ? order.type === 'buy'

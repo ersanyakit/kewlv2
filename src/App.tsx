@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, BrowserRouter, useLocation } from 'react-router-dom';
 import TradeTerminal from './components/Swap/TradeTerminal';
 import Layout from './components/Layout/Layout';
 import About from './components/About/About';
@@ -11,14 +11,19 @@ import TosPage from './components/Pages/TosPage';
 import Assets from './components/Pages/Assets';
 import EmbeddedSwapPage from './components/Pages/EmbedPages';
 import ExchangePage from './components/Pages/ExchangePage';
+import { AnimatePresence, motion } from 'framer-motion';
 function App() {
+
+ 
+
+  
   return (
+    
     <Web3ProviderContext>
       <TokenProvider>
         <SwapProvider>
-
-
-          <Router>
+   
+          
             <Routes>
               <Route path="/test" element={<EmbeddedSwapPage swap="swap" />} />
               <Route path="/embed" element={<EmbeddedSwapPage swap="swap" />} />
@@ -43,7 +48,9 @@ function App() {
             />
             </Routes>
 
-          </Router>
+        
+     
+        
         </SwapProvider>
       </TokenProvider>
     </Web3ProviderContext>
