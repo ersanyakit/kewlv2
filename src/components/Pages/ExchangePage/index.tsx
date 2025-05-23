@@ -1102,6 +1102,8 @@ const ExchangePage = () => {
                                 </div>
                                 <div className="space-y-1">
                                     {[
+                                        { type: 'sell', price: '4.09', amount: '0.1', time: '10:45:23', status: 'Filled' },
+
                                         { type: 'buy', price: '5.00', amount: '0.1', time: '10:45:23', status: 'Filled' },
                                         { type: 'sell', price: '5.00', amount: '0.05', time: '10:44:15', status: 'Filled' },
                                         { type: 'sell', price: '5.00', amount: '0.05', time: '10:44:15', status: 'Filled' },
