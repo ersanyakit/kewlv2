@@ -11,12 +11,6 @@ const ChartView = () => {
   useEffect(() => {
     const chart: any = init('chart')
 
-    chart.createIndicator(
-      'MA',
-      false,
-      { id: 'candle_pane' }
-    );
-    chart.createIndicator('VOL');
 
 
     chart.applyNewData([
