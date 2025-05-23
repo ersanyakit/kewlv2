@@ -1782,17 +1782,7 @@
     },
     {
       "inputs": [],
-      "name": "InvalidAmount",
-      "type": "error"
-    },
-    {
-      "inputs": [],
       "name": "InvalidPair",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "InvalidPrice",
       "type": "error"
     },
     {
@@ -1807,27 +1797,12 @@
     },
     {
       "inputs": [],
-      "name": "NotOrderOwner",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "OrderNotCancellable",
-      "type": "error"
-    },
-    {
-      "inputs": [],
       "name": "Ownable__NotOwner",
       "type": "error"
     },
     {
       "inputs": [],
       "name": "Ownable__NotTransitiveOwner",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "PriceAmountOverflow",
       "type": "error"
     },
     {
@@ -1849,11 +1824,6 @@
         }
       ],
       "name": "TickMisaligned",
-      "type": "error"
-    },
-    {
-      "inputs": [],
-      "name": "TickStillHasLiquidity",
       "type": "error"
     },
     {
@@ -2229,16 +2199,6 @@
               "type": "address"
             },
             {
-              "internalType": "uint16",
-              "name": "takerFeeBps",
-              "type": "uint16"
-            },
-            {
-              "internalType": "uint16",
-              "name": "makerFeeBps",
-              "type": "uint16"
-            },
-            {
               "internalType": "uint256",
               "name": "nextOrderId",
               "type": "uint256"
@@ -2358,16 +2318,6 @@
               "internalType": "address",
               "name": "quote",
               "type": "address"
-            },
-            {
-              "internalType": "uint16",
-              "name": "takerFeeBps",
-              "type": "uint16"
-            },
-            {
-              "internalType": "uint16",
-              "name": "makerFeeBps",
-              "type": "uint16"
             },
             {
               "internalType": "uint256",
@@ -2491,16 +2441,6 @@
               "type": "address"
             },
             {
-              "internalType": "uint16",
-              "name": "takerFeeBps",
-              "type": "uint16"
-            },
-            {
-              "internalType": "uint16",
-              "name": "makerFeeBps",
-              "type": "uint16"
-            },
-            {
               "internalType": "uint256",
               "name": "nextOrderId",
               "type": "uint256"
@@ -2621,88 +2561,6 @@
     {
       "inputs": [
         {
-          "internalType": "bytes32",
-          "name": "pairHash",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "uint256",
-          "name": "maxSize",
-          "type": "uint256"
-        }
-      ],
-      "name": "getTickLevelsInRange",
-      "outputs": [
-        {
-          "internalType": "uint256[]",
-          "name": "ticks",
-          "type": "uint256[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "pairId",
-          "type": "bytes32"
-        }
-      ],
-      "name": "getTickList",
-      "outputs": [
-        {
-          "internalType": "int24[]",
-          "name": "ticks",
-          "type": "int24[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "pairId",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "int24",
-          "name": "startTick",
-          "type": "int24"
-        },
-        {
-          "internalType": "int24",
-          "name": "tickSpacing",
-          "type": "int24"
-        },
-        {
-          "internalType": "uint8",
-          "name": "limit",
-          "type": "uint8"
-        },
-        {
-          "internalType": "bool",
-          "name": "orderSide",
-          "type": "bool"
-        }
-      ],
-      "name": "getTicksInDirection",
-      "outputs": [
-        {
-          "internalType": "int24[]",
-          "name": "",
-          "type": "int24[]"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "address",
           "name": "token",
           "type": "address"
@@ -2722,7 +2580,7 @@
       "inputs": [
         {
           "internalType": "bytes32",
-          "name": "pairHash",
+          "name": "pairId",
           "type": "bytes32"
         },
         {
@@ -2735,6 +2593,11 @@
       "outputs": [
         {
           "components": [
+            {
+              "internalType": "uint256",
+              "name": "index",
+              "type": "uint256"
+            },
             {
               "internalType": "uint256",
               "name": "price",
@@ -2776,19 +2639,19 @@
               "type": "uint256"
             },
             {
-              "internalType": "uint256",
+              "internalType": "int24",
               "name": "tick",
-              "type": "uint256"
+              "type": "int24"
             },
             {
-              "internalType": "uint256",
+              "internalType": "int24",
               "name": "nextTick",
-              "type": "uint256"
+              "type": "int24"
             },
             {
-              "internalType": "uint256",
+              "internalType": "int24",
               "name": "prevTick",
-              "type": "uint256"
+              "type": "int24"
             },
             {
               "internalType": "uint256",
@@ -2855,6 +2718,50 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bytes32",
+          "name": "packed",
+          "type": "bytes32"
+        }
+      ],
+      "name": "unpackOrderData",
+      "outputs": [
+        {
+          "internalType": "uint64",
+          "name": "orderId",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "price",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint64",
+          "name": "amount",
+          "type": "uint64"
+        },
+        {
+          "internalType": "uint8",
+          "name": "kind",
+          "type": "uint8"
+        },
+        {
+          "internalType": "uint8",
+          "name": "status",
+          "type": "uint8"
+        },
+        {
+          "internalType": "int32",
+          "name": "entrypoint",
+          "type": "int32"
+        }
+      ],
+      "stateMutability": "pure",
       "type": "function"
     },
     {
@@ -4994,19 +4901,6 @@
       "name": "withdrawETH",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "SENTINEL",
-      "outputs": [
-        {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {

@@ -183,7 +183,7 @@ const TokenList: React.FC = () => {
                       aria-hidden="true">
                     </div>
                   ) : (
-                    token.balance
+                    parseFloat(token.balance).toFixed(4)
                   )}
                 </div>
               </div>

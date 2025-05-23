@@ -638,7 +638,7 @@ const FushionForm: React.FC = () => {
                             </div>
 
                             {/* Tek Token Listesi - Hangi token seçildiğine bağlı olarak farklı stil */}
-                            <div className={` scrollbar-hide min-h-[53dvh]  max-h-[53dvh]  overflow-y-auto ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'
+                            <div className={` select-none scrollbar-hide min-h-[53dvh]  max-h-[53dvh]  overflow-y-auto ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'
                                 } pr-1`}>
                                 <div className="space-y-1">
                                     {filteredTokens.length > 0 ? (
@@ -684,7 +684,7 @@ const FushionForm: React.FC = () => {
                                                                     aria-hidden="true">
                                                                 </div>
                                                             ) : (
-                                                                token.balance
+                                                                parseFloat(token.balance).toFixed(4)
                                                             )}
                                                         </div>
 

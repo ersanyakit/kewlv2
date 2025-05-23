@@ -280,7 +280,8 @@ const ExchangePage = () => {
           let _baseAddress = selectedPair.base.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.base.address;
           let _quoteAddress = selectedPair.quote.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.quote.address;
       
-          
+          _baseAddress = "0x9A676e781A523b5d0C0e43731313A708CB607508"
+          _quoteAddress = "0x0B306BF915C4d645ff596e518fAf3F9669b97016"
           const limirOrderParams : LimitOrderParam = {
             kind: tradeType == "buy" ? OrderKind.BUY_MARKET : OrderKind.SELL_MARKET,
             token0: _baseAddress,        // Ethereum adresi olduğu için string
@@ -289,6 +290,9 @@ const ExchangePage = () => {
             amount: ethers.parseUnits(amount || '0', selectedPair?.base.decimals ?? 18),
             entrypoint: priceTick,       // uint256[] dizisi için bigint[]
           }
+
+
+  
 
 
           await placeLimitOrder(walletProvider,limirOrderParams)

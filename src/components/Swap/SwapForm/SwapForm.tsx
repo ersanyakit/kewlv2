@@ -781,7 +781,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ disableTokenSelector = false }) => 
                                   aria-hidden="true">
                                 </div>
                               ) : (
-                                token.balance
+                                parseFloat(token.balance).toFixed(4)
                               )}
                             </div>
 

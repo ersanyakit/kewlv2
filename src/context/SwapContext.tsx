@@ -427,22 +427,24 @@ interface TPairState {
 /** LIMIT ORDER PROTOCOL */
 
 export interface PriceLevel {
-  price: bigint;           // Encoded fixed-point price
-  baseLiquidity: bigint;   // Total base token liquidity
+  index: bigint;
+  price: bigint;               // Encoded fixed-point price (6 veya 8 decimals)
+  baseLiquidity: bigint;       // Base token (örneğin ETH, CHZ) miktarı
   quoteLiquidity: bigint;
   baseTotalPrice: bigint;
   quoteTotalPrice: bigint;
-  head: bigint;            // ID of first order in linked list
-  tail: bigint;            // ID of last order in linked list
-  orderCount: bigint;      // Number of live orders at this level
 
-  tick: bigint;
-  nextTick: bigint;        // Price of next higher tick (0 if none)
-  prevTick: bigint;        // Price of next lower tick (0 if none)
+  head: bigint;                // Order linked list head ID
+  tail: bigint;                // Order linked list tail ID
+  orderCount: bigint;          // Aktif emir sayısı
 
-  sequence: bigint;        // Unique ID
+  tick: number;                // int24 uygun şekilde JS number olabilir
+  nextTick: number;            // int24 (yine JS number)
+  prevTick: number;            // int24
 
-  exists: boolean;
+  sequence: bigint;            // Benzersiz sıralama ID’si
+
+  exists: boolean;             // Bu tick aktif mi?
 }
 
 
@@ -512,27 +514,33 @@ export interface LimotOrderPairs{
 
 export interface LimitOrderPairInfo {
   valid: boolean;
-  base: string;
-  quote: string;
-  takerFeeBps: number;
-  makerFeeBps: number;
-  priceDecimals: number;
-  nextOrderId: bigint;
+  base: string;            // address
+  quote: string;           // address
+  takerFeeBps: number;     // uint16
+  makerFeeBps: number;     // uint16
+  nextOrderId: bigint;     // uint256
 
-  baseDecimals: bigint;
-  quoteDecimals: bigint;
+  baseDecimals: bigint;    // uint256
+  quoteDecimals: bigint;   // uint256
 
-  lastPrice: bigint;
-  priceMin: bigint;
-  priceMax: bigint;
-  change: bigint; // signed int
-  lastPriceTimestamp: bigint;
+  priceDecimals: number;   // uint16
+  tickSpacing: number;     // int24 (can safely use number in TS if range checked)
 
-  bestBuy:bigint;
-  bestSell:bigint;  
-  baseVolume: bigint;
-  quoteVolume: bigint;
-  pairId: string; // bytes32 as hex string
+  lastPrice: bigint;       // uint256
+  priceMin: bigint;        // uint256
+  priceMax: bigint;        // uint256
+  change: bigint;          // int256
+  lastPriceTimestamp: bigint; // uint256
+
+  baseVolume: bigint;      // uint256
+  quoteVolume: bigint;     // uint256
+
+  minBuy: bigint;          // uint256
+  minSell: bigint;         // uint256
+  maxBuy: bigint;          // uint256
+  maxSell: bigint;         // uint256
+
+  pairId: string;          // bytes32
 }
 
 export interface TokenPair {
@@ -2595,7 +2603,7 @@ const formatted = date.toLocaleString('en-US', {
     });
     
     const limit = 100;
-    const pairHash = "0x3700f6a081b22081a8392fb9d34c1c0d609016d4a62b9d29fdebc8975008ac32";
+    const pairHash = "0x476fa95dd4b9e538daae00223eddea9a2d89d85c196266748cc1a1d0fddb7362";
     const _levels: any = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
@@ -2687,6 +2695,17 @@ const formatted = date.toLocaleString('en-US', {
     const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
 
     const [signerAccount] = await dexContract.wallet.getAddresses()
+
+
+    await dexContract.client.simulateContract({
+      chain: dexContract.client.chain,
+      address: dexContract.caller.address as `0x${string}`,
+      abi: dexContract.abi,
+      functionName: "create",
+      args: [params as any],
+      account: signerAccount,
+      value: 0n
+    });
 
     const tx: any = await dexContract.wallet.writeContract({
       chain: dexContract.client.chain,
