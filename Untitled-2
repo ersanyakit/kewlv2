@@ -1,0 +1,195 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+/**
+ * @title SortedPriceLevelTable
+ * @notice Her biri için taban ve karşıt likidite depolayan,
+ * sıralı bir fiyat seviyesi listesini korumak için bir sözleşme.
+ * TickMap ve bitmap desenlerinden kaçınır, bunun yerine fiyatların çift yönlü bağlı listesini kullanır.
+ * Bu fiyat seviyeleriyle ilişkili emirlerin bytes32 olarak paketlendiği
+ * ve harici olarak veya bu tabloyla etkileşim kuran fonksiyonlar tarafından yönetildiği varsayılır.
+ */
+contract SortedPriceLevelTable {
+
+    struct Level {
+        uint256 baseLiquidity;
+        uint256 quoteLiquidity;
+        // Çift yönlü bağlı liste işaretçileri:
+        uint256 nextPrice; // Bir sonraki daha yüksek seviyenin fiyatı; bu en yüksekse 0.
+        uint256 prevPrice; // Bir sonraki daha düşük seviyenin fiyatı; bu en düşükse 0.
+        // bool initialized;  // Bu alan kaldırıldı
+    }
+
+    // Bir fiyattan Level verisine ve bağlı liste işaretçilerine eşleme.
+    // Eşlemenin anahtarı (fiyat), bağlı listede saklanan değerdir.
+    mapping(uint256 => Level) public levels;
+
+    uint256 public minPrice; // Bağlı listenin başı (en düşük aktif fiyat). Liste boşsa 0.
+    uint256 public maxPrice; // Bağlı listenin sonu (en yüksek aktif fiyat). Liste boşsa 0.
+    uint256 public numLevels;  // Listedeki aktif fiyat seviyelerinin sayısı.
+
+    event LevelUpdated(uint256 indexed price, uint256 baseLiquidity, uint256 quoteLiquidity);
+    event LevelAdded(uint256 indexed price, uint256 prevPriceHint, uint256 nextPriceHint); // Yeni seviye eklendiğinde, komşularını belirtir
+    event LevelRemoved(uint256 indexed price);
+
+    modifier validPrice(uint256 _price) {
+        require(_price > 0, "Fiyat sifirdan buyuk olmalidir");
+        _;
+    }
+
+    /**
+     * @dev Dahili olarak bir fiyatın listede olup olmadığını kontrol eder.
+     * Bir seviye listededir eğer numLevels > 0 ise VE
+     * (fiyat minPrice veya maxPrice ise VEYA seviyenin prevPrice veya nextPrice işaretçileri ayarlanmışsa).
+     * Bu, seviyenin bağlı listenin bir parçası olup olmadığını belirler.
+     */
+    function _isListed(uint256 _price) internal view returns (bool) {
+        if (numLevels == 0) { // Liste boşsa hiçbir şey listelenemez.
+            return false;
+        }
+        // `levels[_price]` erişimi bir SLOAD maliyetine sahiptir.
+        // Bu, `initialized` alanına yapılan önceki doğrudan erişimle benzer bir maliyettir.
+        // Ancak, bir seviyenin listede olup olmadığını belirlemek için artık ayrı bir slota ihtiyacımız yok.
+        Level storage L = levels[_price];
+        
+        // Bir seviye listelenmişse:
+        // 1. minPrice veya maxPrice olabilir (veya her ikisi de numLevels == 1 ise).
+        // 2. VEYA minPrice/maxPrice değilse ancak geçerli prev/next işaretçileri varsa.
+        // Dikkat: `delete levels[_price]` işaretçileri sıfırlar.
+        // `numLevels == 1` ise ve `_price == minPrice` (ve `maxPrice`) ise, `L.prevPrice` ve `L.nextPrice` 0 olacaktır.
+        // Bu yüzden `_price == minPrice || _price == maxPrice` kontrolü önemlidir.
+        return (_price == minPrice || _price == maxPrice || L.prevPrice != 0 || L.nextPrice != 0);
+    }
+
+    /**
+     * @notice Verilen bir fiyat için likidite ekler veya günceller.
+     * Fiyat yeniyse, sıralı bağlı listeye eklenir.
+     * Mevcut bir seviye için likidite sıfır olursa, seviye kaldırılır.
+     * @param _price Seviyenin fiyatı.
+     * @param _baseLiquidity Bu fiyat için taban varlık likiditesi.
+     * @param _quoteLiquidity Bu fiyat için karşıt varlık likiditesi.
+     */
+    function updateLiquidity(
+        uint256 _price,
+        uint256 _baseLiquidity,
+        uint256 _quoteLiquidity
+        // _prevPriceHintForAdd parametresi kaldırıldı
+    ) public validPrice(_price) {
+        Level storage level = levels[_price];
+
+        bool wasListed = _isListed(_price);
+
+        if (!wasListed) {
+            // Bu yeni bir fiyat seviyesi, bağlı listeye ekle.
+            _addLevelToList(_price); // _prevPriceHintForAdd olmadan çağır
+            // level.initialized = true; // Kaldırıldı, _isListed örtük olarak halleder.
+        }
+
+        level.baseLiquidity = _baseLiquidity;
+        level.quoteLiquidity = _quoteLiquidity;
+
+        emit LevelUpdated(_price, _baseLiquidity, _quoteLiquidity);
+
+        // Bu seviyedeki toplam likidite şimdi sıfırsa, listeden kaldır.
+        // _removeLevelFromList içindeki require, seviyenin gerçekten listede olup olmadığını kontrol edecektir.
+        if (_baseLiquidity == 0 && _quoteLiquidity == 0) {
+            // Seviyenin gerçekten listede olduğundan emin ol.
+            // _isListed() burada tekrar çağrılabilir, ancak _removeLevelFromList zaten bunu yapıyor.
+            if (wasListed || _isListed(_price)) { // Eğer daha önce listelenmişse veya *şimdi* listelenmişse
+                 _removeLevelFromList(_price);
+            }
+        }
+    }
+
+    /**
+     * @dev Sıralı bağlı listeye yeni bir fiyat eklemek için dahili fonksiyon.
+     * _price'ın zaten listede olmadığını varsayar. (Artık updateLiquidity'de _isListed ile kontrol ediliyor)
+     * Bu versiyon, _price'ın minPrice ve maxPrice arasına eklenmesini desteklemez
+     * çünkü bunu yapmak için bir döngü veya ipucu gerekir.
+     * @param _price Eklenecek fiyat.
+     */
+    function _addLevelToList(uint256 _price) private { // _prevPriceHint parametresi kaldırıldı
+        // levels[_price].initialized artık ayarlanmıyor. _isListed bu durumu yönetir.
+        numLevels++;
+
+        if (numLevels == 1) { // Liste boştu, bu ilk eleman
+            minPrice = _price;
+            maxPrice = _price;
+            // levels[_price].prevPrice ve levels[_price].nextPrice zaten 0'dır (varsayılan)
+            emit LevelAdded(_price, 0, 0);
+            return;
+        }
+
+        if (_price < minPrice) {
+            // Yeni fiyat yeni minimum olmalı
+            levels[_price].nextPrice = minPrice;
+            levels[minPrice].prevPrice = _price;
+            minPrice = _price;
+            emit LevelAdded(_price, 0, levels[_price].nextPrice);
+        } else if (_price > maxPrice) {
+            // Yeni fiyat yeni maksimum olmalı
+            levels[_price].prevPrice = maxPrice;
+            levels[maxPrice].nextPrice = _price;
+            maxPrice = _price;
+            emit LevelAdded(_price, levels[_price].prevPrice, 0);
+        } else {
+            // _price, minPrice ve maxPrice arasında.
+            // Döngü veya ipucu olmadan bu durumda sıralı ekleme yapılamaz.
+            revert("SLPT: Orta seviyeye siralama icin dongu veya ipucu olmadan eklenemez.");
+        }
+    }
+
+    /**
+     * @dev Bağlı listeden mevcut bir fiyatı kaldırmak için dahili fonksiyon.
+     * _price'ın şu anda listede olduğunu ve likiditesinin sıfır olduğunu varsayar.
+     */
+    function _removeLevelFromList(uint256 _price) private {
+        // Level storage level = levels[_price]; // Bu satır daha sonra kullanılacak
+        // require(level.initialized, "Baslatilmamis seviye kaldirilamaz"); // _isListed ile değiştirildi
+        require(_isListed(_price), "SLPT: Kaldirilacak seviye listede degil veya zaten kaldirilmis.");
+        
+        Level storage level = levels[_price]; // İşaretçileri okumak için gereklidir ve _isListed'dan sonra güvenlidir.
+
+        uint256 prev = level.prevPrice;
+        uint256 next = level.nextPrice;
+
+        if (prev != 0) {
+            levels[prev].nextPrice = next;
+        } else {
+            // Bu minPrice idi, yeni minPrice bir sonraki seviye oluyor.
+            minPrice = next; 
+        }
+
+        if (next != 0) {
+            levels[next].prevPrice = prev;
+        } else {
+            // Bu maxPrice idi, yeni maxPrice bir önceki seviye oluyor.
+            maxPrice = prev; 
+        }
+
+        delete levels[_price]; // Struct'ı temizler, (artık olmayan) initialized'ı false yapar ve diğer alanları sıfırlar.
+        numLevels--;
+
+        if (numLevels == 0) {
+            minPrice = 0;
+            maxPrice = 0;
+        }
+        emit LevelRemoved(_price);
+    }
+
+    /**
+     * @notice Belirli bir fiyat için likidite verilerini alır.
+     * @param _price Sorgulanacak fiyat.
+     * @return base O fiyattaki taban likidite.
+     * @return quote O fiyattaki karşıt likidite.
+     */
+    function getLevelData(uint256 _price) public view validPrice(_price) returns (uint256 base, uint256 quote) {
+        // require(levels[_price].initialized, "Seviye baslatilmadi veya likiditesi yok");
+        require(_isListed(_price), "SLPT: Seviye listede degil veya likiditesi yok."); // Hata mesajı güncellendi
+        return (levels[_price].baseLiquidity, levels[_price].quoteLiquidity);
+    }
+
+    function getNumLevels() public view returns (uint256) {
+        return numLevels;
+    }
+} 

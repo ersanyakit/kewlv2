@@ -1792,11 +1792,6 @@
     },
     {
       "inputs": [],
-      "name": "InvalidTickSpacing",
-      "type": "error"
-    },
-    {
-      "inputs": [],
       "name": "Ownable__NotOwner",
       "type": "error"
     },
@@ -1811,19 +1806,8 @@
       "type": "error"
     },
     {
-      "inputs": [
-        {
-          "internalType": "int24",
-          "name": "tick",
-          "type": "int24"
-        },
-        {
-          "internalType": "int24",
-          "name": "tickSpacing",
-          "type": "int24"
-        }
-      ],
-      "name": "TickMisaligned",
+      "inputs": [],
+      "name": "TickStillHasLiquidity",
       "type": "error"
     },
     {
@@ -2138,40 +2122,6 @@
           "internalType": "uint256",
           "name": "",
           "type": "uint256"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
-          "internalType": "bytes32",
-          "name": "pairId",
-          "type": "bytes32"
-        },
-        {
-          "internalType": "int24",
-          "name": "tickLower",
-          "type": "int24"
-        },
-        {
-          "internalType": "int24",
-          "name": "tickUpper",
-          "type": "int24"
-        },
-        {
-          "internalType": "int24",
-          "name": "tickSpacing",
-          "type": "int24"
-        }
-      ],
-      "name": "getActiveTicks",
-      "outputs": [
-        {
-          "internalType": "int24[]",
-          "name": "",
-          "type": "int24[]"
         }
       ],
       "stateMutability": "view",
@@ -2615,43 +2565,8 @@
             },
             {
               "internalType": "uint256",
-              "name": "baseTotalPrice",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "quoteTotalPrice",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "head",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "tail",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
               "name": "orderCount",
               "type": "uint256"
-            },
-            {
-              "internalType": "int24",
-              "name": "tick",
-              "type": "int24"
-            },
-            {
-              "internalType": "int24",
-              "name": "nextTick",
-              "type": "int24"
-            },
-            {
-              "internalType": "int24",
-              "name": "prevTick",
-              "type": "int24"
             },
             {
               "internalType": "uint256",

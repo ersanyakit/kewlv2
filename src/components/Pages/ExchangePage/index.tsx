@@ -93,7 +93,7 @@ const ExchangePage = () => {
     const [selectedBuyRange, setSelectedBuyRange] = useState<number | null>(null);
     
 
-    const commonBases = ['Favorites', nativeToken?.symbol.toUpperCase(), 'USDT', 'USDC','KWL'] as string[];;
+    const commonBases = ['Favorites', nativeToken?.symbol.toUpperCase(), 'USDT', 'USDC','KWL'] as string[];
 
 
     const tradingPairs = generateQuotePairs(tokens, commonBases)
@@ -125,6 +125,9 @@ const ExchangePage = () => {
     const createPair = (base: Token, quote: Token) => {
       const id = getPairId(base.address, quote.address);
       if (seenPairs.has(id)) return;
+
+
+
       seenPairs.add(id);
   
       pairs.push({
@@ -283,8 +286,8 @@ const ExchangePage = () => {
           let _baseAddress = selectedPair.base.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.base.address;
           let _quoteAddress = selectedPair.quote.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.quote.address;
       
-          _baseAddress = "0x9A676e781A523b5d0C0e43731313A708CB607508"
-          _quoteAddress = "0x0B306BF915C4d645ff596e518fAf3F9669b97016"
+         // _baseAddress = "0x9A676e781A523b5d0C0e43731313A708CB607508"
+         // _quoteAddress = "0x0B306BF915C4d645ff596e518fAf3F9669b97016"
           const limirOrderParams : LimitOrderParam = {
             kind: tradeType == "buy" ? OrderKind.BUY_MARKET : OrderKind.SELL_MARKET,
             token0: _baseAddress,        // Ethereum adresi olduğu için string
@@ -484,9 +487,9 @@ const ExchangePage = () => {
                                                             }}>
 
                                                         </div>
-                                                        <span className="group-hover:text-pink-400 relative">{ethers.formatEther(order.price)}</span>
-                                                        <span className="text-right relative">{ethers.formatEther(order.totalAmount)}</span>
-                                                        <span className="text-right text-gray-500 relative">{ethers.formatEther(order.totalPrice)}</span>
+                                                        <span className="group-hover:text-pink-400 relative">{parseFloat(ethers.formatEther(order.price)).toFixed(8)}</span>
+                                                        <span className="text-right relative">{parseFloat(ethers.formatEther(order.totalAmount)).toFixed(8)}</span>
+                                                        <span className="text-right text-gray-500 relative">{parseFloat(ethers.formatEther(order.totalPrice)).toFixed(8)}</span>
                                                     </div>
                                                 ))
                                             )}
@@ -540,9 +543,9 @@ const ExchangePage = () => {
                                                                 width: `${(order.totalAmount * 100n) / orderBook.maxBuyTotal}%`
                                                             }}
                                                         ></div>
-                                                        <span className="group-hover:text-green-500 relative">{ethers.formatEther(order.price)}</span>
-                                                        <span className="text-right relative">{ethers.formatEther(order.totalAmount)}</span>
-                                                        <span className="text-right text-gray-500 relative">{ethers.formatEther(order.totalPrice)}</span>
+                                                        <span className="group-hover:text-green-500 relative">{parseFloat(ethers.formatEther(order.price)).toFixed(8)}</span>
+                                                        <span className="text-right relative">{parseFloat(ethers.formatEther(order.totalAmount)).toFixed(8)}</span>
+                                                        <span className="text-right text-gray-500 relative">{parseFloat(ethers.formatEther(order.totalPrice)).toFixed(8)}</span>
                                                     </div>
                                                 ))
                                             )}

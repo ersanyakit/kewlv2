@@ -20,7 +20,7 @@ const SwapTabs: React.FC<SwapTabsProps> = ({
 
   return (
     <motion.div 
-      className="mb-4 flex justify-center"
+      className="select-none flex justify-center"
       initial={{ y: -20, opacity: 0 }}
       animate={{ y: 0, opacity: 1 }}
       transition={{ delay: 0.2 }}
@@ -32,7 +32,7 @@ const SwapTabs: React.FC<SwapTabsProps> = ({
           : 'bg-white/80 border-white/30'
       } backdrop-blur-lg p-1.5 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.06)] border flex space-x-1 transition-all duration-300`}>
          <button 
-          className={`text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'limit' 
+          className={`text-sm select-none font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'limit' 
             ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white shadow-lg' 
             : isDarkMode 
               ? 'text-gray-300 hover:bg-gray-700/50' 
@@ -48,7 +48,7 @@ const SwapTabs: React.FC<SwapTabsProps> = ({
           Limit
         </button>
         <button 
-          className={`text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'swap' 
+          className={`text-sm select-none font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'swap' 
             ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white shadow-lg' 
             : isDarkMode 
               ? 'text-gray-300 hover:bg-gray-700/50' 
@@ -64,7 +64,7 @@ const SwapTabs: React.FC<SwapTabsProps> = ({
           Swap
         </button>
         <button 
-          className={`hidden  text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'etf' 
+          className={`hidden select-none text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'etf' 
             ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white shadow-lg' 
             : isDarkMode 
               ? 'text-gray-300 hover:bg-gray-700/50' 
@@ -75,7 +75,7 @@ const SwapTabs: React.FC<SwapTabsProps> = ({
           ETF
         </button>
         <button 
-          className={`text-sm font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'pools' 
+          className={`text-sm select-none font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'pools' 
             ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white shadow-lg' 
             : isDarkMode 
               ? 'text-gray-300 hover:bg-gray-700/50' 
