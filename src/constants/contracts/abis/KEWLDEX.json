@@ -1782,12 +1782,27 @@
     },
     {
       "inputs": [],
+      "name": "InvalidAmount",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "InvalidPair",
       "type": "error"
     },
     {
       "inputs": [],
+      "name": "InvalidPrice",
+      "type": "error"
+    },
+    {
+      "inputs": [],
       "name": "InvalidTick",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "InvalidTickSpacing",
       "type": "error"
     },
     {
@@ -2042,6 +2057,24 @@
     {
       "inputs": [
         {
+          "internalType": "bytes32",
+          "name": "pairId",
+          "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "orderId",
+          "type": "uint256"
+        }
+      ],
+      "name": "claim",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "components": [
             {
               "internalType": "enum LibLimitOrders.OrderKind",
@@ -2070,8 +2103,13 @@
             },
             {
               "internalType": "uint256",
-              "name": "entrypoint",
+              "name": "deadline",
               "type": "uint256"
+            },
+            {
+              "internalType": "uint256[]",
+              "name": "entrypoint",
+              "type": "uint256[]"
             }
           ],
           "internalType": "struct LibLimitOrders.LimitOrderParam",
@@ -2154,19 +2192,19 @@
               "type": "uint256"
             },
             {
-              "internalType": "uint256",
+              "internalType": "uint8",
               "name": "baseDecimals",
-              "type": "uint256"
+              "type": "uint8"
             },
             {
-              "internalType": "uint256",
+              "internalType": "uint8",
               "name": "quoteDecimals",
-              "type": "uint256"
+              "type": "uint8"
             },
             {
-              "internalType": "uint16",
+              "internalType": "uint8",
               "name": "priceDecimals",
-              "type": "uint16"
+              "type": "uint8"
             },
             {
               "internalType": "int24",
@@ -2275,19 +2313,19 @@
               "type": "uint256"
             },
             {
-              "internalType": "uint256",
+              "internalType": "uint8",
               "name": "baseDecimals",
-              "type": "uint256"
+              "type": "uint8"
             },
             {
-              "internalType": "uint256",
+              "internalType": "uint8",
               "name": "quoteDecimals",
-              "type": "uint256"
+              "type": "uint8"
             },
             {
-              "internalType": "uint16",
+              "internalType": "uint8",
               "name": "priceDecimals",
-              "type": "uint16"
+              "type": "uint8"
             },
             {
               "internalType": "int24",
@@ -2396,19 +2434,19 @@
               "type": "uint256"
             },
             {
-              "internalType": "uint256",
+              "internalType": "uint8",
               "name": "baseDecimals",
-              "type": "uint256"
+              "type": "uint8"
             },
             {
-              "internalType": "uint256",
+              "internalType": "uint8",
               "name": "quoteDecimals",
-              "type": "uint256"
+              "type": "uint8"
             },
             {
-              "internalType": "uint16",
+              "internalType": "uint8",
               "name": "priceDecimals",
-              "type": "uint16"
+              "type": "uint8"
             },
             {
               "internalType": "int24",
@@ -2511,27 +2549,14 @@
     {
       "inputs": [
         {
-          "internalType": "address",
-          "name": "token",
-          "type": "address"
-        },
-        {
-          "internalType": "uint256",
-          "name": "priority",
-          "type": "uint256"
-        }
-      ],
-      "name": "initQuotePriority",
-      "outputs": [],
-      "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [
-        {
           "internalType": "bytes32",
           "name": "pairId",
           "type": "bytes32"
+        },
+        {
+          "internalType": "uint256",
+          "name": "start",
+          "type": "uint256"
         },
         {
           "internalType": "uint256",
@@ -2566,11 +2591,6 @@
             {
               "internalType": "uint256",
               "name": "orderCount",
-              "type": "uint256"
-            },
-            {
-              "internalType": "uint256",
-              "name": "sequence",
               "type": "uint256"
             },
             {
@@ -2614,25 +2634,32 @@
     {
       "inputs": [
         {
-          "internalType": "bytes32",
-          "name": "pairHash",
-          "type": "bytes32"
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        }
+      ],
+      "name": "setBaseToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_vault",
+          "type": "address"
         },
         {
-          "internalType": "uint256",
-          "name": "tick",
-          "type": "uint256"
+          "internalType": "address",
+          "name": "_weth",
+          "type": "address"
         }
       ],
-      "name": "tickExists",
-      "outputs": [
-        {
-          "internalType": "bool",
-          "name": "",
-          "type": "bool"
-        }
-      ],
-      "stateMutability": "view",
+      "name": "setVaultConfig",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     },
     {
@@ -2648,16 +2675,6 @@
         {
           "internalType": "uint64",
           "name": "orderId",
-          "type": "uint64"
-        },
-        {
-          "internalType": "uint64",
-          "name": "price",
-          "type": "uint64"
-        },
-        {
-          "internalType": "uint64",
-          "name": "amount",
           "type": "uint64"
         },
         {
@@ -2702,9 +2719,9 @@
           "type": "uint16"
         },
         {
-          "internalType": "uint16",
+          "internalType": "uint8",
           "name": "priceDecimals",
-          "type": "uint16"
+          "type": "uint8"
         }
       ],
       "name": "updatePairFees",
@@ -4819,6 +4836,11 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "ReentrancyGuard__ReentrantCall",
+      "type": "error"
+    },
+    {
       "anonymous": false,
       "inputs": [
         {
@@ -4836,6 +4858,53 @@
       ],
       "name": "OwnershipTransferred",
       "type": "event"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_token",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_status",
+          "type": "bool"
+        }
+      ],
+      "name": "banAsset",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "claim",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "payable",
+      "type": "function"
     },
     {
       "inputs": [],
@@ -4898,6 +4967,19 @@
     {
       "inputs": [],
       "name": "renounceOwnership",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "bool",
+          "name": "_status",
+          "type": "bool"
+        }
+      ],
+      "name": "setEnabled",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

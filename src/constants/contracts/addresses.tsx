@@ -1,12 +1,14 @@
 import DEX_ABI from "./abis/KEWLDEX.json";
 import ERC20_ABI from "./abis/ERC20.json";
 import PAIR_ABI from "./abis/PAIR.json";
+import MULTICALL_ABI from "./abis/MULTICALL.json";
 import { Address } from "@reown/appkit-adapter-ethers";
 import { PublicClient, WalletClient } from "viem";
  
 export enum TContractType {
     DEX,
     ERC20,
+    MULTICALL,
   }
   
   export interface TContract {
@@ -26,6 +28,7 @@ export enum TContractType {
   export type MultiContractConfig = {
     [contractType in TContractType]: {
       abi: object[];
+      multicall:object[];
       pair?:any | object[]
       contracts?: Record<number | string, TContract>;
     };
@@ -37,6 +40,7 @@ export const ContractList: MultiContractConfig = {
     [TContractType.DEX]: {
         abi: DEX_ABI.abi,
         pair:PAIR_ABI.abi,
+        multicall:MULTICALL_ABI.abi,
         contracts: {
             88888: {
                 address: "0xA0BB8f9865f732C277d0C162249A4F6c157ae9D0",
@@ -60,6 +64,8 @@ export const ContractList: MultiContractConfig = {
     },
     [TContractType.ERC20]: {
         abi: ERC20_ABI.abi,
+        multicall:MULTICALL_ABI.abi,
+        pair:PAIR_ABI.abi,
         contracts: {
             88888: {
                 address: "0x570e91fe0D25D46C5e0C83aF6bc95afB0072C321",
@@ -79,6 +85,31 @@ export const ContractList: MultiContractConfig = {
             146: {
                 address: "0x570e91fe0D25D46C5e0C83aF6bc95afB0072C321",
             },
+        }
+    },
+    [TContractType.MULTICALL]: {
+            abi: MULTICALL_ABI.abi,
+            multicall:MULTICALL_ABI.abi,
+            pair:PAIR_ABI.abi,
+            contracts: {
+                88888: {
+                    address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+                },
+                88882: {
+                    address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+                },
+                42161: {
+                    address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+                },
+                43114: {
+                    address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+                },
+                31337: {
+                    address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+                },
+                146: {
+                    address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+                },
         },
     },
 }

@@ -46,6 +46,8 @@ import { ethers } from 'ethers';
 import { encodePacked, keccak256, parseEther, parseUnits } from 'viem';
 import { WETH9 } from '../../../constants/entities';
 import SwapTabs from '../../Swap/SwapTabs';
+import { LIMIT_ORDER_BOOK_DECIMALS } from '../../../constants/contracts/exchanges';
+import moment from 'moment';
 
 const ExchangePage = () => {
     const {
@@ -283,8 +285,8 @@ const ExchangePage = () => {
       
           let WRAPPED_TOKEN = WETH9[Number(chainId)].address;
 
-          let _baseAddress = selectedPair.base.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.base.address;
-          let _quoteAddress = selectedPair.quote.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.quote.address;
+          let _baseAddress = "0x9A676e781A523b5d0C0e43731313A708CB607508"//selectedPair.base.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.base.address;
+          let _quoteAddress = "0x0B306BF915C4d645ff596e518fAf3F9669b97016"//selectedPair.quote.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.quote.address;
       
          // _baseAddress = "0x9A676e781A523b5d0C0e43731313A708CB607508"
          // _quoteAddress = "0x0B306BF915C4d645ff596e518fAf3F9669b97016"
@@ -294,7 +296,8 @@ const ExchangePage = () => {
             token1: _quoteAddress,
             price: ethers.parseUnits(price || '0', selectedPair?.quote.decimals ?? 18),         // uint256 için bigint uygun
             amount: ethers.parseUnits(amount || '0', selectedPair?.base.decimals ?? 18),
-            entrypoint: priceTick,       // uint256[] dizisi için bigint[]
+            deadline: BigInt(moment().add(1, 'hours').unix()),
+            entrypoint: [],       // uint256[] dizisi için bigint[]
           }
 
 
@@ -327,12 +330,12 @@ const ExchangePage = () => {
     const handleOrderBookPriceClick = (order:PriceLevelOrderBook, type: 'buy' | 'sell') => {
 
         //todo:decimal scale
-        const formattedPrice = ethers.formatEther(order.price);
-        const formattedAmount = ethers.formatEther(order.amount ?? 0n);
+        const formattedPrice = ethers.formatUnits(order.price,LIMIT_ORDER_BOOK_DECIMALS);
+        const formattedAmount = ethers.formatUnits(order.amount ?? 0n,LIMIT_ORDER_BOOK_DECIMALS);
 
         console.log(formattedPrice, formattedAmount)
-        setPrice(ethers.formatEther(order.price));
-        setAmount(ethers.formatEther(order.totalAmount));
+        setPrice(ethers.formatUnits(order.price,LIMIT_ORDER_BOOK_DECIMALS));
+        setAmount(ethers.formatUnits(order.totalAmount,LIMIT_ORDER_BOOK_DECIMALS));
         const total = parseFloat(formattedPrice) * parseFloat(formattedAmount);
         //setTotal(total.toFixed(8));
         setTradeType(type);
@@ -487,9 +490,9 @@ const ExchangePage = () => {
                                                             }}>
 
                                                         </div>
-                                                        <span className="group-hover:text-pink-400 relative">{parseFloat(ethers.formatEther(order.price)).toFixed(8)}</span>
-                                                        <span className="text-right relative">{parseFloat(ethers.formatEther(order.totalAmount)).toFixed(8)}</span>
-                                                        <span className="text-right text-gray-500 relative">{parseFloat(ethers.formatEther(order.totalPrice)).toFixed(8)}</span>
+                                                        <span className="group-hover:text-pink-400 relative">{parseFloat(ethers.formatUnits(order.price,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(8)}</span>
+                                                        <span className="text-right relative">{parseFloat(ethers.formatUnits(order.totalAmount,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(8)}</span>
+                                                        <span className="text-right text-gray-500 relative">{parseFloat(ethers.formatUnits(order.totalPrice,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(8)}</span>
                                                     </div>
                                                 ))
                                             )}
@@ -543,9 +546,9 @@ const ExchangePage = () => {
                                                                 width: `${(order.totalAmount * 100n) / orderBook.maxBuyTotal}%`
                                                             }}
                                                         ></div>
-                                                        <span className="group-hover:text-green-500 relative">{parseFloat(ethers.formatEther(order.price)).toFixed(8)}</span>
-                                                        <span className="text-right relative">{parseFloat(ethers.formatEther(order.totalAmount)).toFixed(8)}</span>
-                                                        <span className="text-right text-gray-500 relative">{parseFloat(ethers.formatEther(order.totalPrice)).toFixed(8)}</span>
+                                                        <span className="group-hover:text-green-500 relative">{parseFloat(ethers.formatUnits(order.price,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(8)}</span>
+                                                        <span className="text-right relative">{parseFloat(ethers.formatUnits(order.totalAmount,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(8)}</span>
+                                                        <span className="text-right text-gray-500 relative">{parseFloat(ethers.formatUnits(order.totalPrice,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(8)}</span>
                                                     </div>
                                                 ))
                                             )}

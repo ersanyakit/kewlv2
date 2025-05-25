@@ -11,7 +11,8 @@ import TosPage from './components/Pages/TosPage';
 import Assets from './components/Pages/Assets';
 import EmbeddedSwapPage from './components/Pages/EmbedPages';
 import ExchangePage from './components/Pages/ExchangePage';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence,motion, LazyMotion, domAnimation, m } from 'framer-motion'
+
 function App() {
 
  
@@ -22,8 +23,6 @@ function App() {
     <Web3ProviderContext>
       <TokenProvider>
         <SwapProvider>
-   
-          
             <Routes>
               <Route path="/test" element={<EmbeddedSwapPage swap="swap" />} />
               <Route path="/embed" element={<EmbeddedSwapPage swap="swap" />} />
@@ -47,10 +46,6 @@ function App() {
               }
             />
             </Routes>
-
-        
-     
-        
         </SwapProvider>
       </TokenProvider>
     </Web3ProviderContext>

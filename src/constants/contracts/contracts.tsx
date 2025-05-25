@@ -84,7 +84,7 @@ export const fetchBalances = async (chainId: string | number,account: string | u
     }
 
     
-    let dexContract = await getContractByName(TContractType.DEX, chainId,walletProvider);
+    let dexContract = await getContractByName(TContractType.MULTICALL, chainId,walletProvider);
      
     let abiERC = ['function balanceOf(address user)','function getEthBalance(address user)'];
     let abiInterfaceParam = new ethers.Interface(abiERC);

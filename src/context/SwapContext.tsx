@@ -426,17 +426,15 @@ interface TPairState {
 
 /** LIMIT ORDER PROTOCOL */
 
-export interface PriceLevel {
+
+type PriceLevel = {
   index: bigint;
   price: bigint;
   baseLiquidity: bigint;
   quoteLiquidity: bigint;
   orderCount: bigint;
-  sequence: bigint;
   exists: boolean;
-}
-
-
+};
 
 export interface PriceLevelOrderBook {
   price: bigint;           // Encoded fixed-point price
@@ -487,13 +485,14 @@ export enum OrderKind {
 }
 
 export interface LimitOrderParam {
-  kind: OrderKind;
-  token0: string;        // Ethereum adresi olduğu için string
+  kind: number; // Eğer OrderKind enum ise, Solidity'de enumlar uint8 gibi gelir
+  token0: string;
   token1: string;
-  price: bigint;         // uint256 için bigint uygun
+  price: bigint;
   amount: bigint;
-  entrypoint: bigint;       // uint256[] dizisi için bigint[]
-}
+  deadline: bigint;
+  entrypoint: bigint[];
+};
 
 
 export interface LimotOrderPairs{
@@ -2584,13 +2583,14 @@ const formatted = date.toLocaleString('en-US', {
     });
     
     const limit = 100;
-    const pairHash = "0x0000000000000000000000000000000000000000000000000000000000000000"
+    const start = 0;
+    const pairHash = "0x476fa95dd4b9e538daae00223eddea9a2d89d85c196266748cc1a1d0fddb7362"
     //const pairHash = "0x476fa95dd4b9e538daae00223eddea9a2d89d85c196266748cc1a1d0fddb7362";
     const _levels: any = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
       functionName: 'orderBook',
-      args: [pairHash, limit],
+      args: [pairHash,start, limit],
       account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
     }) as [PriceLevel[] | any]
 
@@ -2677,6 +2677,82 @@ const formatted = date.toLocaleString('en-US', {
     const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
 
     const [signerAccount] = await dexContract.wallet.getAddresses()
+
+    const etherIn = params.token0 == WETH9[Number(chainId)].address ? true : false;
+    const etherOut = params.token1 == WETH9[Number(chainId)].address ? true : false;
+
+
+    try {
+      if (!etherIn) {
+        const tokenContract = getContract({
+          address: params.token0 as `0x${string}`,
+          abi: erc20Abi,
+          client: dexContract.client
+        })
+
+        const allowance = await tokenContract.read.allowance([
+          signerAccount,
+          dexContract.caller.address
+        ])
+
+        if (allowance < params.amount) {
+
+
+          const approvalTx = await dexContract.wallet.writeContract({
+            chain: dexContract.client.chain,
+            address: params.token0 as `0x${string}`,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [dexContract.address, ethers.MaxUint256],
+            account: signerAccount
+          })
+          const receiptApproval = await waitForTransactionReceipt(dexContract.wallet, {
+            hash: approvalTx,
+          });
+          console.log("receiptApproval", receiptApproval)
+        }
+      }
+    } catch (err) {
+      console.log("err", err)
+    } finally {
+
+    }
+
+    try {
+      if (!etherOut) {
+        const tokenContract = getContract({
+          address: params.token1 as `0x${string}`,
+          abi: erc20Abi,
+          client: dexContract.client
+        })
+
+        const allowance = await tokenContract.read.allowance([
+          signerAccount,
+          dexContract.caller.address
+        ])
+
+        if (allowance < params.amount) {
+
+
+          const approvalTx = await dexContract.wallet.writeContract({
+            chain: dexContract.client.chain,
+            address: params.token1 as `0x${string}`,
+            abi: erc20Abi,
+            functionName: "approve",
+            args: [dexContract.address, ethers.MaxUint256],
+            account: signerAccount
+          })
+          const receiptApproval = await waitForTransactionReceipt(dexContract.wallet, {
+            hash: approvalTx,
+          });
+          console.log("receiptApproval", receiptApproval)
+        }
+      }
+    } catch (err) {
+      console.log("err", err)
+    } finally {
+      
+    }
 
 
     await dexContract.client.simulateContract({

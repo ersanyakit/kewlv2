@@ -73,7 +73,8 @@ export const appkitOptions: AppKitOptions = {
   projectId,
   themeMode: "light",
   features: {
-    email: false,
+    email: true,
+    emailShowWallets: true, // default to true
     socials: ["google","github","apple","facebook","x","discord","farcaster"],
     allWallets: true,
     swaps: false,
@@ -81,6 +82,7 @@ export const appkitOptions: AppKitOptions = {
     analytics: false,
     onramp: false,
   },
+ 
   featuredWalletIds: [
     'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', // Metamask
     'f323633c1f67055a45aac84e321af6ffe46322da677ffdd32f9bc1e33bafe29c',

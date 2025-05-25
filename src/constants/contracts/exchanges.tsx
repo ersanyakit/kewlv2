@@ -1,4 +1,5 @@
 
+export const LIMIT_ORDER_BOOK_DECIMALS = 8;
 export const DECENTRALIZED_EXCHANGES = [
     {
         logo:"/assets/dex/kewl.svg",
