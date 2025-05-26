@@ -1,5 +1,6 @@
 
 export const LIMIT_ORDER_BOOK_DECIMALS = 8;
+export const PRICE_DECIMAL_FACTOR = 10n ** BigInt(LIMIT_ORDER_BOOK_DECIMALS);
 export const DECENTRALIZED_EXCHANGES = [
     {
         logo:"/assets/dex/kewl.svg",

@@ -1802,11 +1802,6 @@
     },
     {
       "inputs": [],
-      "name": "InvalidTickSpacing",
-      "type": "error"
-    },
-    {
-      "inputs": [],
       "name": "Ownable__NotOwner",
       "type": "error"
     },
@@ -1920,10 +1915,10 @@
           "type": "bytes32"
         },
         {
-          "indexed": true,
-          "internalType": "uint256",
-          "name": "orderId",
-          "type": "uint256"
+          "indexed": false,
+          "internalType": "bool",
+          "name": "kind",
+          "type": "bool"
         },
         {
           "indexed": false,
@@ -2118,6 +2113,24 @@
         }
       ],
       "name": "create",
+      "outputs": [],
+      "stateMutability": "payable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "base",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "quote",
+          "type": "address"
+        }
+      ],
+      "name": "createPaidPair",
       "outputs": [],
       "stateMutability": "payable",
       "type": "function"

@@ -46,8 +46,10 @@ import { ethers } from 'ethers';
 import { encodePacked, keccak256, parseEther, parseUnits } from 'viem';
 import { WETH9 } from '../../../constants/entities';
 import SwapTabs from '../../Swap/SwapTabs';
-import { LIMIT_ORDER_BOOK_DECIMALS } from '../../../constants/contracts/exchanges';
+import { LIMIT_ORDER_BOOK_DECIMALS, PRICE_DECIMAL_FACTOR } from '../../../constants/contracts/exchanges';
 import moment from 'moment';
+import TradeHistory from './TradeHistory';
+import OpenOrders from './OpenOrders';
 
 const ExchangePage = () => {
     const {
@@ -73,7 +75,7 @@ const ExchangePage = () => {
         activeView
     } = useTokenContext();
 
-    const { fetchOrderBook, orderBook,placeLimitOrder, selectedPair, setSelectedPair, fetchLimitOrderPairInfo, limitOrderPairs, setLimitOrderPairs } = useSwapContext();
+    const { fetchOrderBook, orderBook,placeLimitOrder, selectedPair, setSelectedPair, fetchLimitOrderPairInfo, limitOrderPairs, setLimitOrderPairs, fetchLimitOrderHistory } = useSwapContext();
     const { walletProvider } = useAppKitProvider('eip155');
     const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
     const { address, isConnected } = useAppKitAccount();
@@ -88,7 +90,6 @@ const ExchangePage = () => {
         buyOrders: true,
         sellOrders: true
     });
-    const [selectedOrder, setSelectedOrder] = useState<number | null>(null);
     const [hoveredSellOrder, setHoveredSellOrder] = useState<number | null>(null);
     const [hoveredBuyOrder, setHoveredBuyOrder] = useState<number | null>(null);
     const [selectedSellRange, setSelectedSellRange] = useState<number | null>(null);
@@ -99,7 +100,7 @@ const ExchangePage = () => {
 
 
     const tradingPairs = generateQuotePairs(tokens, commonBases)
-    console.log(tradingPairs)
+    console.log("TRADING PAIRS",tradingPairs)
     
 
 
@@ -125,7 +126,12 @@ const ExchangePage = () => {
   
     // Yardımcı: pairId üret ve tekrar var mı kontrol et
     const createPair = (base: Token, quote: Token) => {
-      const id = getPairId(base.address, quote.address);
+
+    const WRAPPED_TOKEN = WETH9[Number(chainId)].address;
+     const _baseAddress = base.address == ethers.ZeroAddress ? WRAPPED_TOKEN : base.address;
+     const _quoteAddress = quote.address == ethers.ZeroAddress ? WRAPPED_TOKEN : quote.address;
+
+      const id = getPairId(_baseAddress, _quoteAddress);
       if (seenPairs.has(id)) return;
 
 
@@ -261,6 +267,41 @@ const ExchangePage = () => {
         }));
     };
 
+
+
+
+    function getMatchingPriceLevelIndexes(
+        orderType: OrderKind,
+        priceLevels: PriceLevel[],
+        userInputPrice: bigint,
+        userInputDecimals: number
+      ): bigint[] {
+        const matchedIndexes: bigint[] = [];
+      
+        const decimalDiff = BigInt(userInputDecimals) - BigInt(LIMIT_ORDER_BOOK_DECIMALS);
+        const normalizedUserInputPrice = decimalDiff > 0
+          ? userInputPrice / (10n ** decimalDiff)
+          : userInputPrice * (10n ** (-decimalDiff));
+      
+        for (const level of priceLevels) {
+          if (orderType === OrderKind.BUY_MARKET) {
+            // BUY MARKET: Daha düşük fiyattaki satış emirlerini kapsar
+            if (level.price <= normalizedUserInputPrice) {
+              matchedIndexes.push(level.index);
+            }
+          } else {
+            // SELL MARKET: Daha yüksek fiyattaki alış emirlerini kapsar
+            if (level.price >= normalizedUserInputPrice) {
+                console.log("LEVEL PRICE",level.price,"NORMALIZED PRICE",normalizedUserInputPrice,"level index",level.index)
+              matchedIndexes.push(level.index);
+            }
+          }
+        }
+      
+        return matchedIndexes;
+      }
+
+
     const handlePlaceOrder = async () => {
         console.log("PLACE ORDER", selectedPair)
 
@@ -276,28 +317,38 @@ const ExchangePage = () => {
        
           //const pairInfo = limitOrderPairs.pairs[0];
 
-          const _inputPrice = ethers.parseUnits  (price || '0', selectedPair?.quote.decimals ?? 18)
-
-       
-
-          var priceTick = ethers.parseUnits(price || '0', selectedPair?.quote.decimals ?? 18)
-          
+                 
       
           let WRAPPED_TOKEN = WETH9[Number(chainId)].address;
 
-          let _baseAddress = "0x9A676e781A523b5d0C0e43731313A708CB607508"//selectedPair.base.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.base.address;
-          let _quoteAddress = "0x0B306BF915C4d645ff596e518fAf3F9669b97016"//selectedPair.quote.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.quote.address;
+         let _baseAddress = selectedPair.base.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.base.address;
+          let _quoteAddress = selectedPair.quote.address == ethers.ZeroAddress ? WRAPPED_TOKEN : selectedPair.quote.address;
       
          // _baseAddress = "0x9A676e781A523b5d0C0e43731313A708CB607508"
          // _quoteAddress = "0x0B306BF915C4d645ff596e518fAf3F9669b97016"
+
+
+
+         console.log("BASE ADDRESS",_baseAddress,"QUOTE ADDRESS",_quoteAddress)
+
+        const userInputDecimals = selectedPair?.quote.decimals ?? 18;
+        const userInputPrice = ethers.parseUnits(price || '0',userInputDecimals);
+        const userInputAmount = ethers.parseUnits(amount || '0',selectedPair?.quote.decimals ?? 18)
+        const levelIndexes = getMatchingPriceLevelIndexes(tradeType == "buy" ? OrderKind.BUY_MARKET : OrderKind.SELL_MARKET, tradeType == "buy" ?  orderBook.sell : orderBook.buy, userInputPrice,userInputDecimals)
+
+
+       const totalAmount = ethers.parseUnits(total || '0',selectedPair?.quote.decimals ?? 18)
+      
+
+          const orderKind : OrderKind = tradeType == "buy" ? OrderKind.BUY_MARKET : OrderKind.SELL_MARKET
           const limirOrderParams : LimitOrderParam = {
-            kind: tradeType == "buy" ? OrderKind.BUY_MARKET : OrderKind.SELL_MARKET,
+            kind: orderKind,
             token0: _baseAddress,        // Ethereum adresi olduğu için string
             token1: _quoteAddress,
-            price: ethers.parseUnits(price || '0', selectedPair?.quote.decimals ?? 18),         // uint256 için bigint uygun
-            amount: ethers.parseUnits(amount || '0', selectedPair?.base.decimals ?? 18),
+            price:  userInputPrice,       // uint256 için bigint uygun
+            amount: orderKind == OrderKind.BUY_MARKET ? totalAmount : userInputAmount,
             deadline: BigInt(moment().add(1, 'hours').unix()),
-            entrypoint: [],       // uint256[] dizisi için bigint[]
+            entrypoint: levelIndexes,       // uint256[] dizisi için bigint[]
           }
 
 
@@ -312,7 +363,7 @@ const ExchangePage = () => {
     useEffect(()=>{
         setActiveView('limit')
     },[])
-    const totalOrderBookHeight = 60; // Total height for both sections combined
+    const totalOrderBookHeight = 53.2; // Total height for both sections combined
 
     const orderBookVariants = {
         collapsed: { height: 0, opacity: 0 },
@@ -328,16 +379,9 @@ const ExchangePage = () => {
 
     // Update price, total, and trade type when a price is selected from the order book
     const handleOrderBookPriceClick = (order:PriceLevelOrderBook, type: 'buy' | 'sell') => {
-
-        //todo:decimal scale
-        const formattedPrice = ethers.formatUnits(order.price,LIMIT_ORDER_BOOK_DECIMALS);
-        const formattedAmount = ethers.formatUnits(order.amount ?? 0n,LIMIT_ORDER_BOOK_DECIMALS);
-
-        console.log(formattedPrice, formattedAmount)
-        setPrice(ethers.formatUnits(order.price,LIMIT_ORDER_BOOK_DECIMALS));
-        setAmount(ethers.formatUnits(order.totalAmount,LIMIT_ORDER_BOOK_DECIMALS));
-        const total = parseFloat(formattedPrice) * parseFloat(formattedAmount);
-        //setTotal(total.toFixed(8));
+        setPrice(parseFloat(ethers.formatUnits(order.price,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS));
+        setAmount(parseFloat(ethers.formatUnits(order.totalAmount,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS));
+        setTotal(parseFloat(ethers.formatUnits(order.totalPrice,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS));
         setTradeType(type);
     };
 
@@ -377,8 +421,11 @@ const ExchangePage = () => {
 
     const loadData = async () => {
         setSwapMode(SWAP_MODE.LIMIT_ORDERS);
-       // await fetchOrderBook(walletProvider);
         await fetchLimitOrderPairInfo(walletProvider);
+        await fetchLimitOrderHistory(walletProvider);
+        if(selectedPair){
+            await fetchOrderBook(walletProvider);
+        }
     }
 
     useEffect(()=>{
@@ -391,7 +438,7 @@ const ExchangePage = () => {
 
     return (
 
-        <div className={`flex flex-col px-0 py-4 md:p-4 transition-colors duration-300`}>
+        <div className={`select-none flex flex-col px-0 py-4 md:p-4 transition-colors duration-300`}>
             <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-7 gap-4">
 
                 <div className="order-2 sm:order-1 lg:col-span-2">
@@ -432,11 +479,38 @@ const ExchangePage = () => {
                                 <div className="flex items-center justify-between mb-2">
                                     <h3 className="text-sm font-medium">Order Book</h3>
                                     <div className="flex items-center gap-1">
-                                        <button className="p-1.5 rounded-lg hover:bg-gray-200/20">
-                                            <Filter className="w-4 h-4" />
+                                      
+                                        <button onClick={()=>{
+                                              setExpandedSections({
+                                                buyOrders:true,
+                                                sellOrders:true
+                                            })
+                                            
+                                        }}  className="p-1.5 rounded-lg hover:bg-gray-200/20">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2.66663 2.66699L7.33329 2.66699L7.33329 7.33366L2.66663 7.33366L2.66663 2.66699Z" fill="#dc2979"></path><path d="M2.66663 8.66699L7.33329 8.66699L7.33329 13.3337L2.66663 13.3337L2.66663 8.66699Z" fill="#049769"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M8.66663 2.66699L13.3333 2.66699L13.3333 5.33366L8.66663 5.33366L8.66663 2.66699ZM8.66663 6.66699L13.3333 6.66699L13.3333 9.33366L8.66663 9.33366L8.66663 6.66699ZM13.3333 10.667L8.66663 10.667L8.66663 13.3337L13.3333 13.3337L13.3333 10.667Z" fill="#d2d6dc"></path></svg>
                                         </button>
-                                        <button className="p-1.5 rounded-lg hover:bg-gray-200/20">
-                                            <Maximize2 className="w-4 h-4" />
+                                        <button 
+                                        onClick={()=>{
+                                            setExpandedSections({
+                                                buyOrders:true,
+                                                sellOrders:false
+                                            })
+                                           
+                                        }} 
+                                        className="p-1.5 rounded-lg hover:bg-gray-200/20">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><g><path d="M2.66663 2.66699L7.33329 2.66699L7.33329 13.3337L2.66663 13.3337L2.66663 2.66699Z" fill="#049769"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M8.66663 2.66699L13.3333 2.66699L13.3333 5.33366L8.66663 5.33366L8.66663 2.66699ZM8.66663 6.66699L13.3333 6.66699L13.3333 9.33366L8.66663 9.33366L8.66663 6.66699ZM13.3333 10.667L8.66663 10.667L8.66663 13.3337L13.3333 13.3337L13.3333 10.667Z" fill="#d2d6dc"></path></g></svg>
+                                        </button>
+                                        <button 
+                                        onClick={()=>{
+                                            setExpandedSections({
+                                                buyOrders:false,
+                                                sellOrders:true
+                                            })
+                                           
+
+                                        }}    
+                                        className="p-1.5 rounded-lg hover:bg-gray-200/20">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><g><path d="M2.66663 2.66699L7.33329 2.66699L7.33329 13.3337L2.66663 13.3337L2.66663 2.66699Z" fill="#dc2979"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M8.66663 2.66699L13.3333 2.66699L13.3333 5.33366L8.66663 5.33366L8.66663 2.66699ZM8.66663 6.66699L13.3333 6.66699L13.3333 9.33366L8.66663 9.33366L8.66663 6.66699ZM13.3333 10.667L8.66663 10.667L8.66663 13.3337L13.3333 13.3337L13.3333 10.667Z" fill="#d2d6dc"></path></g></svg>
                                         </button>
                                     </div>
                                 </div>
@@ -461,7 +535,7 @@ const ExchangePage = () => {
                                             animate={expandedSections.sellOrders ? 'expanded' : 'collapsed'}
                                             custom='sellOrders'
                                             variants={orderBookVariants}
-                                            className="my-1 flex flex-col  gap-[1px] overflow-y-auto scrollbar-hide custom-scrollbar flex flex-col-reverse"
+                                            className="select-none my-1 flex flex-col  gap-[1px] overflow-y-auto scrollbar-hide custom-scrollbar flex flex-col-reverse"
                                         >
                                             {orderBook.loading || orderBook.sell.length === 0 ? (
                                                 <div className="space-y-0.5">
@@ -477,7 +551,7 @@ const ExchangePage = () => {
                                                 orderBook.sell.map((order, i) => (
                                                     <div
                                                         key={i}
-                                                        className={`relative grid grid-cols-3 text-xs hover:bg-pink-500/20 cursor-pointer p-1.5 rounded-lg group px-2 ${hoveredSellOrder !== null && i <= hoveredSellOrder ? 'bg-pink-500/20' : ''} ${selectedSellRange !== null && i <= selectedSellRange ? 'bg-pink-500/40' : ''}`}
+                                                        className={`select-none relative grid grid-cols-3 text-xs hover:bg-pink-500/20 cursor-pointer p-1.5 rounded-lg group px-2 ${hoveredSellOrder !== null && i <= hoveredSellOrder ? 'bg-pink-500/20' : ''} ${selectedSellRange !== null && i <= selectedSellRange ? 'bg-pink-500/40' : ''}`}
                                                         onMouseEnter={() => handleSellOrderHover(i)}
                                                         onClick={() => {
                                                             handleOrderBookPriceClick(order, 'buy');
@@ -534,7 +608,7 @@ const ExchangePage = () => {
                                                 orderBook.buy.map((order, i) => (
                                                     <div
                                                         key={i}
-                                                        className={`relative grid grid-cols-3 text-xs hover:bg-green-500/10 cursor-pointer p-1.5 rounded-lg group px-2 ${hoveredBuyOrder !== null && i <= hoveredBuyOrder ? 'bg-green-500/20' : ''} ${selectedBuyRange !== null && i <= selectedBuyRange ? 'bg-green-500/40' : ''}`}
+                                                        className={`select-none relative grid grid-cols-3 text-xs hover:bg-green-500/10 cursor-pointer p-1.5 rounded-lg group px-2 ${hoveredBuyOrder !== null && i <= hoveredBuyOrder ? 'bg-green-500/20' : ''} ${selectedBuyRange !== null && i <= selectedBuyRange ? 'bg-green-500/40' : ''}`}
                                                         onMouseEnter={() => handleBuyOrderHover(i)}
                                                         onClick={() => {
                                                             handleOrderBookPriceClick(order, 'sell');
@@ -704,7 +778,7 @@ const ExchangePage = () => {
                                     </div>
                                 </div>
                             ) : (
-                                <div className='flex flex-col gap-4 p-4'>
+                                <div className='flex flex-col gap-4 p-0'>
                                         <ChartView />
                                 </div>
                             )}
@@ -981,180 +1055,13 @@ const ExchangePage = () => {
                         transition={{ delay: 0.3 }}>
                         <div className="flex-1">
                             {/* Open Orders */}
-                            <div className={`p-3  transition-all duration-300`}>
-                                <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-sm font-medium">Open Orders</h3>
-                                    <div className="flex items-center gap-1">
-                                        <button className="p-1 rounded hover:bg-gray-200/20 transition-colors">
-                                            <Filter className="w-3 h-3" />
-                                        </button>
-                                        <Clock className="w-3 h-3" />
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    {orderBook.loading ? (
-                                        Array.from({ length: 3 }).map((_, i) => (
-                                            <div key={i} className="p-1.5 rounded-lg animate-pulse">
-                                                <div className="flex justify-between">
-                                                    <div className="h-3 w-12 bg-gray-300 rounded"></div>
-                                                    <div className="h-3 w-16 bg-gray-300 rounded-full"></div>
-                                                </div>
-                                                <div className="flex justify-between mt-2">
-                                                    <div className="space-y-1">
-                                                        <div className="h-2 w-8 bg-gray-300 rounded"></div>
-                                                        <div className="h-3 w-16 bg-gray-300 rounded"></div>
-                                                    </div>
-                                                    <div className="space-y-1">
-                                                        <div className="h-2 w-8 bg-gray-300 rounded"></div>
-                                                        <div className="h-3 w-16 bg-gray-300 rounded"></div>
-                                                    </div>
-                                                </div>
-                                                <div className="flex justify-between items-center mt-2">
-                                                    <div className="space-y-1">
-                                                        <div className="h-2 w-8 bg-gray-300 rounded"></div>
-                                                        <div className="h-3 w-12 bg-gray-300 rounded"></div>
-                                                    </div>
-                                                    <div className="h-6 w-16 bg-gray-300 rounded"></div>
-                                                </div>
-                                                <div className="w-full bg-gray-300 rounded-full h-1.5 mt-2"></div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        [
-                                            { type: 'buy', price: '1.00 Test', amount: '0.1', filled: '0.05', status: 'Open' },
-                                            { type: 'sell', price: '2.Test', amount: '0.05', filled: '0.02', status: 'Open' },
-                                            { type: 'buy', price: '3,Test', amount: '0.2', filled: '0.1', status: 'Open' }
-                                        ].map((order, i) => (
-                                            <motion.div
-                                                key={i}
-                                                className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${order.type === 'buy'
-                                                    ? isDarkMode
-                                                        ? 'bg-transparent hover:bg-green-500/20'
-                                                        : 'bg-transparent hover:bg-green-100'
-                                                    : isDarkMode
-                                                        ? 'bg-transparent hover:bg-pink-500/20'
-                                                        : 'bg-transparent hover:bg-pink-100'
-                                                    }`}
-                                                whileHover={{ scale: 1.02 }}
-                                                onClick={() => setSelectedOrder(i)}
-                                            >
-                                                <div className="flex justify-between text-xs">
-                                                    <span className={`font-medium ${order.type === 'buy'
-                                                        ? isDarkMode ? 'text-green-400' : 'text-green-600'
-                                                        : isDarkMode
-                                                            ? 'text-pink-400'
-                                                            : 'text-pink-600'
-                                                        }`}>
-                                                        {order.type.toUpperCase()}
-                                                    </span>
-                                                    <span className={`px-1 py-0.5 rounded-full ${order.status === 'Filled'
-                                                        ? 'bg-green-500/10 text-green-500'
-                                                        : order.type === 'buy'
-                                                            ? isDarkMode
-                                                                ? 'bg-green-500/20 text-green-400'
-                                                                : 'bg-green-50 text-green-600 border border-green-200'
-                                                            : isDarkMode
-                                                                ? 'bg-pink-500/20 text-pink-400'
-                                                                : 'bg-pink-50 text-pink-600 border border-pink-200'
-                                                        } text-[10px]`}>
-                                                        {order.status}
-                                                    </span>
-                                                </div>
-                                                <div className="flex justify-between text-xs mt-0.5">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[10px] text-gray-500">Price</span>
-                                                        <span>{order.price}</span>
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[10px] text-gray-500">Amount</span>
-                                                        <span>{order.amount}</span>
-                                                    </div>
-                                                </div>
-                                                <div className="flex justify-between items-center text-xs mt-0.5">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[10px] text-gray-500">Filled</span>
-                                                        <span>{order.filled}</span>
-                                                    </div>
-                                                    <button className={`px-2 py-1 rounded text-xs font-medium transition-colors border ${order.type === 'buy'
-                                                        ? isDarkMode
-                                                            ? 'text-green-400 border-green-400 hover:bg-green-500/30'
-                                                            : 'text-green-600 border-green-600 hover:bg-green-200'
-                                                        : isDarkMode
-                                                            ? 'text-pink-400 border-pink-400 hover:bg-pink-500/30'
-                                                            : 'text-pink-600 border-pink-600 hover:bg-pink-200'
-                                                        }`}>
-                                                        Cancel
-                                                    </button>
-                                                </div>
-                                                <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                                                    <div className={`h-1.5 rounded-full ${order.type === 'buy' ? 'bg-green-500' : 'bg-pink-500'}`} style={{ width: `${(parseFloat(order.filled) / parseFloat(order.amount)) * 100}%` }}></div>
-                                                </div>
-                                            </motion.div>
-                                        ))
-                                    )}
-                                </div>
+                            <div className={`p-3 transition-all duration-300`}>
+                                <OpenOrders/>
                             </div>
 
                             {/* Order History */}
                             <div className={`p-3 rounded-xl`}>
-                                <div className="flex items-center justify-between mb-2">
-                                    <h3 className="text-sm font-medium">Order History</h3>
-                                    <div className="flex items-center gap-1">
-                                        <button className="p-1 rounded hover:bg-gray-200/20 transition-colors">
-                                            <Filter className="w-3 h-3" />
-                                        </button>
-                                        <History className="w-3 h-3" />
-                                    </div>
-                                </div>
-                                <div className="space-y-1">
-                                    {[
-                                        { type: 'sell', price: '4.09', amount: '0.1', time: '10:45:23', status: 'Filled' },
-
-                                        { type: 'buy', price: '5.00', amount: '0.1', time: '10:45:23', status: 'Filled' },
-                                        { type: 'sell', price: '5.00', amount: '0.05', time: '10:44:15', status: 'Filled' },
-                                        { type: 'sell', price: '5.00', amount: '0.05', time: '10:44:15', status: 'Filled' },
-                                        { type: 'buy', price: '5.00', amount: '0.2', time: '10:43:01', status: 'Cancelled' }
-                                    ].map((order, i) => (
-                                        <div key={i} className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${isDarkMode
-                                            ? order.type === 'buy'
-                                                ? 'bg-gray-800/20 hover:bg-green-500/20'
-                                                : 'bg-gray-800/20 hover:bg-pink-500/20'
-                                            : order.type === 'buy'
-                                                ? 'bg-white/50 shadow-sm hover:bg-green-100'
-                                                : 'bg-white/50 shadow-sm hover:bg-pink-100'}`}
-                                        >
-                                            <div className="flex justify-between text-xs">
-                                                <span className={`font-medium ${order.type === 'buy' ? 'text-green-500' : 'text-pink-600'}`}>
-                                                    {order.type.toUpperCase()}
-                                                </span>
-                                                <span className={`px-1 py-0.5 rounded-full ${order.status === 'Filled'
-                                                    ? 'bg-green-500/10 text-green-500'
-                                                    : isDarkMode
-                                                        ? 'bg-pink-500/20 text-pink-400'
-                                                        : 'bg-pink-50 text-pink-600 border border-pink-200'
-                                                    } text-[10px]`}>
-                                                    {order.status}
-                                                </span>
-                                            </div>
-                                            <div className="flex justify-between text-xs mt-0.5">
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] text-gray-500">Price</span>
-                                                    <span>{order.price}</span>
-                                                </div>
-                                                <div className="flex flex-col">
-                                                    <span className="text-[10px] text-gray-500">Amount</span>
-                                                    <span>{order.amount}</span>
-                                                </div>
-                                            </div>
-                                            <div className="flex justify-between items-center text-xs mt-0.5">
-                                                <span className="text-[10px] text-gray-500">{order.time}</span>
-                                                <button className="px-1.5 py-0.5 rounded text-[10px] bg-blue-500/10 text-blue-500 hover:bg-blue-500/20 transition-colors">
-                                                    Details
-                                                </button>
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
+                                    <TradeHistory/>
                             </div>
                         </div>
                     </motion.div>
@@ -1165,3 +1072,4 @@ const ExchangePage = () => {
 };
 
 export default ExchangePage; 
+

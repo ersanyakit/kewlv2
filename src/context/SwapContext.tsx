@@ -12,7 +12,7 @@ import moment from 'moment';
 import { toHex } from '../constants/entities/utils/computePriceImpact';
 import { Address, BaseError, ContractFunctionExecutionError, ContractFunctionRevertedError, decodeEventLog, erc20Abi, getContract, parseAbiItem, parseUnits, UserRejectedRequestError, zeroAddress } from 'viem';
 import { waitForTransactionReceipt } from 'viem/actions';
-import { getExchangeByRouterAndWETH, getRoutersByChainId } from '../constants/contracts/exchanges';
+import { getExchangeByRouterAndWETH, getRoutersByChainId, PRICE_DECIMAL_FACTOR } from '../constants/contracts/exchanges';
 import { sqrt } from '../constants/entities/utils/sqrt';
 import { Token as TokenContextToken } from './TokenContext';
 
@@ -57,7 +57,25 @@ export interface ClaimModalState {
   visible: boolean;
 }
 
+export type OrderMatchedEvent = {
+  pairId: string;
+  price: bigint;
+  amount: bigint;
+  kind: boolean;
+  timestamp: string;
+};
 
+export type OrderMatchedEventNative = {
+  pairId: string;
+  price: bigint;
+  kind: boolean;
+  type: string;
+  status: string;
+  proof: string;
+  amount: bigint;
+  timestamp: bigint;
+  timestampString: string;
+};
 
 const initialPairState: TPairState = {
   pairInfo: null,
@@ -88,6 +106,8 @@ interface SwapContextProps {
   setOrderBook: (orderBook: OrderBook) => void;
   selectedPair: TokenPair | null;
   setSelectedPair: (selectedPair: TokenPair | null) => void;
+
+
   // Diğer özellikler...
   swapResult: SwapResult | null;
   canSwap: boolean;
@@ -151,12 +171,20 @@ interface SwapContextProps {
   fetchLimitOrderPairInfo: (walletProvider: any) => void;
   limitOrderPairs: LimotOrderPairs;
   setLimitOrderPairs: (limitOrderPairs: LimotOrderPairs) => void;
+  fetchLimitOrderHistory: (walletProvider: any) => void;
+
+  limitOrderHistory: OrderMatchedEventNative[];
+  setLimitOrderHistory: (limitOrderHistory: OrderMatchedEventNative[]) => void;
+  limitOrderHistoryLoading: boolean;
+  setLimitOrderHistoryLoading: (limitOrderHistoryLoading: boolean) => void;
 }
 
 // Context varsayılan değeri
 const defaultContext: SwapContextProps = {
   selectedPair: null,
   setSelectedPair: () => { },
+
+  
   userTradingStats: null,
   setUserTradingStats: () => { },
   canAggregatorSwap: false,
@@ -244,6 +272,12 @@ const defaultContext: SwapContextProps = {
     pairs: [],
   },
   setLimitOrderPairs: () => { },  
+  fetchLimitOrderHistory: () => { },
+  limitOrderHistory: [],
+  setLimitOrderHistory: () => { },
+  limitOrderHistoryLoading: false,
+  setLimitOrderHistoryLoading: () => { },
+
 };
 
 // Context oluşturma
@@ -612,6 +646,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     loading: false,
     pairs: [],
   });
+  const [limitOrderHistory, setLimitOrderHistory] = useState<OrderMatchedEventNative[]>([]);
+  const [limitOrderHistoryLoading, setLimitOrderHistoryLoading] = useState<boolean>(false);
 
 
   const [userTradingStats, setUserTradingStats] = useState<UserTradingStats | null>(null);
@@ -2543,8 +2579,6 @@ const formatted = date.toLocaleString('en-US', {
       pairs: [],
     })
 
-    
-    
     const _pairs: any = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
@@ -2582,9 +2616,10 @@ const formatted = date.toLocaleString('en-US', {
       sell: []
     });
     
+    console.log("selectedPairErsan", selectedPair)
     const limit = 100;
     const start = 0;
-    const pairHash = "0x476fa95dd4b9e538daae00223eddea9a2d89d85c196266748cc1a1d0fddb7362"
+    const pairHash = selectedPair?.pair
     //const pairHash = "0x476fa95dd4b9e538daae00223eddea9a2d89d85c196266748cc1a1d0fddb7362";
     const _levels: any = await dexContract.client.readContract({
       address: dexContract.caller.address,
@@ -2608,17 +2643,33 @@ const formatted = date.toLocaleString('en-US', {
           buy.push({
             ...level,
             amount: level.quoteLiquidity,
-            totalAmount:0n,
-            totalPrice:0n,
+            totalAmount: 0n,
+            totalPrice: 0n,
+            baseTotalPrice: 0n,
+            quoteTotalPrice: 0n,
+            head: 0n,
+            tail: 0n,
+            tick: 0n,
+            nextTick: 0n,
+            prevTick: 0n,
+            sequence: 0n
           });
         }
     
         if (level.baseLiquidity > 0n) {
           sell.push({
             ...level,
-            totalAmount:0n,
-            totalPrice:0n,
+            totalAmount: 0n,
+            totalPrice: 0n,
             amount: level.baseLiquidity,
+            baseTotalPrice: 0n,
+            quoteTotalPrice: 0n,
+            head: 0n,
+            tail: 0n,
+            tick: 0n,
+            nextTick: 0n,
+            prevTick: 0n,
+            sequence: 0n
           });
         }
       }
@@ -2634,7 +2685,7 @@ const formatted = date.toLocaleString('en-US', {
       for (const b of buy) {
         buyTotal += b.amount;
         b.totalAmount = buyTotal;
-        buyTotalPrice += (b.price * b.amount) / 1000000000000000000n;
+        buyTotalPrice += (b.price * b.amount) / PRICE_DECIMAL_FACTOR;
         b.totalPrice = buyTotalPrice;
       }
     
@@ -2644,7 +2695,7 @@ const formatted = date.toLocaleString('en-US', {
       for (const s of sell) {
         sellTotal += s.amount;
         s.totalAmount = sellTotal;
-        sellTotalPrice += (s.price * s.amount) / 1000000000000000000n;
+        sellTotalPrice += (s.price * s.amount)/PRICE_DECIMAL_FACTOR;
         s.totalPrice = sellTotalPrice;
       }
     
@@ -2672,6 +2723,81 @@ const formatted = date.toLocaleString('en-US', {
    
   }
 
+
+  const fetchLimitOrderHistory = async (walletProvider: any) => {
+    setLimitOrderHistoryLoading(true);
+    setLimitOrderHistory([]);
+
+    try{
+
+    
+    const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+
+
+    const latestBlock = await dexContract.client.getBlockNumber();
+    const fromBlock = latestBlock > 5000n ? latestBlock - 5000n : 0n;
+
+    const eventSignature = parseAbiItem('event OrderMatched( bytes32 indexed pairId,bool kind, uint256 price, uint256 amount,uint256 timestamp)');
+   
+    
+
+    const logs = await dexContract.client.getLogs({
+      address: dexContract.address,
+      event: eventSignature,
+      fromBlock: fromBlock,
+      toBlock: 'latest',
+    });
+    const simplifiedLogs = logs.map(log => {
+      const parsed = decodeEventLog({
+        abi: dexContract.abi,
+        data: log.data,
+        topics: log.topics,
+      });
+    
+ 
+      
+      const { pairId, price,kind, amount, timestamp } = parsed.args as unknown as OrderMatchedEvent;
+      const date = new Date(Number(timestamp) * 1000); // milisaniyeye çevir
+      
+
+      const formatted = date.toLocaleString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: false, // 24 saat formatı için
+        timeZone: 'UTC', // ya da 'Asia/Istanbul' gibi bir timezone
+      });
+      return {
+        pairId:pairId,
+        price:price,
+        amount: amount,
+        timestampString:formatted,
+        timestamp:timestamp,
+        proof:log.transactionHash,
+        kind:kind,
+        type:kind  ? "BUY" : "SELL",
+        status:"Filled"
+      } as unknown as OrderMatchedEventNative;
+    });
+
+    console.log("SimpifiedLogs", simplifiedLogs)
+
+   
+
+    setLimitOrderHistory(simplifiedLogs.reverse())
+    setLimitOrderHistoryLoading(false);
+
+  }catch(err){
+    console.log("fetchLimitOrderHistory:err", err)
+    setLimitOrderHistory([]);
+  }finally{
+    setLimitOrderHistoryLoading(false);
+  }
+  }
+
   const placeLimitOrder = async (walletProvider : any,params: LimitOrderParam) => {
     try{
     const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
@@ -2681,6 +2807,9 @@ const formatted = date.toLocaleString('en-US', {
     const etherIn = params.token0 == WETH9[Number(chainId)].address ? true : false;
     const etherOut = params.token1 == WETH9[Number(chainId)].address ? true : false;
 
+    const orderKind = params.kind == OrderKind.BUY_MARKET || params.kind == OrderKind.BUY_LIMIT ? true : false;// is buy Is sell
+
+    const isEther = (etherIn || etherOut) && orderKind;
 
     try {
       if (!etherIn) {
@@ -2740,7 +2869,7 @@ const formatted = date.toLocaleString('en-US', {
             abi: erc20Abi,
             functionName: "approve",
             args: [dexContract.address, ethers.MaxUint256],
-            account: signerAccount
+            account: signerAccount,
           })
           const receiptApproval = await waitForTransactionReceipt(dexContract.wallet, {
             hash: approvalTx,
@@ -2754,26 +2883,26 @@ const formatted = date.toLocaleString('en-US', {
       
     }
 
+    console.log("orderParams", params)
+    console.log("etherOut", etherOut,orderKind)
+    console.log("etherIn", etherIn,orderKind)
+    console.log("isEther", isEther,params.amount)
 
-    await dexContract.client.simulateContract({
+    let contractParameters : any = {
       chain: dexContract.client.chain,
       address: dexContract.caller.address as `0x${string}`,
       abi: dexContract.abi,
       functionName: "create",
       args: [params as any],
       account: signerAccount,
-      value: 0n
-    });
+      value: isEther ? BigInt(params.amount) : undefined
+    }
 
-    const tx: any = await dexContract.wallet.writeContract({
-      chain: dexContract.client.chain,
-      address: dexContract.caller.address as `0x${string}`,
-      abi: dexContract.abi,
-      functionName: "create",
-      args: [params as any],
-      account: signerAccount,
-      value: undefined
-    })
+    console.log("contractParameters", contractParameters)
+
+    await dexContract.client.simulateContract(contractParameters);
+
+    const tx: any = await dexContract.wallet.writeContract(contractParameters)
     
     }catch(err){
       console.log("err", err)
@@ -2855,6 +2984,11 @@ const formatted = date.toLocaleString('en-US', {
     limitOrderPairs,
     setLimitOrderPairs,
     fetchLimitOrderPairInfo,
+    fetchLimitOrderHistory,
+    limitOrderHistory,
+    setLimitOrderHistory,
+    limitOrderHistoryLoading,
+    setLimitOrderHistoryLoading
   };
 
   return (
