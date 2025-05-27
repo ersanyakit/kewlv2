@@ -177,6 +177,12 @@ interface SwapContextProps {
   setLimitOrderHistory: (limitOrderHistory: OrderMatchedEventNative[]) => void;
   limitOrderHistoryLoading: boolean;
   setLimitOrderHistoryLoading: (limitOrderHistoryLoading: boolean) => void;
+
+  userOrders: Order[];
+  setUserOrders: (userOrders: Order[]) => void;
+  userOrdersLoading: boolean;
+  setUserOrdersLoading: (userOrdersLoading: boolean) => void;
+  fetchUserOrders: (walletProvider: any,pairHash:string,address:string) => void;
 }
 
 // Context varsayılan değeri
@@ -278,6 +284,11 @@ const defaultContext: SwapContextProps = {
   limitOrderHistoryLoading: false,
   setLimitOrderHistoryLoading: () => { },
 
+  userOrders: [],
+  setUserOrders: () => { },
+  userOrdersLoading: false,
+  setUserOrdersLoading: () => { },
+  fetchUserOrders: () => { },
 };
 
 // Context oluşturma
@@ -503,6 +514,43 @@ export interface OrderBook {
   maxSellTotal:bigint;
 }
 
+export enum OrderStatus {
+  NONE = 0,                // No order exists (default state for uninitialized slot)
+  NEW = 1,                 // Order created and accepted, awaiting activation
+  ACTIVE = 2,              // Order live and matchable in the book
+  PARTIALLY_FILLED = 3,   // Order matched partially, remains open
+  FILLED = 4,              // Order completely executed and closed
+  CANCELLED = 5,           // Cancelled by user or automation
+  EXPIRED = 6,             // Expired based on timestamp constraints
+  REJECTED = 7,            // Rejected due to invalid parameters or authorization failure
+  INVALIDATED = 8,         // Invalidated by system conditions (token delisting, account locked, etc.)
+  FAILED = 9,              // Failed execution (e.g. token transfer error)
+  SUSPENDED = 10,          // Temporarily frozen by admin/system (e.g. security pause, emergency shutdown)
+  CLAIM_ENABLED = 11,      // Claiming enabled
+  CLAIMED = 12,            // Order has been claimed
+  COMPLETED = 13           // Order fully completed and finalized
+}
+
+export function getOrderStatusText(statusId: number): string {
+  switch (statusId) {
+    case OrderStatus.NONE: return 'None';
+    case OrderStatus.NEW: return 'New';
+    case OrderStatus.ACTIVE: return 'Active';
+    case OrderStatus.PARTIALLY_FILLED: return 'Partially Filled';
+    case OrderStatus.FILLED: return 'Filled';
+    case OrderStatus.CANCELLED: return 'Cancelled';
+    case OrderStatus.EXPIRED: return 'Expired';
+    case OrderStatus.REJECTED: return 'Rejected';
+    case OrderStatus.INVALIDATED: return 'Invalidated';
+    case OrderStatus.FAILED: return 'Failed';
+    case OrderStatus.SUSPENDED: return 'Suspended';
+    case OrderStatus.CLAIM_ENABLED: return 'Claim Enabled';
+    case OrderStatus.CLAIMED: return 'Claimed';
+    case OrderStatus.COMPLETED: return 'Completed';
+    default: return 'Unknown';
+  }
+}
+
 export enum OrderKind {
   BUY_LIMIT = 0,
   BUY_MARKET = 1,
@@ -556,6 +604,26 @@ export interface LimitOrderPairInfo {
   maxSell: bigint;
   pairId: string;              // bytes32 => string (hex)
 }
+
+export interface Order  {
+  id: bigint;             // slot 0
+  sequence: bigint;       // slot 1
+  price: bigint;          // slot 2
+  amount: bigint;         // slot 3
+  total: bigint;          // slot 4
+  filled: bigint;         // slot 5
+  remaining: bigint;      // slot 6
+
+  trader: string;         // slot 7 (address)
+  entrypoint: number;     // int24 -> number (signed 24-bit integer)
+  kind: number;           // uint8 (enum)
+  status: number;         // uint8 (enum)
+
+  createdAt: bigint;      // slot 8
+  updatedAt: bigint;      // slot 9
+  cancelledAt: bigint;    // slot 10
+  filledAt: bigint;       // slot 11
+};
 
 export interface TokenPair {
   base: TokenContextToken;
@@ -648,6 +716,9 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   });
   const [limitOrderHistory, setLimitOrderHistory] = useState<OrderMatchedEventNative[]>([]);
   const [limitOrderHistoryLoading, setLimitOrderHistoryLoading] = useState<boolean>(false);
+
+  const [userOrders, setUserOrders] = useState<Order[]>([]);
+  const [userOrdersLoading, setUserOrdersLoading] = useState<boolean>(false);
 
 
   const [userTradingStats, setUserTradingStats] = useState<UserTradingStats | null>(null);
@@ -2799,10 +2870,10 @@ const formatted = date.toLocaleString('en-US', {
   }
 
   const placeLimitOrder = async (walletProvider : any,params: LimitOrderParam) => {
-    try{
     const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
-
     const [signerAccount] = await dexContract.wallet.getAddresses()
+    try{
+
 
     const etherIn = params.token0 == WETH9[Number(chainId)].address ? true : false;
     const etherOut = params.token1 == WETH9[Number(chainId)].address ? true : false;
@@ -2908,7 +2979,30 @@ const formatted = date.toLocaleString('en-US', {
       console.log("err", err)
     }finally{
       fetchOrderBook(walletProvider)
+      fetchUserOrders(walletProvider,selectedPair?.pair as string,signerAccount)
     }
+  }
+
+  const fetchUserOrders = async (walletProvider: any,pairHash:string,address:string) => {
+    try{
+      setUserOrdersLoading(true)
+      const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+      const _userOrders: any = await dexContract.client.readContract({
+        address: dexContract.caller.address,
+        abi: dexContract.abi,
+        functionName: 'fetchUserOrders',
+        args: [pairHash,address],
+        account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
+      }) as [Order[] | any]
+
+      setUserOrders(_userOrders.reverse())
+    }catch(err){
+      console.log("err", err)
+    }finally{
+      setUserOrdersLoading(false)
+    }
+
+    console.log("userOrders", userOrders)
   }
   
   
@@ -2988,7 +3082,13 @@ const formatted = date.toLocaleString('en-US', {
     limitOrderHistory,
     setLimitOrderHistory,
     limitOrderHistoryLoading,
-    setLimitOrderHistoryLoading
+    setLimitOrderHistoryLoading,
+
+    userOrders,
+    setUserOrders,
+    userOrdersLoading,
+    setUserOrdersLoading,
+    fetchUserOrders,
   };
 
   return (

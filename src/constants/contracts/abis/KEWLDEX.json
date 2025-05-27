@@ -2162,6 +2162,11 @@
     {
       "inputs": [
         {
+          "internalType": "bytes32",
+          "name": "pairId",
+          "type": "bytes32"
+        },
+        {
           "internalType": "address",
           "name": "user",
           "type": "address"
@@ -2170,9 +2175,86 @@
       "name": "fetchUserOrders",
       "outputs": [
         {
-          "internalType": "uint256",
-          "name": "",
-          "type": "uint256"
+          "components": [
+            {
+              "internalType": "uint256",
+              "name": "id",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "sequence",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "price",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "amount",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "total",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "filled",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "remaining",
+              "type": "uint256"
+            },
+            {
+              "internalType": "address",
+              "name": "trader",
+              "type": "address"
+            },
+            {
+              "internalType": "int24",
+              "name": "entrypoint",
+              "type": "int24"
+            },
+            {
+              "internalType": "uint8",
+              "name": "kind",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint8",
+              "name": "status",
+              "type": "uint8"
+            },
+            {
+              "internalType": "uint256",
+              "name": "createdAt",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "updatedAt",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "cancelledAt",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "filledAt",
+              "type": "uint256"
+            }
+          ],
+          "internalType": "struct LibLimitOrders.Order[]",
+          "name": "orders",
+          "type": "tuple[]"
         }
       ],
       "stateMutability": "view",
@@ -2701,9 +2783,9 @@
           "type": "uint8"
         },
         {
-          "internalType": "int32",
-          "name": "entrypoint",
-          "type": "int32"
+          "internalType": "uint64",
+          "name": "sequence",
+          "type": "uint64"
         }
       ],
       "stateMutability": "pure",

@@ -75,7 +75,7 @@ const ExchangePage = () => {
         activeView
     } = useTokenContext();
 
-    const { fetchOrderBook, orderBook,placeLimitOrder, selectedPair, setSelectedPair, fetchLimitOrderPairInfo, limitOrderPairs, setLimitOrderPairs, fetchLimitOrderHistory } = useSwapContext();
+    const { fetchOrderBook, orderBook,placeLimitOrder, selectedPair, setSelectedPair, fetchLimitOrderPairInfo, limitOrderPairs, setLimitOrderPairs, fetchLimitOrderHistory, fetchUserOrders } = useSwapContext();
     const { walletProvider } = useAppKitProvider('eip155');
     const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
     const { address, isConnected } = useAppKitAccount();
@@ -423,6 +423,7 @@ const ExchangePage = () => {
         setSwapMode(SWAP_MODE.LIMIT_ORDERS);
         await fetchLimitOrderPairInfo(walletProvider);
         await fetchLimitOrderHistory(walletProvider);
+        await fetchUserOrders(walletProvider,selectedPair?.pair as string,address)
         if(selectedPair){
             await fetchOrderBook(walletProvider);
         }
@@ -487,7 +488,7 @@ const ExchangePage = () => {
                                             })
                                             
                                         }}  className="p-1.5 rounded-lg hover:bg-gray-200/20">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2.66663 2.66699L7.33329 2.66699L7.33329 7.33366L2.66663 7.33366L2.66663 2.66699Z" fill="#dc2979"></path><path d="M2.66663 8.66699L7.33329 8.66699L7.33329 13.3337L2.66663 13.3337L2.66663 8.66699Z" fill="#049769"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M8.66663 2.66699L13.3333 2.66699L13.3333 5.33366L8.66663 5.33366L8.66663 2.66699ZM8.66663 6.66699L13.3333 6.66699L13.3333 9.33366L8.66663 9.33366L8.66663 6.66699ZM13.3333 10.667L8.66663 10.667L8.66663 13.3337L13.3333 13.3337L13.3333 10.667Z" fill="#d2d6dc"></path></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M2.66663 2.66699L7.33329 2.66699L7.33329 7.33366L2.66663 7.33366L2.66663 2.66699Z" fill="#dc2979"></path><path d="M2.66663 8.66699L7.33329 8.66699L7.33329 13.3337L2.66663 13.3337L2.66663 8.66699Z" fill="#049769"></path><path fillRule="evenodd" clipRule="evenodd" d="M8.66663 2.66699L13.3333 2.66699L13.3333 5.33366L8.66663 5.33366L8.66663 2.66699ZM8.66663 6.66699L13.3333 6.66699L13.3333 9.33366L8.66663 9.33366L8.66663 6.66699ZM13.3333 10.667L8.66663 10.667L8.66663 13.3337L13.3333 13.3337L13.3333 10.667Z" fill="#d2d6dc"></path></svg>
                                         </button>
                                         <button 
                                         onClick={()=>{
@@ -498,7 +499,7 @@ const ExchangePage = () => {
                                            
                                         }} 
                                         className="p-1.5 rounded-lg hover:bg-gray-200/20">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><g><path d="M2.66663 2.66699L7.33329 2.66699L7.33329 13.3337L2.66663 13.3337L2.66663 2.66699Z" fill="#049769"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M8.66663 2.66699L13.3333 2.66699L13.3333 5.33366L8.66663 5.33366L8.66663 2.66699ZM8.66663 6.66699L13.3333 6.66699L13.3333 9.33366L8.66663 9.33366L8.66663 6.66699ZM13.3333 10.667L8.66663 10.667L8.66663 13.3337L13.3333 13.3337L13.3333 10.667Z" fill="#d2d6dc"></path></g></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><g><path d="M2.66663 2.66699L7.33329 2.66699L7.33329 13.3337L2.66663 13.3337L2.66663 2.66699Z" fill="#049769"></path><path fillRule="evenodd" clipRule="evenodd" d="M8.66663 2.66699L13.3333 2.66699L13.3333 5.33366L8.66663 5.33366L8.66663 2.66699ZM8.66663 6.66699L13.3333 6.66699L13.3333 9.33366L8.66663 9.33366L8.66663 6.66699ZM13.3333 10.667L8.66663 10.667L8.66663 13.3337L13.3333 13.3337L13.3333 10.667Z" fill="#d2d6dc"></path></g></svg>
                                         </button>
                                         <button 
                                         onClick={()=>{
@@ -510,7 +511,7 @@ const ExchangePage = () => {
 
                                         }}    
                                         className="p-1.5 rounded-lg hover:bg-gray-200/20">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><g><path d="M2.66663 2.66699L7.33329 2.66699L7.33329 13.3337L2.66663 13.3337L2.66663 2.66699Z" fill="#dc2979"></path><path fill-rule="evenodd" clip-rule="evenodd" d="M8.66663 2.66699L13.3333 2.66699L13.3333 5.33366L8.66663 5.33366L8.66663 2.66699ZM8.66663 6.66699L13.3333 6.66699L13.3333 9.33366L8.66663 9.33366L8.66663 6.66699ZM13.3333 10.667L8.66663 10.667L8.66663 13.3337L13.3333 13.3337L13.3333 10.667Z" fill="#d2d6dc"></path></g></svg>
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none"><g><path d="M2.66663 2.66699L7.33329 2.66699L7.33329 13.3337L2.66663 13.3337L2.66663 2.66699Z" fill="#dc2979"></path><path fillRule="evenodd" clipRule="evenodd" d="M8.66663 2.66699L13.3333 2.66699L13.3333 5.33366L8.66663 5.33366L8.66663 2.66699ZM8.66663 6.66699L13.3333 6.66699L13.3333 9.33366L8.66663 9.33366L8.66663 6.66699ZM13.3333 10.667L8.66663 10.667L8.66663 13.3337L13.3333 13.3337L13.3333 10.667Z" fill="#d2d6dc"></path></g></svg>
                                         </button>
                                     </div>
                                 </div>
@@ -1073,3 +1074,4 @@ const ExchangePage = () => {
 
 export default ExchangePage; 
 
+ 

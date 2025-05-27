@@ -5,6 +5,7 @@ import { useSwapContext } from '../../../../context/SwapContext';
 import { useAppKitProvider } from '@reown/appkit/react';
 import { LIMIT_ORDER_BOOK_DECIMALS } from '../../../../constants/contracts/exchanges';
 import { ethers } from 'ethers';
+import { motion } from 'framer-motion';
 const TradeHistory = () => {
 
   const {
@@ -37,7 +38,7 @@ const TradeHistory = () => {
             <History className="w-3 h-3" />
         </div>
     </div>
-    <div className="space-y-1">
+    <div className="space-y-1 min-h-[37dvh] max-h-[37dvh] overflow-y-auto scrollbar-hide">
         {limitOrderHistoryLoading ? (
           Array.from({ length: 5 }).map((_, i) => (
             <div
@@ -68,11 +69,21 @@ const TradeHistory = () => {
           ))
          
         ) : limitOrderHistory.length == 0 ? (
-            <div className="flex flex-col items-center justify-center h-[400px] text-center">
-                                                                <Search className="w-8 h-8 text-gray-400 mb-2" />
-
-                <span className='text-center text-gray-500 py-4'>No Record found</span>
+            <div className="flex flex-col items-center justify-center h-[40dvh] text-center">
                 
+                <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className={`p-6 text-center ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}
+    >
+        <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-[#ff1356]/10 to-[#ff4080]/10 flex items-center justify-center">
+            <svg className="w-8 h-8 text-[#ff4080]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+        </div>
+        <p className="text-sm font-medium mb-1">No Transactions Yet</p>
+        <p className="text-xs">Market recent history will appear here</p>
+    </motion.div>
             </div>
         ) : limitOrderHistory.map((order, i) => (
             <div key={i} className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${isDarkMode
@@ -93,7 +104,7 @@ const TradeHistory = () => {
                             ? 'bg-pink-500/20 text-pink-400'
                             : 'bg-pink-50 text-pink-600 border border-pink-200'
                         } text-[10px]`}>
-                        {order.status}
+                        {order.status} 
                     </span>
                 </div>
                 <div className="flex justify-between text-xs mt-0.5">
