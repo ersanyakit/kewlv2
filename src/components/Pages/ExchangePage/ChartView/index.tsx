@@ -224,8 +224,8 @@ const ChartView = () => {
       "indicator": {
         "bars": [
           {
-            "upColor": "#10B981",
-            "downColor": "#EF4444",
+            "upColor": "#22c55e",
+            "downColor": "#ec4899",
             "noChangeColor": "#9CA3AF"
           }
         ],
