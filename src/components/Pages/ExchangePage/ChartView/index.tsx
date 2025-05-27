@@ -11,8 +11,20 @@ const ChartView = () => {
   const { limitOrderHistory, limitOrderHistoryLoading, selectedPair, fetchLimitOrderHistory } = useSwapContext();
   const { isDarkMode } = useTokenContext();
   var chart: any = null;
+  var volumePane: any = null;
+  var macdPane: any = null;
+
+
   const [chartHeight, setChartHeight] = useState(200);
   const { walletProvider } = useAppKitProvider('eip155');
+
+  const [toggleVOLUME, setToggleVOLUME] = useState(false);
+  const [toggleMACD, setToggleMACD] = useState(false);
+
+
+
+
+   
 
 
 
@@ -24,6 +36,7 @@ const ChartView = () => {
     volume: number;
     timestamp: number; // milisaniye cinsinden
   };
+
 
 
 
@@ -83,6 +96,7 @@ const ChartView = () => {
     };
   }
 
+  
 
   const initOHLCData = async () => {
 
@@ -104,14 +118,39 @@ const ChartView = () => {
 
   useEffect(() => {
     initOHLCData();
-  }, [limitOrderHistoryLoading, limitOrderHistory.length, chartHeight])
+  }, [limitOrderHistoryLoading, limitOrderHistory.length, chartHeight ,toggleMACD,toggleVOLUME])
 
   useEffect(() => {
     chart = init('chart')
 
+    if(toggleVOLUME){
+      volumePane = chart.createIndicator('VOL');
+      chart.setPaneOptions({
+        id: volumePane,
+        height: 160
+      })
+    }
+
+    if(toggleMACD){
+      macdPane = chart.createIndicator('MACD');
+      chart.setPaneOptions({
+        id: macdPane,
+        height: 160
+      })
+    }
+
+
+    
+
+      
+  
 
     chart.setStyles({
-
+      "separator": {
+        "size": 1,
+        "color": "rgba(255,255,255,0.05)",
+        "fill": false
+      },
       "grid": {
         "show": true,
         "horizontal": {
@@ -130,24 +169,24 @@ const ChartView = () => {
         }
       },
 
-    "xAxis": {
-  "axisLine": {
-    "color": "rgba(255, 255, 255, 0.08)" // Hafif görünür, karanlık temaya uygun
-  },
-  "tickLine": {
-    "color": "#3b82f6",  // KEWL renkleriyle uyumlu, canlı yeşil
-    "size": 1
-  }
-},
-"yAxis": {
-  "axisLine": {
-    "color": "rgba(255, 255, 255, 0.08)" 
-  },
-  "tickLine": {
-    "color": "#3b82f6",
-    "size": 1
-  }
-},
+      "xAxis": {
+        "axisLine": {
+          "color": "rgba(255, 255, 255, 0.08)" // Hafif görünür, karanlık temaya uygun
+        },
+        "tickLine": {
+          "color": "#3b82f6",  // KEWL renkleriyle uyumlu, canlı yeşil
+          "size": 1
+        }
+      },
+      "yAxis": {
+        "axisLine": {
+          "color": "rgba(255, 255, 255, 0.08)"
+        },
+        "tickLine": {
+          "color": "#3b82f6",
+          "size": 1
+        }
+      },
       "tooltip": {
         "text": { "color": "#76808F" },
         "rect": { "borderColor": "#059669", "color": "#FEFEFE" }
@@ -162,7 +201,7 @@ const ChartView = () => {
           "text": { "color": "#FFFFFF", "borderColor": "#059669", "backgroundColor": "#059669" }
         }
       },
-      "priceMark": {
+      priceMark: {
         "last": {
           "line": { "show": true, "style": "dashed", "dashedValue": [4, 4], "size": 1 },
           "text": {
@@ -182,16 +221,37 @@ const ChartView = () => {
           downWickColor: '#db2777',
         },
       },
+      "indicator": {
+        "bars": [
+          {
+            "upColor": "#10B981",
+            "downColor": "#EF4444",
+            "noChangeColor": "#9CA3AF"
+          }
+        ],
+        "lines": [
+          {
+            "color": "#FACC15"   // MACD çizgisi (sarı)
+          },
+          {
+            "color": "#3B82F6"   // Signal çizgisi (mavi)
+          },
+          {
+            "color": "#6B7280"   // Sıfır çizgisi (gri)
+          }
+        ],
+      }
+
 
 
     });
-   // const styles = chart.getStyles()
-    //console.log("CHART", JSON.stringify(styles));
+    const styles = chart.getStyles()
+    console.log("CHART", JSON.stringify(styles));
 
     return () => {
       dispose('chart')
     }
-  }, [chartHeight])
+  }, [chartHeight ,toggleMACD,toggleVOLUME])
 
   return (
     <div className={`w-full h-full rounded-lg flex flex-col items-between justify-around p-2`}>
@@ -199,6 +259,15 @@ const ChartView = () => {
       <div className="flex items-center justify-between mb-2">
         <div className="flex items-center gap-2">
           <div className="flex gap-1">
+            <button onClick={() => {
+              setToggleMACD(!toggleMACD)
+    
+            }} className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">MACD</button>
+            <button onClick={() =>{
+              setToggleVOLUME(!toggleVOLUME)
+
+          }} className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">VOLUME</button>
+
             <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">1m</button>
             <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">5m</button>
             <button className="px-2 py-0.5 rounded text-xs bg-gray-200/20 hover:bg-gray-200/30">15m</button>
