@@ -15,7 +15,7 @@ const ChartView = () => {
   var macdPane: any = null;
 
 
-  const [chartHeight, setChartHeight] = useState(200);
+  const [chartHeight, setChartHeight] = useState("19dvh");
   const { walletProvider } = useAppKitProvider('eip155');
 
   const [toggleVOLUME, setToggleVOLUME] = useState(false);
@@ -101,11 +101,7 @@ const ChartView = () => {
   const initOHLCData = async () => {
 
 
-    fetch('https://klinecharts.com/datas/kline.json')
-      .then(res => res.json())
-      .then(dataList => { chart.applyNewData(dataList); });
-    return
-    console.log("OHLC_ORDER_HISTORY", limitOrderHistory);
+
     if (limitOrderHistory.length === 0) return;
     const ohlcData = await buildDailyOHLC(limitOrderHistory, LIMIT_ORDER_BOOK_DECIMALS);
     if (!ohlcData || limitOrderHistory.length == 0 || !selectedPair) {
@@ -245,8 +241,8 @@ const ChartView = () => {
 
 
     });
-    const styles = chart.getStyles()
-    console.log("CHART", JSON.stringify(styles));
+    //const styles = chart.getStyles()
+    //console.log("CHART", JSON.stringify(styles));
 
     return () => {
       dispose('chart')
@@ -284,14 +280,14 @@ const ChartView = () => {
             <RefreshCcw className="w-4 h-4" />
           </button>
 
-          <button onClick={() => setChartHeight(chartHeight === 200 ? 300 : 200)} className="p-1 rounded hover:bg-gray-200/20">
-            {chartHeight === 200 ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
+          <button onClick={() => setChartHeight(chartHeight === "19dvh" ? "40dvh" : "19dvh")} className="p-1 rounded hover:bg-gray-200/20">
+            {chartHeight === "50dvh" ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
           </button>
 
         </div>
       </div>
       <div className={`w-full h-full min-h-[${chartHeight}px]   rounded-lg`}>
-        <div className='w-full h-full min-h-[260px]' id="chart" style={{ width: "100%", minHeight: `${chartHeight}px`, height: `${chartHeight}px` }} />
+        <div className='w-full h-full min-h-[260px]' id="chart" style={{ width: "100%", minHeight: `${chartHeight}`, height: `${chartHeight}` }} />
       </div>
 
     </div>)

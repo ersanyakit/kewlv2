@@ -41,7 +41,7 @@ import {
     RefreshCw
 } from 'lucide-react';
 import ChartView from './ChartView';
-import { LimitOrderParam, OrderKind, PriceLevel, PriceLevelOrderBook, TokenPair, useSwapContext } from '../../../context/SwapContext';
+import { LimitOrderParam, OrderKind,  PriceLevelOrderBook, TokenPair, useSwapContext } from '../../../context/SwapContext';
 import { ethers } from 'ethers';
 import { encodePacked, keccak256, parseEther, parseUnits } from 'viem';
 import { WETH9 } from '../../../constants/entities';
@@ -50,6 +50,7 @@ import { LIMIT_ORDER_BOOK_DECIMALS, PRICE_DECIMAL_FACTOR } from '../../../consta
 import moment from 'moment';
 import TradeHistory from './TradeHistory';
 import OpenOrders from './OpenOrders';
+import Contribute from '../../Contribute';
 
 const ExchangePage = () => {
     const {
@@ -75,7 +76,7 @@ const ExchangePage = () => {
         activeView
     } = useTokenContext();
 
-    const { fetchOrderBook, orderBook,placeLimitOrder, selectedPair, setSelectedPair, fetchLimitOrderPairInfo, limitOrderPairs, setLimitOrderPairs, fetchLimitOrderHistory, fetchUserOrders } = useSwapContext();
+    const { fetchOrderBook, orderBook,placeLimitOrder, selectedPair, setSelectedPair, fetchLimitOrderPairInfo, limitOrderPairs, setLimitOrderPairs, fetchLimitOrderHistory, fetchUserOrders, limitOrderModal, setLimitOrderModal } = useSwapContext();
     const { walletProvider } = useAppKitProvider('eip155');
     const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
     const { address, isConnected } = useAppKitAccount();
@@ -272,7 +273,7 @@ const ExchangePage = () => {
 
     function getMatchingPriceLevelIndexes(
         orderType: OrderKind,
-        priceLevels: PriceLevel[],
+        priceLevels: PriceLevelOrderBook[],
         userInputPrice: bigint,
         userInputDecimals: number
       ): bigint[] {
@@ -359,6 +360,16 @@ const ExchangePage = () => {
         
     }
 
+    const closeSuccessModal = () => {
+        setLimitOrderModal({
+            status: 'none',
+            visible: false,
+            message: '',
+            isLoading: false,
+            proof: '',
+        });
+    };
+
 
     useEffect(()=>{
         setActiveView('limit')
@@ -420,29 +431,140 @@ const ExchangePage = () => {
 
 
     const loadData = async () => {
+        
         setSwapMode(SWAP_MODE.LIMIT_ORDERS);
         await fetchLimitOrderPairInfo(walletProvider);
-        await fetchLimitOrderHistory(walletProvider);
-        await fetchUserOrders(walletProvider,selectedPair?.pair as string,address)
         if(selectedPair){
             await fetchOrderBook(walletProvider);
         }
+        await fetchLimitOrderHistory(walletProvider);
+        if(address){
+            await fetchUserOrders(walletProvider,selectedPair?.pair as string,address)
+        }
+
     }
 
     useEffect(()=>{
         fetchOrderBook(walletProvider)
-    },[selectedPair])
+    },[selectedPair,address,isConnected])
     useEffect(() => {
         console.log("LIMIT PROTOCOL", chainId)
         loadData();
-    }, [chainId, address]);
+    }, [chainId, address,isConnected]);
 
-    return (
+    return (<>
+
+
+{limitOrderModal.visible && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                    onClick={closeSuccessModal}
+                >
+                    <motion.div
+                        initial={{ scale: 0.8, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0.8, opacity: 0 }}
+                        transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                        className={`relative rounded-2xl p-1 max-w-md w-full shadow-2xl ${isDarkMode
+                            ? 'bg-gradient-to-br from-gray-800 to-gray-900'
+                            : 'bg-gradient-to-br from-white to-gray-50'
+                            }`}
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <div className={`rounded-2xl p-6 ${isDarkMode
+                            ? 'bg-gradient-to-br from-gray-800 to-gray-900'
+                            : 'bg-gradient-to-br from-white to-gray-50'
+                            }`}>
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={closeSuccessModal}
+                                    className={`${isDarkMode
+                                        ? 'text-gray-400 hover:text-white'
+                                        : 'text-gray-500 hover:text-gray-700'
+                                        } transition-colors`}
+                                >
+                                    <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div className="text-center py-4">
+                                <motion.div
+                                    initial={{ scale: 0 }}
+                                    animate={{ scale: 1 }}
+                                    transition={{ delay: 0.2, type: "spring", damping: 10, stiffness: 200 }}
+                                    className="mx-auto w-20 h-20 rounded-full bg-gradient-to-r from-[#ff1356] to-[#ff4080] flex items-center justify-center mb-6"
+                                >
+                                    {limitOrderModal.status === 'success' ? (
+                                        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                        </svg>
+                                    ) : (
+                                        <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                        </svg>
+                                    )}
+                                </motion.div>
+
+                                <motion.h3
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.3 }}
+                                    className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
+                                        }`}
+                                >
+                                    {limitOrderModal.status === 'success' ? 'Success!' : 'Error'}
+                                </motion.h3>
+
+
+                                <motion.div
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.5 }}
+                                    className={`rounded-xl p-4 mb-6 ${isDarkMode
+                                        ? 'bg-gradient-to-r from-[#ff1356]/20 to-[#ff4080]/20'
+                                        : 'bg-gradient-to-r from-[#ff1356]/10 to-[#ff4080]/10'
+                                        }`}
+                                >
+                                 
+                                    {limitOrderModal.status === 'success' ? (
+                                        <p className="text-sm font-bold bg-gradient-to-r from-[#ff1356] to-[#ff4080] bg-clip-text text-transparent">
+                                            {limitOrderModal.message}
+                                        </p>
+                                    ) : (
+                                        <div className="rounded-lg text-left max-h-[200px] overflow-y-auto text-sm">
+                                            {limitOrderModal.message ? limitOrderModal.message : "Unexpected error encountered."}
+                                        </div>
+                                    )}
+                                </motion.div>
+
+                                <motion.button
+                                    initial={{ y: 20, opacity: 0 }}
+                                    animate={{ y: 0, opacity: 1 }}
+                                    transition={{ delay: 0.6 }}
+                                    onClick={closeSuccessModal}
+                                    className="w-full py-3 rounded-xl font-medium text-white bg-gradient-to-r from-[#ff1356] to-[#ff4080] hover:opacity-90 transition-opacity"
+                                >
+                                    Awesome!
+                                </motion.button>
+                            </div>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
 
         <div className={`select-none flex flex-col px-0 py-4 md:p-4 transition-colors duration-300`}>
             <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-7 gap-4">
 
+           
+
                 <div className="order-2 sm:order-1 lg:col-span-2">
+
+               
                     <div className="flex items-center gap-4 mb-2">
                         <motion.div
                             className={`relative ${isDarkMode
@@ -637,9 +759,10 @@ const ExchangePage = () => {
                 </div>
 
                 <div className="order-1 sm:order-2 lg:col-span-3 flex flex-col gap-4">
-                <div className='flex flex-col gap-4'>
-                                        <SwapTabs isLimitOrder={true} isDarkMode={isDarkMode} />
-                                    </div>
+                        <div className='flex flex-col gap-4'>
+                            <SwapTabs isLimitOrder={true} isDarkMode={isDarkMode} />
+                        </div>
+
                     <motion.div
                         className={`relative ${isDarkMode
                             ? 'bg-gray-800/30 border-gray-700/30'
@@ -648,6 +771,7 @@ const ExchangePage = () => {
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.3 }}>
+                             
                         <div className="w-full">
                             {showPairSelector ? (
                                 <div className={`p-4 rounded-3xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} min-h-[600px]   }`}>
@@ -779,8 +903,14 @@ const ExchangePage = () => {
                                     </div>
                                 </div>
                             ) : (
+                                <div className='w-full h-full flex flex-col gap-4 p-0'>
+                                 
+                                  
                                 <div className='flex flex-col gap-4 p-0'>
+                                     
+                                   
                                         <ChartView />
+                                </div>
                                 </div>
                             )}
                         </div>
@@ -1022,20 +1152,33 @@ const ExchangePage = () => {
                                                 ))}
                                             </div>
 
-                                            <button
+                                            <motion.button
                                             onClick={(()=>{
                                                 handlePlaceOrder();
                                             })}
-                                                className={`w-full h-14 sm:h-12 rounded-2xl sm:rounded-xl text-white text-sm font-medium transition-all duration-300 mt-6 sm:mt-4
+                                            whileTap={limitOrderModal.isLoading ? { scale: 0.98 } : {}}
+                                            className={`w-full h-14 sm:h-12 rounded-2xl sm:rounded-xl text-white text-sm font-medium transition-all duration-300 mt-6 sm:mt-4
                                                 ${tradeType === 'buy'
                                                         ? 'bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700'
                                                         : 'bg-gradient-to-r from-pink-400 to-pink-600 hover:from-pink-500 hover:to-pink-700'
                                                     } flex items-center justify-center gap-2 active:scale-[0.99] hover:shadow-xl backdrop-blur-sm`}
-                                            >
-                                                <div className="flex items-center gap-2">
-                                                    <span>{tradeType === 'buy' ? 'Buy' : 'Sell'}</span>
-                                                </div>
-                                            </button>
+                                            >   
+                                                {limitOrderModal.isLoading ? (
+                                                    <div className="flex items-center gap-2">
+                                                          <div className="flex items-center justify-center gap-2">
+                                                            <svg className="animate-spin -ml-1 mr-2 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                            </svg>
+                                                            Placing Order...
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="flex items-center gap-2">
+                                                        <span>{tradeType === 'buy' ? 'Buy' : 'Sell'}</span>
+                                                    </div>
+                                                )}
+                                            </motion.button>
                                         </div>
                                     </div>
                                
@@ -1069,6 +1212,7 @@ const ExchangePage = () => {
                 </div>
             </div>
         </div>
+        </>
     );
 };
 

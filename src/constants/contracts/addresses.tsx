@@ -105,7 +105,7 @@ export const ContractList: MultiContractConfig = {
                     address: "0xcA11bde05977b3631167028862bE2a173976CA11",
                 },
                 31337: {
-                    address: "0xcA11bde05977b3631167028862bE2a173976CA11",
+                    address: "0x959922bE3CAee4b8Cd9a407cc3ac1C251C2007B1",
                 },
                 146: {
                     address: "0xcA11bde05977b3631167028862bE2a173976CA11",

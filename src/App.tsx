@@ -12,6 +12,7 @@ import Assets from './components/Pages/Assets';
 import EmbeddedSwapPage from './components/Pages/EmbedPages';
 import ExchangePage from './components/Pages/ExchangePage';
 import { AnimatePresence,motion, LazyMotion, domAnimation, m } from 'framer-motion'
+import TestPage from './components/Pages/TestPage';
 
 function App() {
 
@@ -24,6 +25,7 @@ function App() {
       <TokenProvider>
         <SwapProvider>
             <Routes>
+              <Route path="/testfunc" element={<TestPage />} />
               <Route path="/test" element={<EmbeddedSwapPage swap="swap" />} />
               <Route path="/embed" element={<EmbeddedSwapPage swap="swap" />} />
               <Route path="/embed/swap" element={<EmbeddedSwapPage swap="swap" />} />

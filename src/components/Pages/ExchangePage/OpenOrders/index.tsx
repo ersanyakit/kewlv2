@@ -11,11 +11,12 @@ const OpenOrders = () => {
   const {
     isDarkMode,
   } = useTokenContext();
-  const {selectedPair,fetchUserOrders,userOrders,userOrdersLoading} = useSwapContext();
+  const {selectedPair,fetchUserOrders,userOrders,userOrdersLoading,cancelLimitOrder,claimLimitOrder,orderBook} = useSwapContext();
   const { walletProvider } = useAppKitProvider('eip155');
   const { address, isConnected } = useAppKitAccount();
 
   const init = async () => {    
+    if(!isConnected) return;
     if(!selectedPair) return;
     if(!address) return;
     console.log("selectedPair", selectedPair)   
@@ -24,11 +25,45 @@ const OpenOrders = () => {
   }
   useEffect(() => {
     init();
-  }, [])
+  }, [selectedPair,address,isConnected])
+
+
+  function stringifyBigNumbers(obj: any): string {
+    return JSON.stringify(obj, (_, value) => {
+      // BigInt (viem, native), BigNumber (ethers), vs.
+      if (typeof value === 'bigint') {
+        return value.toString();
+      }
+  
+      if (value && typeof value === 'object') {
+        // ethers.BigNumber support
+        if (typeof value.toHexString === 'function') {
+          return value.toString();
+        }
+      }
+  
+      return value;
+    });
+  }
 
   useEffect(() => {
-    console.log("openedOrders", userOrders);
+    console.log("openedOrders", stringifyBigNumbers(userOrders));
+    console.log("buyOrders",stringifyBigNumbers(orderBook.sell));
   }, [userOrders.length,userOrdersLoading])
+
+  const handleCancelLimitOrder = async (orderId:bigint) => {
+    if(!selectedPair) return;
+    if(!address) return;
+    if(!isConnected) return;
+    await cancelLimitOrder(walletProvider,selectedPair.pair,orderId);
+  }
+
+  const handleClaimLimitOrder = async (orderId:bigint) => {
+    if(!selectedPair) return;
+    if(!address) return;
+    if(!isConnected) return;
+    await claimLimitOrder(walletProvider,selectedPair.pair,orderId);
+  }
 
   return(
     <div className={`w-full rounded-xl`}>
@@ -127,25 +162,36 @@ const OpenOrders = () => {
                                                         {getOrderStatusText(Number(order.status))}
                                                     </span>
                                                 </div>
-                                                <div className="flex justify-between text-xs mt-0.5">
+                                                <div className="grid grid-cols-3 justify-between text-xs mt-0.5">
                                                     <div className="flex flex-col">
                                                         <span className="text-[10px] text-gray-500">Price</span>
                                                         <span>{parseFloat(ethers.formatUnits(order.price,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+
                                                     </div>
                                                     <div className="flex flex-col">
                                                         <span className="text-[10px] text-gray-500">Amount</span>
                                                         <span>{parseFloat(ethers.formatUnits(order.amount,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+
+                                                    </div>
+                                                    <div className="flex flex-col">
+                                                        <span className="text-[10px] text-gray-500">Remaining</span>
+                                                        <span>{parseFloat(ethers.formatUnits(order.remaining,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+
                                                     </div>
                                                 </div>
-                                                <div className="flex justify-between items-center text-xs mt-0.5">
+                                                <div className="grid grid-cols-3 justify-between items-center text-xs mt-0.5">
                                                     <div className="w-full flex flex-col">
                                                         <span className="text-[10px] text-gray-500">Filled</span>
                                                         <span>{parseFloat(ethers.formatUnits(order.filled,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
                                                     </div>
+                                                    <div className="w-full flex flex-col">
+                                                        <span className="text-[10px] text-gray-500">Total</span>
+                                                        <span>{parseFloat(ethers.formatUnits(order.priceTotal,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+                                                    </div>
                                                     <div className='flex flex flex-row gap-2'>
 
                                                     {[OrderStatus.FILLED].includes(order.status) &&
-                                                    <button className={`px-2 py-1 rounded text-xs font-medium transition-colors border
+                                                    <button onClick={() => handleClaimLimitOrder(order.id)} className={`px-2 py-1 w-full rounded text-xs font-medium transition-colors border
                                                             ${isDarkMode
                                                             ? 'text-blue-400 border-blue-400 bg-blue-500/10 hover:bg-blue-500/20'
                                                             : 'text-blue-600 border-blue-600 bg-blue-500/10 hover:bg-blue-500/20'
@@ -156,7 +202,10 @@ const OpenOrders = () => {
 }
 
                                                     {![OrderStatus.COMPLETED, OrderStatus.CANCELLED,OrderStatus.FILLED].includes(order.status) && (
-                                                    <button className={`px-2 py-1 rounded text-xs font-medium transition-colors border ${[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind)
+                                                    <button
+                                                    onClick={() => handleCancelLimitOrder(order.id)}
+                                                    
+                                                    className={`px-2 py-1 w-full rounded text-xs font-medium transition-colors border ${[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind)
                                                         ? isDarkMode
                                                             ? 'text-green-400 border-green-400 hover:bg-green-500/30'
                                                             : 'text-green-600 border-green-600 hover:bg-green-200'
@@ -169,7 +218,7 @@ const OpenOrders = () => {
                                                     </div>
                                                 </div>
                                                 <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                                                    <div className={`h-1.5 rounded-full ${[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind) ? 'bg-green-500' : 'bg-pink-500'}`} style={{ width: `${(parseFloat(ethers.formatUnits(order.filled,LIMIT_ORDER_BOOK_DECIMALS)) / parseFloat(ethers.formatUnits(order.amount,LIMIT_ORDER_BOOK_DECIMALS))) * 100}%` }}></div>
+                                                    <div className={`h-1.5 rounded-full ${[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind) ? 'bg-green-500' : 'bg-pink-500'}`} style={{ width: `${(parseFloat(ethers.formatUnits(order.filled,LIMIT_ORDER_BOOK_DECIMALS)) / parseFloat(ethers.formatUnits(order.amount > 0 && order.amount > order.amount ? order.amount : order.remaining,LIMIT_ORDER_BOOK_DECIMALS))) * 100}%` }}></div>
                                                 </div>
                                             </motion.div>
                                         ))

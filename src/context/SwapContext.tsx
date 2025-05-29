@@ -56,6 +56,15 @@ export interface ClaimModalState {
   message?: string;
   visible: boolean;
 }
+export type LimitOrderModalStatus = 'none' | 'success' | 'error';
+
+export interface LimitOrderModalState {
+  status: LimitOrderModalStatus;
+  message?: string;
+  visible: boolean;
+  proof: string;
+  isLoading: boolean;
+}
 
 export type OrderMatchedEvent = {
   pairId: string;
@@ -183,6 +192,12 @@ interface SwapContextProps {
   userOrdersLoading: boolean;
   setUserOrdersLoading: (userOrdersLoading: boolean) => void;
   fetchUserOrders: (walletProvider: any,pairHash:string,address:string) => void;
+
+  limitOrderModal: LimitOrderModalState;
+  setLimitOrderModal: (limitOrderModal: LimitOrderModalState) => void;
+
+  cancelLimitOrder: (walletProvider: any,pairHash:string,orderId:bigint) => void;
+  claimLimitOrder: (walletProvider: any,pairHash:string,orderId:bigint) => void;
 }
 
 // Context varsayılan değeri
@@ -289,6 +304,17 @@ const defaultContext: SwapContextProps = {
   userOrdersLoading: false,
   setUserOrdersLoading: () => { },
   fetchUserOrders: () => { },
+  limitOrderModal: {
+    status: 'none',
+    message: '',
+    visible: false,
+    proof: '',
+    isLoading: false,
+  },
+  setLimitOrderModal: () => { },
+
+  cancelLimitOrder: () => { },
+  claimLimitOrder: () => { },
 };
 
 // Context oluşturma
@@ -472,7 +498,7 @@ interface TPairState {
 /** LIMIT ORDER PROTOCOL */
 
 
-type PriceLevel = {
+export type PriceLevel = {
   index: bigint;
   price: bigint;
   baseLiquidity: bigint;
@@ -482,6 +508,7 @@ type PriceLevel = {
 };
 
 export interface PriceLevelOrderBook {
+  index:bigint;
   price: bigint;           // Encoded fixed-point price
   baseLiquidity: bigint;   // Total base token liquidity
   quoteLiquidity: bigint;
@@ -613,6 +640,7 @@ export interface Order  {
   total: bigint;          // slot 4
   filled: bigint;         // slot 5
   remaining: bigint;      // slot 6
+  priceTotal: bigint;     // slot 7
 
   trader: string;         // slot 7 (address)
   entrypoint: number;     // int24 -> number (signed 24-bit integer)
@@ -719,6 +747,13 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
   const [userOrders, setUserOrders] = useState<Order[]>([]);
   const [userOrdersLoading, setUserOrdersLoading] = useState<boolean>(false);
+  const [limitOrderModal, setLimitOrderModal] = useState<LimitOrderModalState>({
+    status: 'none',
+    message: '',
+    visible: false,
+    proof: '',
+    isLoading: false,
+  });
 
 
   const [userTradingStats, setUserTradingStats] = useState<UserTradingStats | null>(null);
@@ -1737,6 +1772,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     let _quoteAddress = quoteToken.address == ZeroAddress ? WRAPPED_TOKEN : quoteToken.address;
 
     let dexContract = await getContractByName(TContractType.DEX, Number(chainId),walletProvider);
+    let multicallContract = await getContractByName(TContractType.MULTICALL, Number(chainId),walletProvider);
 
 
     const _pairInfo: any = await dexContract.client.readContract({
@@ -1838,9 +1874,9 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
     var _lpTotalSupply: any
 
     try {
-      const multicallResult: any = await dexContract.client.readContract({
-        address: dexContract.caller.address,
-        abi: dexContract.abi,
+      const multicallResult: any = await multicallContract.client.readContract({
+        address: multicallContract.caller.address,
+        abi: multicallContract.abi,
         functionName: 'aggregate',
         args: [multicallParams],
         account: account ? ethers.getAddress(account) as `0x${string}` : KEWL_DEPLOYER_ADDRESS,
@@ -2872,6 +2908,15 @@ const formatted = date.toLocaleString('en-US', {
   const placeLimitOrder = async (walletProvider : any,params: LimitOrderParam) => {
     const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
     const [signerAccount] = await dexContract.wallet.getAddresses()
+
+    setLimitOrderModal({
+      status: 'success',
+      message: 'Please Wait...',
+      visible: false,
+      proof: '',
+      isLoading: true,
+    });
+
     try{
 
 
@@ -2974,18 +3019,128 @@ const formatted = date.toLocaleString('en-US', {
     await dexContract.client.simulateContract(contractParameters);
 
     const tx: any = await dexContract.wallet.writeContract(contractParameters)
+    const receipt = await waitForTransactionReceipt(dexContract.wallet, {
+      hash: tx,
+    });
+    setLimitOrderModal({
+      status: 'success',
+      message: 'Order placed successfully',
+      visible: true,
+      proof: receipt.transactionHash,
+      isLoading: false,
+    });
     
     }catch(err){
-      console.log("err", err)
+      if (err instanceof BaseError) {
+        const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
+        if (revertError instanceof ContractFunctionRevertedError) {
+          const errorName = revertError.data?.errorName ?? ''
+          // do something with `errorName`
+          setLimitOrderModal({
+            status: 'error',
+            message: errorName,
+            visible: true,
+            proof: '',
+            isLoading: false,
+          });
+        }else if (revertError instanceof ContractFunctionExecutionError){
+            setLimitOrderModal({
+              status: 'error',
+              message: 'Contract function execution error',
+              visible: true,
+              proof: '',
+              isLoading: false,
+            });
+        } else if(revertError instanceof UserRejectedRequestError){
+          setLimitOrderModal({
+            status: 'error',
+            message: 'User rejected the request',
+            visible: true,
+            proof: '',
+            isLoading: false,
+          });
+        }else{
+          setLimitOrderModal({
+            status: 'error',
+            message: err.message,
+            visible: true,
+            proof: '',
+            isLoading: false,
+          });
+        }
+      }else{
+        const errorMessage =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+          ? err
+          : 'An unknown error occurred';
+    
+        setLimitOrderModal({
+          status: 'error',
+          message: errorMessage,
+          visible: true,
+          proof: '',
+          isLoading: false,
+        });
+      }
     }finally{
       fetchOrderBook(walletProvider)
       fetchUserOrders(walletProvider,selectedPair?.pair as string,signerAccount)
     }
   }
 
+  const cancelLimitOrder = async (walletProvider: any,pairHash:string,orderId:bigint) => {
+    try{
+      const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+      const [signerAccount] = await dexContract.wallet.getAddresses()
+      console.log("pairHash", pairHash)
+      console.log("orderId", orderId)
+      let contractParameters : any = {
+        chain: dexContract.client.chain,
+        address: dexContract.caller.address as `0x${string}`,
+        abi: dexContract.abi,
+        functionName: "cancel",
+        args: [pairHash,orderId],
+        account: signerAccount,
+        value: undefined
+      }
+  
+      console.log("contractParameters", contractParameters)
+  
+      await dexContract.client.simulateContract(contractParameters);
+  
+      const tx: any = await dexContract.wallet.writeContract(contractParameters)
+      const receipt = await waitForTransactionReceipt(dexContract.wallet, {
+        hash: tx,
+      });
+      setLimitOrderModal({
+        status: 'success',
+        message: 'Order cancelled successfully',
+        visible: true,
+        proof: receipt.transactionHash,
+        isLoading: false,
+      });
+      
+    }catch(err){
+      console.log("err", err)
+    }
+  }
+
+  const claimLimitOrder = async (walletProvider: any,pairHash:string,orderId:bigint) => {
+    try{
+
+      console.log("pairHash", pairHash)
+      console.log("orderId", orderId)
+    }catch(err){
+      console.log("err", err)
+    }
+  }
+
   const fetchUserOrders = async (walletProvider: any,pairHash:string,address:string) => {
     try{
       setUserOrdersLoading(true)
+      setUserOrders([])
       const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
       const _userOrders: any = await dexContract.client.readContract({
         address: dexContract.caller.address,
@@ -3089,6 +3244,12 @@ const formatted = date.toLocaleString('en-US', {
     userOrdersLoading,
     setUserOrdersLoading,
     fetchUserOrders,
+
+    limitOrderModal,
+    setLimitOrderModal,
+
+    cancelLimitOrder,
+    claimLimitOrder,
   };
 
   return (
