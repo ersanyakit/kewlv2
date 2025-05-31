@@ -71,7 +71,7 @@ const OpenOrders = () => {
                                 <div className="flex items-center justify-between mb-2">
                                     <h3 className="text-sm font-medium">Open Orders</h3>
                                     <div className="flex items-center gap-1">
-                                        <button className="p-1 rounded hover:bg-gray-200/20 transition-colors" onClick={() => {
+                                        <button className="p-1 cursor-pointer rounded hover:bg-gray-200/20 transition-colors" onClick={() => {
                                             init();
                                         }}>
                                             <RefreshCcw className="w-3 h-3" />

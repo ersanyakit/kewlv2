@@ -107,6 +107,7 @@ const ChartView = () => {
     if (!ohlcData || limitOrderHistory.length == 0 || !selectedPair) {
       return;
     }
+    if(!chart) return;
     chart.clearData();
     chart.applyNewData([ohlcData]);
   }

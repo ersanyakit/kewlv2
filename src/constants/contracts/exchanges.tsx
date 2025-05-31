@@ -11,9 +11,9 @@ export const DECENTRALIZED_EXCHANGES = [
         flag:false
     },
     {
-        logo:"/assets/dex/kayen.png",
+        logo:"/assets/dex/fanx.jpg",
         chainId:88888,
-        dex:"KAYEN",
+        dex:"FANX",
         router:"0xE2918AA38088878546c1A18F2F9b1BC83297fdD3",
         weth:"0x677F7e16C7Dd57be1D4C8aD1244883214953DC47",
         flag:false

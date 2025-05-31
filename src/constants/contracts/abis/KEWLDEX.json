@@ -2209,6 +2209,11 @@
             },
             {
               "internalType": "uint256",
+              "name": "remainingValue",
+              "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
               "name": "priceTotal",
               "type": "uint256"
             },
