@@ -2218,14 +2218,14 @@
               "type": "uint256"
             },
             {
+              "internalType": "uint256",
+              "name": "matched",
+              "type": "uint256"
+            },
+            {
               "internalType": "address",
               "name": "trader",
               "type": "address"
-            },
-            {
-              "internalType": "uint256",
-              "name": "entrypoint",
-              "type": "uint256"
             },
             {
               "internalType": "uint8",

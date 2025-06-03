@@ -641,9 +641,9 @@ export interface Order  {
   filled: bigint;         // slot 5
   remaining: bigint;      // slot 6
   priceTotal: bigint;     // slot 7
+  normalizedMatchTotal: number;     // int24 -> number (signed 24-bit integer)
 
   trader: string;         // slot 7 (address)
-  entrypoint: number;     // int24 -> number (signed 24-bit integer)
   kind: number;           // uint8 (enum)
   status: number;         // uint8 (enum)
 
@@ -3150,7 +3150,11 @@ const formatted = date.toLocaleString('en-US', {
         account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
       }) as [Order[] | any]
 
-      setUserOrders(_userOrders.reverse())
+      if(_userOrders &&  Array.isArray(_userOrders)  && _userOrders.length > 0){
+        setUserOrders(_userOrders.reverse())
+      }
+
+    
     }catch(err){
       console.log("err", err)
     }finally{

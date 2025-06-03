@@ -23,6 +23,9 @@ const TransactionHistory: React.FC = () => {
 
 
   const loadData = async () => {
+    if(!address){
+      return;
+    }
     await fetchUseTradeStats(Number(chainId), walletProvider, address)
   }
 

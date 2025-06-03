@@ -124,104 +124,123 @@ const OpenOrders = () => {
                                         </motion.div>
                                     </div>
                                     ) : (
-                                        userOrders.map((order, i) => (
-                                            <motion.div
-                                                key={i}
-                                                className={`p-1.5 rounded-lg transition-all duration-200 cursor-pointer ${[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind)
-                                                    ? isDarkMode
-                                                        ? 'bg-transparent hover:bg-green-500/20'
-                                                        : 'bg-transparent hover:bg-green-100'
-                                                    : isDarkMode
-                                                        ? 'bg-transparent hover:bg-pink-500/20'
-                                                        : 'bg-transparent hover:bg-pink-100'
-                                                    }`}
-                                                whileHover={{ scale: 1.02 }}
-                                                onClick={() => {
-                                                    console.log("order", order)
-                                                }}
-                                            >
-                                                <div className="flex justify-between text-xs">
-                                                    <span className={`font-medium ${[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind) 
-                                                        ? isDarkMode ? 'text-green-400' : 'text-green-600'
-                                                        : isDarkMode
-                                                            ? 'text-pink-400'
-                                                            : 'text-pink-600'
-                                                        }`}>
-                                                        {[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind) ? 'BUY' : 'SELL'}
-                                                    </span>
-                                                    <span className={`px-1 py-0.5 rounded-full ${order.status === OrderStatus.COMPLETED
-                                                        ? 'bg-green-500/10 text-green-500'
-                                                        : [OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind)
-                                                            ? isDarkMode
-                                                                ? 'bg-green-500/20 text-green-400'
-                                                                : 'bg-green-50 text-green-600 border border-green-200'
-                                                            : isDarkMode
-                                                                ? 'bg-pink-500/20 text-pink-400'
-                                                                : 'bg-pink-50 text-pink-600 border border-pink-200'
-                                                        } text-[10px]`}>
-                                                        {getOrderStatusText(Number(order.status))}
-                                                    </span>
-                                                </div>
-                                                <div className="grid grid-cols-3 justify-between text-xs mt-0.5">
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[10px] text-gray-500">Price</span>
-                                                        <span>{parseFloat(ethers.formatUnits(order.price,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
-
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[10px] text-gray-500">Amount</span>
-                                                        <span>{parseFloat(ethers.formatUnits(order.amount,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
-
-                                                    </div>
-                                                    <div className="flex flex-col">
-                                                        <span className="text-[10px] text-gray-500">Remaining</span>
-                                                        <span>{parseFloat(ethers.formatUnits(order.remaining,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
-
-                                                    </div>
-                                                </div>
-                                                <div className="grid grid-cols-3 justify-between items-center text-xs mt-0.5">
-                                                    <div className="w-full flex flex-col">
-                                                        <span className="text-[10px] text-gray-500">Filled</span>
-                                                        <span>{parseFloat(ethers.formatUnits(order.filled,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
-                                                    </div>
-                                                    <div className="w-full flex flex-col">
-                                                        <span className="text-[10px] text-gray-500">Total</span>
-                                                        <span>{parseFloat(ethers.formatUnits(order.priceTotal,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
-                                                    </div>
-                                                    <div className='flex flex flex-row gap-2'>
-
-                                                    {[OrderStatus.FILLED].includes(order.status) &&
-                                                    <button onClick={() => handleClaimLimitOrder(order.id)} className={`px-2 py-1 w-full rounded text-xs font-medium transition-colors border
-                                                            ${isDarkMode
-                                                            ? 'text-blue-400 border-blue-400 bg-blue-500/10 hover:bg-blue-500/20'
-                                                            : 'text-blue-600 border-blue-600 bg-blue-500/10 hover:bg-blue-500/20'
-                                                            }`}
+                                        <div className='w-full flex flex-col gap-2 p-2'>
+                                            {
+                                                     userOrders.map((order, i) => (
+                                                        <motion.div
+                                                            key={i}
+                                                            className={`p-1.5 overflow-hidden rounded-lg transition-all duration-200 cursor-pointer ${[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind)
+                                                                ? isDarkMode
+                                                                    ? ' hover:border-green-500 hover:border hover:bg-green-500/20'
+                                                                    : 'hover:bg-green-50 hover:border hover:border-green-200'
+                                                                : isDarkMode
+                                                                    ? ' hover:border hover:border-pink-500 hover:bg-pink-500/20'
+                                                                    : 'hover:bg-pink-50 hover:border hover:border-pink-200'
+                                                                }`}
+                                                                whileHover={{
+                                                                    scale: 1.03,
+                                                                    boxShadow: isDarkMode
+                                                                      ? "0 4px 8px rgba(0,0,0,0.25)"
+                                                                      : "0 4px 8px rgba(0,0,0,0.1)"
+                                                                  }}
+                                                                  transition={{ type: "spring", stiffness: 400, damping: 17 }}
+                                                            onClick={() => {
+                                                                console.log("order", order)
+                                                            }}
                                                         >
-                                                        Claim
-                                                    </button>
-}
+                                                            
+            
+                           
+            
+                          
+            
+                                                            <div className="flex justify-between text-xs">
+                                                                <span className={`font-medium ${[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind) 
+                                                                    ? isDarkMode ? 'text-green-400' : 'text-green-600'
+                                                                    : isDarkMode
+                                                                        ? 'text-pink-400'
+                                                                        : 'text-pink-600'
+                                                                    }`}>
+                                                                    {[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind) ? 'BUY' : 'SELL'}
+                                                                </span>
+                                                                <span className={`px-1 py-0.5 rounded-full ${order.status === OrderStatus.COMPLETED
+                                                                    ? 'bg-green-500/10 text-green-500'
+                                                                    : [OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind)
+                                                                        ? isDarkMode
+                                                                            ? 'bg-green-500/20 text-green-400'
+                                                                            : 'bg-green-50 text-green-600 border border-green-200'
+                                                                        : isDarkMode
+                                                                            ? 'bg-pink-500/20 text-pink-400'
+                                                                            : 'bg-pink-50 text-pink-600 border border-pink-200'
+                                                                    } text-[10px]`}>
+                                                                    {getOrderStatusText(Number(order.status))}
+                                                                </span>
+                                                            </div>
+                                                            <div className="grid grid-cols-3 justify-between text-xs mt-0.5">
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[10px] text-gray-500">Price</span>
+                                                                    <span>{parseFloat(ethers.formatUnits(order.price,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+            
+                                                                </div>
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[10px] text-gray-500">Amount</span>
+                                                                    <span>{parseFloat(ethers.formatUnits(order.amount,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+            
+                                                                </div>
+                                                                <div className="flex flex-col">
+                                                                    <span className="text-[10px] text-gray-500">Remaining</span>
+                                                                    <span>{parseFloat(ethers.formatUnits(order.remaining,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+            
+                                                                </div>
+                                                            </div>
+                                                            <div className="grid grid-cols-3 justify-between items-center text-xs mt-0.5">
+                                                                <div className="w-full flex flex-col">
+                                                                    <span className="text-[10px] text-gray-500">Filled</span>
+                                                                    <span>{parseFloat(ethers.formatUnits(order.filled,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+                                                                </div>
+                                                                <div className="w-full flex flex-col">
+                                                                    <span className="text-[10px] text-gray-500">Total</span>
+                                                                    <span>{parseFloat(ethers.formatUnits(order.priceTotal,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+                                                                </div>
+                                                                <div className='flex flex flex-row gap-2'>
+            
+                                                                {[OrderStatus.FILLED].includes(order.status) &&
+                                                                <button onClick={() => handleClaimLimitOrder(order.id)} className={`px-2 py-1 w-full rounded text-xs font-medium transition-colors border
+                                                                        ${isDarkMode
+                                                                        ? 'text-blue-400 border-blue-400 bg-blue-500/10 hover:bg-blue-500/20'
+                                                                        : 'text-blue-600 border-blue-600 bg-blue-500/10 hover:bg-blue-500/20'
+                                                                        }`}
+                                                                    >
+                                                                    Claim
+                                                                </button>
+            }
+            
+                                                                {![OrderStatus.COMPLETED, OrderStatus.CANCELLED,OrderStatus.FILLED].includes(order.status) && (
+                                                                <button
+                                                                onClick={() => handleCancelLimitOrder(order.id)}
+                                                                
+                                                                className={`px-2 py-1 w-full rounded text-xs font-medium transition-colors border ${[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind)
+                                                                    ? isDarkMode
+                                                                        ? 'text-green-400 border-green-400 hover:bg-green-500/30'
+                                                                        : 'text-green-600 border-green-600 hover:bg-green-200'
+                                                                    : isDarkMode
+                                                                        ? 'text-pink-400 border-pink-400 hover:bg-pink-500/30'
+                                                                        : 'text-pink-600 border-pink-600 hover:bg-pink-200'
+                                                                    }`}>
+                                                                    Cancel
+                                                                </button>)}
+                                                                </div>
+                                                            </div>
+                                                            <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
+                                                                <div className={`h-1.5 rounded-full ${[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind) ? 'bg-green-500' : 'bg-pink-500'}`} style={{ width: `${(parseFloat(ethers.formatUnits(order.filled,LIMIT_ORDER_BOOK_DECIMALS)) / parseFloat(ethers.formatUnits(order.amount > 0 && order.amount > order.amount ? order.amount : order.remaining,LIMIT_ORDER_BOOK_DECIMALS))) * 100}%` }}></div>
+                                                            </div>
+                                                        </motion.div>
+                                                    ))
+                                            }
 
-                                                    {![OrderStatus.COMPLETED, OrderStatus.CANCELLED,OrderStatus.FILLED].includes(order.status) && (
-                                                    <button
-                                                    onClick={() => handleCancelLimitOrder(order.id)}
-                                                    
-                                                    className={`px-2 py-1 w-full rounded text-xs font-medium transition-colors border ${[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind)
-                                                        ? isDarkMode
-                                                            ? 'text-green-400 border-green-400 hover:bg-green-500/30'
-                                                            : 'text-green-600 border-green-600 hover:bg-green-200'
-                                                        : isDarkMode
-                                                            ? 'text-pink-400 border-pink-400 hover:bg-pink-500/30'
-                                                            : 'text-pink-600 border-pink-600 hover:bg-pink-200'
-                                                        }`}>
-                                                        Cancel
-                                                    </button>)}
-                                                    </div>
-                                                </div>
-                                                <div className="w-full bg-gray-200 rounded-full h-1.5 mt-1">
-                                                    <div className={`h-1.5 rounded-full ${[OrderKind.BUY_LIMIT, OrderKind.BUY_MARKET].includes(order.kind) ? 'bg-green-500' : 'bg-pink-500'}`} style={{ width: `${(parseFloat(ethers.formatUnits(order.filled,LIMIT_ORDER_BOOK_DECIMALS)) / parseFloat(ethers.formatUnits(order.amount > 0 && order.amount > order.amount ? order.amount : order.remaining,LIMIT_ORDER_BOOK_DECIMALS))) * 100}%` }}></div>
-                                                </div>
-                                            </motion.div>
-                                        ))
+                                        </div>
+                                        
+                                       
                                     )}
                                 </div>
                             </div>

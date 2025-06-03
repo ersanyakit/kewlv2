@@ -97,11 +97,10 @@ const ExchangePage = () => {
     const [selectedBuyRange, setSelectedBuyRange] = useState<number | null>(null);
     
 
-    const commonBases = ['Favorites', nativeToken?.symbol.toUpperCase(), 'USDT', 'USDC','KWL'] as string[];
+    const commonBases = ['Favorites', nativeToken?.symbol.toUpperCase(), 'USDC', 'USDT', 'KWL'] as string[];
 
 
     const tradingPairs = generateQuotePairs(tokens, commonBases)
-    console.log("TRADING PAIRS",tradingPairs)
     
 
 
@@ -185,7 +184,7 @@ const ExchangePage = () => {
   }
     
 
-    const [selectedCategory, setSelectedCategory] = useState('USDT');
+    const [selectedCategory, setSelectedCategory] = useState('USDC');
     const [sortBy, setSortBy] = useState<'pair' | 'price' | 'change' | 'volume'>('volume');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
     const [pairSearch, setPairSearch] = useState('');
@@ -351,6 +350,8 @@ const ExchangePage = () => {
             deadline: BigInt(moment().add(1, 'hours').unix()),
             entrypoint: levelIndexes,       // uint256[] dizisi için bigint[]
           }
+
+          console.log("ORDER LEVELS",limirOrderParams.entrypoint)
 
 
   
