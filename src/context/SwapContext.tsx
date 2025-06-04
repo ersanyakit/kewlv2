@@ -2686,6 +2686,7 @@ const formatted = date.toLocaleString('en-US', {
       pairs: [],
     })
 
+      try{
     const _pairs: any = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
@@ -2700,6 +2701,13 @@ const formatted = date.toLocaleString('en-US', {
       loading: false,
       pairs: _pairs,
     })
+    }catch(err){
+      console.log("fetchLimitOrderPairInfo:err", err)
+      setLimitOrderPairs({
+        loading: false,
+        pairs: [],
+      })
+    }
 
 
 
@@ -2723,106 +2731,110 @@ const formatted = date.toLocaleString('en-US', {
       sell: []
     });
     
-    console.log("selectedPairErsan", selectedPair)
     const limit = 100;
     const start = 0;
     const pairHash = selectedPair?.pair
-    //const pairHash = "0x476fa95dd4b9e538daae00223eddea9a2d89d85c196266748cc1a1d0fddb7362";
-    const _levels: any = await dexContract.client.readContract({
-      address: dexContract.caller.address,
-      abi: dexContract.abi,
-      functionName: 'orderBook',
-      args: [pairHash,start, limit],
-      account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
-    }) as [PriceLevel[] | any]
 
-    console.log("_gelenLevels", _levels)
-
-
-    const mapOrderBookLevels = (levels: PriceLevel[]): OrderBook => {
-      const buy: PriceLevelOrderBook[] = [];
-      const sell: PriceLevelOrderBook[] = [];
-    
-      for (const level of levels) {
-        if (!level.exists) continue;
-    
-        if (level.quoteLiquidity > 0n) {
-          buy.push({
-            ...level,
-            amount: level.quoteLiquidity,
-            totalAmount: 0n,
-            totalPrice: 0n,
-            baseTotalPrice: 0n,
-            quoteTotalPrice: 0n,
-            head: 0n,
-            tail: 0n,
-            tick: 0n,
-            nextTick: 0n,
-            prevTick: 0n,
-            sequence: 0n
-          });
+    try{
+      const _levels: any = await dexContract.client.readContract({
+        address: dexContract.caller.address,
+        abi: dexContract.abi,
+        functionName: 'orderBook',
+        args: [pairHash,start, limit],
+        account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
+      }) as [PriceLevel[] | any]
+      const mapOrderBookLevels = (levels: PriceLevel[]): OrderBook => {
+        const buy: PriceLevelOrderBook[] = [];
+        const sell: PriceLevelOrderBook[] = [];
+      
+        for (const level of levels) {
+          if (!level.exists) continue;
+      
+          if (level.quoteLiquidity > 0n) {
+            buy.push({
+              ...level,
+              amount: level.quoteLiquidity,
+              totalAmount: 0n,
+              totalPrice: 0n,
+              baseTotalPrice: 0n,
+              quoteTotalPrice: 0n,
+              head: 0n,
+              tail: 0n,
+              tick: 0n,
+              nextTick: 0n,
+              prevTick: 0n,
+              sequence: 0n
+            });
+          }
+      
+          if (level.baseLiquidity > 0n) {
+            sell.push({
+              ...level,
+              totalAmount: 0n,
+              totalPrice: 0n,
+              amount: level.baseLiquidity,
+              baseTotalPrice: 0n,
+              quoteTotalPrice: 0n,
+              head: 0n,
+              tail: 0n,
+              tick: 0n,
+              nextTick: 0n,
+              prevTick: 0n,
+              sequence: 0n
+            });
+          }
         }
-    
-        if (level.baseLiquidity > 0n) {
-          sell.push({
-            ...level,
-            totalAmount: 0n,
-            totalPrice: 0n,
-            amount: level.baseLiquidity,
-            baseTotalPrice: 0n,
-            quoteTotalPrice: 0n,
-            head: 0n,
-            tail: 0n,
-            tick: 0n,
-            nextTick: 0n,
-            prevTick: 0n,
-            sequence: 0n
-          });
+      
+        // Buyları fiyata göre azalan sırala (short logic)
+        buy.sort((a, b) => (a.price > b.price ? -1 : a.price < b.price ? 1 : 0));
+        // Sell'leri fiyata göre artan sırala (normal)
+        sell.sort((a, b) => (a.price < b.price ? -1 : a.price > b.price ? 1 : 0));
+      
+        // Buy total'larını sıraya göre hesapla
+        let buyTotal = 0n;
+        let buyTotalPrice = 0n;
+        for (const b of buy) {
+          buyTotal += b.amount;
+          b.totalAmount = buyTotal;
+          buyTotalPrice += (b.price * b.amount) / PRICE_DECIMAL_FACTOR;
+          b.totalPrice = buyTotalPrice;
         }
-      }
-    
-      // Buyları fiyata göre azalan sırala (short logic)
-      buy.sort((a, b) => (a.price > b.price ? -1 : a.price < b.price ? 1 : 0));
-      // Sell'leri fiyata göre artan sırala (normal)
-      sell.sort((a, b) => (a.price < b.price ? -1 : a.price > b.price ? 1 : 0));
-    
-      // Buy total'larını sıraya göre hesapla
-      let buyTotal = 0n;
-      let buyTotalPrice = 0n;
-      for (const b of buy) {
-        buyTotal += b.amount;
-        b.totalAmount = buyTotal;
-        buyTotalPrice += (b.price * b.amount) / PRICE_DECIMAL_FACTOR;
-        b.totalPrice = buyTotalPrice;
-      }
-    
-      // Sell total'larını sıraya göre hesapla
-      let sellTotal = 0n;
-      let sellTotalPrice = 0n;
-      for (const s of sell) {
-        sellTotal += s.amount;
-        s.totalAmount = sellTotal;
-        sellTotalPrice += (s.price * s.amount)/PRICE_DECIMAL_FACTOR;
-        s.totalPrice = sellTotalPrice;
-      }
-    
-      const maxSellTotal = sell.length > 0 ? sell[sell.length - 1].totalAmount : 1n;
-      const maxBuyTotal = buy.length > 0 ? buy[buy.length - 1].totalAmount : 1n;
-    
-      return {
-        loading: false,
-        buy,
-        sell,
-        maxBuyTotal,
-        maxSellTotal
+      
+        // Sell total'larını sıraya göre hesapla
+        let sellTotal = 0n;
+        let sellTotalPrice = 0n;
+        for (const s of sell) {
+          sellTotal += s.amount;
+          s.totalAmount = sellTotal;
+          sellTotalPrice += (s.price * s.amount)/PRICE_DECIMAL_FACTOR;
+          s.totalPrice = sellTotalPrice;
+        }
+      
+        const maxSellTotal = sell.length > 0 ? sell[sell.length - 1].totalAmount : 1n;
+        const maxBuyTotal = buy.length > 0 ? buy[buy.length - 1].totalAmount : 1n;
+      
+        return {
+          loading: false,
+          buy,
+          sell,
+          maxBuyTotal,
+          maxSellTotal
+        };
       };
-    };
 
-    const _orderBook = mapOrderBookLevels(_levels)
-    console.log("orderBook", _orderBook)
-    setOrderBook(_orderBook)
-
-    
+      const _orderBook = mapOrderBookLevels(_levels)
+      console.log("orderBook", _orderBook)
+      setOrderBook(_orderBook)
+    }catch(err){
+      console.log("fetchOrderBook:err", err)
+      setOrderBook({
+        loading: false,
+        buy: [],
+        sell: [],
+        maxBuyTotal: 0n,
+        maxSellTotal: 0n,
+      })
+    }
       
      
 
