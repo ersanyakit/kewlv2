@@ -38,7 +38,8 @@ import {
     ChevronLeft,
     Bookmark,
     BookmarkCheck,
-    RefreshCw
+    RefreshCw,
+    BookOpen
 } from 'lucide-react';
 import ChartView from './ChartView';
 import { LimitOrderParam, OrderKind,  PriceLevelOrderBook, TokenPair, useSwapContext } from '../../../context/SwapContext';
@@ -661,7 +662,7 @@ const ExchangePage = () => {
                                             variants={orderBookVariants}
                                             className="select-none my-1 flex flex-col  gap-[1px] overflow-y-auto scrollbar-hide custom-scrollbar flex flex-col-reverse"
                                         >
-                                            {orderBook.loading || orderBook.sell.length === 0 ? (
+                                            {orderBook.loading ? (
                                                 <div className="space-y-0.5">
                                                     {Array.from({ length: 25 }).map((_, i) => (
                                                         <div key={i} className={`grid grid-cols-3 text-xs p-1.5 rounded-lg animate-pulse shadow-sm `}>
@@ -671,7 +672,21 @@ const ExchangePage = () => {
                                                         </div>
                                                     ))}
                                                 </div>
-                                            ) : (
+                                            ) 
+                                            : orderBook.sell.length === 0 ? (
+                                                <div className="w-full h-full items-center justify-center flex flex-col gap-2 text-sm text-center text-muted-foreground py-4">
+                                                          <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-[#ff1356]/10 to-[#ff4080]/10 flex items-center justify-center">
+                                              
+                                                  <BookOpen  className="w-8 h-8 text-[#ff4080]"/>
+                                                  </div>
+                                                  <div className={`w-full flex flex-col gap-2  ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                                  <span className='text-sm font-medium mb-1'>No sell orders yet.</span>
+                                                  <span className='text-xs'>Be the first to place a sell order and shape the market!</span>
+                                                  </div>
+                                              
+                                                </div>
+                                              )  :
+                                               (
                                                 orderBook.sell.map((order, i) => (
                                                     <div
                                                         key={i}
@@ -718,17 +733,32 @@ const ExchangePage = () => {
                                             variants={orderBookVariants}
                                             className="mt-1 flex flex-col gap-[1px] overflow-y-auto scrollbar-hide custom-scrollbar"
                                         >
-                                            {orderBook.loading || orderBook.buy.length === 0 ? (
-                                                <div className="space-y-0.5">
-                                                    {Array.from({ length: 25 }).map((_, i) => (
-                                                        <div key={i} className={`grid grid-cols-3 text-xs p-1.5 rounded-lg animate-pulse shadow-sm`}>
-                                                            <span className={`h-4 w-3/4 rounded-full ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
-                                                            <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
-                                                            <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`}></span>
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                            ) : (
+                                           {orderBook.loading ? (
+  <div className="space-y-0.5">
+    {Array.from({ length: 25 }).map((_, i) => (
+      <div
+        key={i}
+        className="grid grid-cols-3 text-xs p-1.5 rounded-lg animate-pulse shadow-sm"
+      >
+        <span className={`h-4 w-3/4 rounded-full ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`} />
+        <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`} />
+        <span className={`h-4 w-1/2 rounded-full ml-auto ${isDarkMode ? 'bg-gray-600' : 'bg-gray-300'}`} />
+      </div>
+    ))}
+  </div>
+) : orderBook.buy.length === 0 ? (
+  <div className="w-full h-full items-center justify-center flex flex-col gap-2 text-sm text-center text-muted-foreground py-4">
+            <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-gradient-to-r from-[#ff1356]/10 to-[#ff4080]/10 flex items-center justify-center">
+
+    <BookOpen  className="w-8 h-8 text-[#ff4080]"/>
+    </div>
+    <div className={`w-full flex flex-col gap-2  ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+    <span className='text-sm font-medium mb-1'>No buy orders yet.</span>
+    <span className='text-xs'>Be the first to place a buy order and shape the market!</span>
+    </div>
+
+  </div>
+)  : (
                                                 orderBook.buy.map((order, i) => (
                                                     <div
                                                         key={i}

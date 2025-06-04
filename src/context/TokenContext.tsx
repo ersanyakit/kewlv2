@@ -41,6 +41,9 @@ export enum SWAP_MODE {
 }
 
 interface TokenContextType {
+  isChartExpanded : boolean;
+  setIsChartExpanded:(isExpanded:boolean)=>void;
+
   isSettingsModalOpen: boolean;
   setIsSettingsModalOpen: (isSettingsModalOpen: boolean) => void;
   tokens: Token[];
@@ -87,6 +90,8 @@ interface TokenContextType {
 // Default context değeri
 const defaultContext: TokenContextType = {
   isSettingsModalOpen: false,
+  isChartExpanded:false,
+  setIsChartExpanded:()=>{},
   activeView: 'swap',
   setActiveView: () => {},
   setIsSettingsModalOpen: () => {},
@@ -139,6 +144,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   const [tokens, setTokens] = useState<Token[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isChartExpanded,setIsChartExpanded] = useState<boolean>(false);
   
 
    const loadTokens = async () => {
@@ -367,7 +373,9 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setTokenList,
     setTokens,
     activeView,
-    setActiveView
+    setActiveView,
+    isChartExpanded,
+    setIsChartExpanded
 
   };
 

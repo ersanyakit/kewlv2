@@ -9,13 +9,12 @@ import { useAppKitProvider } from '@reown/appkit/react';
 
 const ChartView = () => {
   const { limitOrderHistory, limitOrderHistoryLoading, selectedPair, fetchLimitOrderHistory } = useSwapContext();
-  const { isDarkMode } = useTokenContext();
+  const { isDarkMode,isChartExpanded,setIsChartExpanded } = useTokenContext();
   var chart: any = null;
   var volumePane: any = null;
   var macdPane: any = null;
 
 
-  const [chartHeight, setChartHeight] = useState("19dvh");
   const { walletProvider } = useAppKitProvider('eip155');
 
   const [toggleVOLUME, setToggleVOLUME] = useState(false);
@@ -115,7 +114,7 @@ const ChartView = () => {
 
   useEffect(() => {
     initOHLCData();
-  }, [limitOrderHistoryLoading, limitOrderHistory.length, chartHeight ,toggleMACD,toggleVOLUME])
+  }, [limitOrderHistoryLoading, limitOrderHistory.length, isChartExpanded ,toggleMACD,toggleVOLUME])
 
   useEffect(() => {
     chart = init('chart')
@@ -248,7 +247,7 @@ const ChartView = () => {
     return () => {
       dispose('chart')
     }
-  }, [chartHeight ,toggleMACD,toggleVOLUME])
+  }, [isChartExpanded ,toggleMACD,toggleVOLUME])
 
   return (
     <div className={`w-full h-full rounded-lg flex flex-col items-between justify-around p-2`}>
@@ -281,14 +280,19 @@ const ChartView = () => {
             <RefreshCcw className="w-4 h-4" />
           </button>
 
-          <button onClick={() => setChartHeight(chartHeight === "19dvh" ? "40dvh" : "19dvh")} className="p-1 rounded hover:bg-gray-200/20">
-            {chartHeight === "50dvh" ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
+          <button onClick={() =>{ 
+            //setChartHeight(chartHeight === "19dvh" ? "40dvh" : "19dvh")
+            setIsChartExpanded(!isChartExpanded);
+
+
+          }} className="p-1 rounded hover:bg-gray-200/20">
+            {!isChartExpanded ? <Maximize2 className="w-4 h-4" /> : <Minimize2 className="w-4 h-4" />}
           </button>
 
         </div>
       </div>
-      <div className={`w-full h-full min-h-[${chartHeight}px]   rounded-lg`}>
-        <div className='w-full h-full min-h-[260px]' id="chart" style={{ width: "100%", minHeight: `${chartHeight}`, height: `${chartHeight}` }} />
+      <div className={`w-full h-full min-h-[${isChartExpanded ? "40dvh" : "19dvh"}]   rounded-lg`}>
+        <div className='w-full h-full min-h-[260px]' id="chart" style={{ width: "100%", minHeight: `${isChartExpanded ? "40dvh" : "19dvh"}`, height: `${isChartExpanded ? "40dvh" : "19dvh"}` }} />
       </div>
 
     </div>)
