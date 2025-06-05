@@ -3103,9 +3103,9 @@ const formatted = date.toLocaleString('en-US', {
   }
 
   const cancelLimitOrder = async (walletProvider: any,pairHash:string,orderId:bigint) => {
+    const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+    const [signerAccount] = await dexContract.wallet.getAddresses()
     try{
-      const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
-      const [signerAccount] = await dexContract.wallet.getAddresses()
       console.log("pairHash", pairHash)
       console.log("orderId", orderId)
       let contractParameters : any = {
@@ -3135,17 +3135,154 @@ const formatted = date.toLocaleString('en-US', {
       });
       
     }catch(err){
-      console.log("err", err)
+      if (err instanceof BaseError) {
+        const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
+        if (revertError instanceof ContractFunctionRevertedError) {
+          const errorName = revertError.data?.errorName ?? ''
+          // do something with `errorName`
+          setLimitOrderModal({
+            status: 'error',
+            message: errorName,
+            visible: true,
+            proof: '',
+            isLoading: false,
+          });
+        }else if (revertError instanceof ContractFunctionExecutionError){
+            setLimitOrderModal({
+              status: 'error',
+              message: 'Contract function execution error',
+              visible: true,
+              proof: '',
+              isLoading: false,
+            });
+        } else if(revertError instanceof UserRejectedRequestError){
+          setLimitOrderModal({
+            status: 'error',
+            message: 'User rejected the request',
+            visible: true,
+            proof: '',
+            isLoading: false,
+          });
+        }else{
+          setLimitOrderModal({
+            status: 'error',
+            message: err.message,
+            visible: true,
+            proof: '',
+            isLoading: false,
+          });
+        }
+      }else{
+        const errorMessage =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+          ? err
+          : 'An unknown error occurred';
+    
+        setLimitOrderModal({
+          status: 'error',
+          message: errorMessage,
+          visible: true,
+          proof: '',
+          isLoading: false,
+        });
+      }
+    }finally{
+      await fetchUserOrders(walletProvider,pairHash,signerAccount)
+      await fetchOrderBook(walletProvider);
     }
   }
 
   const claimLimitOrder = async (walletProvider: any,pairHash:string,orderId:bigint) => {
+    const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+    const [signerAccount] = await dexContract.wallet.getAddresses()
     try{
-
       console.log("pairHash", pairHash)
       console.log("orderId", orderId)
+      let contractParameters : any = {
+        chain: dexContract.client.chain,
+        address: dexContract.caller.address as `0x${string}`,
+        abi: dexContract.abi,
+        functionName: "claim",
+        args: [pairHash,orderId],
+        account: signerAccount,
+        value: undefined
+      }
+  
+      console.log("contractParameters", contractParameters)
+  
+      await dexContract.client.simulateContract(contractParameters);
+  
+      const tx: any = await dexContract.wallet.writeContract(contractParameters)
+      const receipt = await waitForTransactionReceipt(dexContract.wallet, {
+        hash: tx,
+      });
+      setLimitOrderModal({
+        status: 'success',
+        message: 'Order claimed successfully',
+        visible: true,
+        proof: receipt.transactionHash,
+        isLoading: false,
+      });
+      
     }catch(err){
-      console.log("err", err)
+      if (err instanceof BaseError) {
+        const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
+        if (revertError instanceof ContractFunctionRevertedError) {
+          const errorName = revertError.data?.errorName ?? ''
+          // do something with `errorName`
+          setLimitOrderModal({
+            status: 'error',
+            message: errorName,
+            visible: true,
+            proof: '',
+            isLoading: false,
+          });
+        }else if (revertError instanceof ContractFunctionExecutionError){
+            setLimitOrderModal({
+              status: 'error',
+              message: 'Contract function execution error',
+              visible: true,
+              proof: '',
+              isLoading: false,
+            });
+        } else if(revertError instanceof UserRejectedRequestError){
+          setLimitOrderModal({
+            status: 'error',
+            message: 'User rejected the request',
+            visible: true,
+            proof: '',
+            isLoading: false,
+          });
+        }else{
+          setLimitOrderModal({
+            status: 'error',
+            message: err.message,
+            visible: true,
+            proof: '',
+            isLoading: false,
+          });
+        }
+      }else{
+        const errorMessage =
+        err instanceof Error
+          ? err.message
+          : typeof err === 'string'
+          ? err
+          : 'An unknown error occurred';
+    
+        setLimitOrderModal({
+          status: 'error',
+          message: errorMessage,
+          visible: true,
+          proof: '',
+          isLoading: false,
+        });
+      }
+    }finally{
+      await fetchUserOrders(walletProvider,pairHash,signerAccount)
+      await fetchOrderBook(walletProvider);
     }
   }
 

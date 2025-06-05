@@ -10,7 +10,7 @@ import { createPublicClient, createWalletClient, http } from 'viem';
 const projectId = 'd44052dff4e08d391ea2749cd7df8422';
 
 
-export const chiliz = {
+export const chiliz : any = {
   ...originalChiliz,
   rpcUrls: {
     default: {
@@ -85,6 +85,7 @@ export const appkitOptions: AppKitOptions = {
  
   featuredWalletIds: [
     'c57ca95b47569778a828d19178114f4db188b89b763c899ba0be274e97267d96', // Metamask
+    '56843177b5e89d4bcb19a27dab7c49e0f33d8d3a6c8c4c7e5274f605e92befd6',//socios
     'f323633c1f67055a45aac84e321af6ffe46322da677ffdd32f9bc1e33bafe29c',
     '971e689d0a5be527bac79629b4ee9b925e82208e5168b733496a09c0faed0709',
     '8a0ee50d1f22f6651afcae7eb4253e52a3310b90af5daef78a8c4929a9bb99d4',

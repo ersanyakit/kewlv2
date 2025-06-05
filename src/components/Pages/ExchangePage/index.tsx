@@ -559,8 +559,10 @@ const ExchangePage = () => {
                 </motion.div>
             )}
 
-        <div className={`select-none flex flex-col px-0 py-4 md:p-4 transition-colors duration-300`}>
+        <div className={`select-none flex flex-col gap-4 items-center justify-center px-0 py-4 md:p-4 transition-colors duration-300`}>
+      
             <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-7 gap-4">
+     
 
            
 
@@ -640,11 +642,15 @@ const ExchangePage = () => {
                                     </div>
                                 </div>
                                 <div className="space-y-1 max-h-[100dvh] ">
+
+                                    
+                                    
                                     <div className="grid grid-cols-3 text-xs text-gray-500 mb-2 px-2">
                                         <span>Price ({selectedPair?.quote.symbol})</span>
                                         <span className="text-right">Amount ({selectedPair?.base.symbol})</span>
                                         <span className="text-right">Total ({selectedPair?.quote.symbol})</span>
                                     </div>
+
 
                                     {/* Sell Orders Section */}
                                     <div className="mb-2">
