@@ -100,14 +100,15 @@ const ChartView = () => {
   const initOHLCData = async () => {
 
 
-
+    console.log("yenilendi",limitOrderHistory.length )
     if (limitOrderHistory.length === 0) return;
     const ohlcData = await buildDailyOHLC(limitOrderHistory, LIMIT_ORDER_BOOK_DECIMALS);
+    console.log("ohlcData",ohlcData)
     if (!ohlcData || limitOrderHistory.length == 0 || !selectedPair) {
       return;
     }
     if(!chart) return;
-    chart.clearData();
+    console.log("yenilendi:2")
     chart.applyNewData([ohlcData]);
   }
 
@@ -134,12 +135,6 @@ const ChartView = () => {
         height: 160
       })
     }
-
-
-    
-
-      
-  
 
     chart.setStyles({
       "separator": {

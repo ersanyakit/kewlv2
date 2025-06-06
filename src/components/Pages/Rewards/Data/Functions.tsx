@@ -11,10 +11,7 @@ export const randomUser = (count: number): string => {
         ...getRandomUsers(TWITTER_USERS, count),
         "@alex_dreyfus",
         "@kewlswap",
-        "@chiliz",
-        '@SonicLabs',
-        '@MichaelFKong',
-        '@AndreCronjeTech',
+        "@chiliz"
     ].join(' ');
 }
 
