@@ -291,8 +291,8 @@ const ChartView = () => {
 
         </div>
       </div>
-      <div className={`w-full h-full min-h-[${isChartExpanded ? "40dvh" : "19dvh"}]   rounded-lg`}>
-        <div className='w-full h-full min-h-[260px]' id="chart" style={{ width: "100%", minHeight: `${isChartExpanded ? "40dvh" : "19dvh"}`, height: `${isChartExpanded ? "40dvh" : "19dvh"}` }} />
+      <div className={`w-full h-full min-h-[${isChartExpanded ? "40dvh" : "25dvh"}]   rounded-lg`}>
+        <div className='w-full h-full min-h-[260px]' id="chart" style={{ width: "100%", minHeight: `${isChartExpanded ? "40dvh" : "25dvh"}`, height: `${isChartExpanded ? "40dvh" : "19dvh"}` }} />
       </div>
 
     </div>)
