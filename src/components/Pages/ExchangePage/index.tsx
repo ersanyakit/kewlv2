@@ -98,7 +98,7 @@ const ExchangePage = () => {
     const [selectedBuyRange, setSelectedBuyRange] = useState<number | null>(null);
 
 
-    const commonBases = ['Favorites', nativeToken?.symbol.toUpperCase(), 'USDC', 'USDT', 'KWL'] as string[];
+    const commonBases = ['Favorites', nativeToken?.symbol.toUpperCase(), 'USDC', 'USDT'] as string[];
 
 
     const tradingPairs = generateQuotePairs(tokens, commonBases)
@@ -1056,7 +1056,7 @@ const ExchangePage = () => {
                                                     className={`w-full h-14 pt-5 pl-12 pr-24 rounded-2xl text-base font-medium transition-all duration-200 
                                                              ${isDarkMode
                                                             ? 'bg-gray-900/20 focus:bg-gray-900/30 border-gray-700/30 text-white'
-                                                            : 'bg-gray-100/50 focus:bg-white/70 border-gray-200/50 text-gray-900'} border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none `}
+                                                            : 'bg-gray-100/50 focus:bg-white/70 border-gray-200/50 text-gray-900'} border focus:border-gray-500/30 focus:ring-2 focus:ring-gray-500/20 outline-none `}
                                                     placeholder="0.00"
                                                 />
                                                 <div className="absolute right-0 inset-y-0 flex items-center gap-1 pr-3">
@@ -1126,7 +1126,7 @@ const ExchangePage = () => {
                                                         }
                                                     }}
                                                     onChange={handleAmountChange}
-                                                    className={`w-full h-14 pl-12 pt-5 pr-24 rounded-2xl text-base font-medium transition-all duration-200  ${isDarkMode  ? 'bg-gray-900/20 focus:bg-gray-900/30 border-gray-700/30 text-white' : 'bg-gray-100/50 focus:bg-white/70 border-gray-200/50 text-gray-900'}  border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none`}
+                                                    className={`w-full h-14 pl-12 pt-5 pr-24 rounded-2xl text-base font-medium transition-all duration-200  ${isDarkMode  ? 'bg-gray-900/20 focus:bg-gray-900/30 border-gray-700/30 text-white' : 'bg-gray-100/50 focus:bg-white/70 border-gray-200/50 text-gray-900'}  border focus:border-gray-500/30 focus:ring-2 focus:ring-gray-500/20 outline-none`}
                                                     placeholder="0.00"
                                                 />
                                                 <div className="absolute right-0 inset-y-0 flex items-center gap-1 pr-3">
@@ -1187,10 +1187,11 @@ const ExchangePage = () => {
                                                 <input
                                                     type="text"
                                                     value={total}
+                                                    placeholder="0.00"
                                                     className={`w-full h-14 pl-12 pt-5 pr-16 rounded-2xl text-base font-medium transition-all duration-200
                                                                 ${isDarkMode
                                                             ? 'bg-gray-900/20 border-gray-700/30 text-white'
-                                                            : 'bg-gray-100/50 border-gray-200/50 text-gray-900'} border focus:border-blue-500/30 focus:ring-2 focus:ring-blue-500/20 outline-none`}
+                                                            : 'bg-gray-100/50 border-gray-200/50 text-gray-900'} border focus:border-gray-500/30 focus:ring-2 focus:ring-gray-500/20 outline-none`}
                                                     readOnly
                                                 />
                                                 <div className="absolute right-0 inset-y-0 flex items-center pr-4">
