@@ -190,7 +190,7 @@ const ExchangePage = () => {
     }
 
 
-    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [selectedCategory, setSelectedCategory] = useState('CHZ');
     const [sortBy, setSortBy] = useState<'pair' | 'price' | 'change' | 'volume'>('change');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
     const [pairSearch, setPairSearch] = useState('');
@@ -463,7 +463,7 @@ const ExchangePage = () => {
         const _tradingPairs = generateQuotePairs(tokens, commonBases);
         console.log("_tradingPairs",_tradingPairs)
         setTradingPairs(_tradingPairs)
-    }, [limitOrderPairs.pairs.length,nativeToken])
+    }, [tokens.length, limitOrderPairs.pairs.length,nativeToken])
 
     const loadData = async () => {
 
@@ -868,9 +868,9 @@ const ExchangePage = () => {
                                                                     }}>
 
                                                                 </div>
-                                                                <span className="group-hover:text-pink-400 relative">{parseFloat(ethers.formatUnits(order.price, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
-                                                                <span className="text-right relative">{parseFloat(ethers.formatUnits(order.totalAmount, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
-                                                                <span className="text-right text-gray-500 relative">{parseFloat(ethers.formatUnits(order.totalPrice, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+                                                                <span className="group-hover:text-pink-400 relative">{parseFloat(ethers.formatUnits(order.price, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(8)}</span>
+                                                                <span className="text-right relative">{parseFloat(ethers.formatUnits(order.totalAmount, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(4)}</span>
+                                                                <span className="text-right text-gray-500 relative">{parseFloat(ethers.formatUnits(order.totalPrice, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(4)}</span>
                                                             </div>
                                                         ))
                                                     )}
@@ -940,8 +940,8 @@ const ExchangePage = () => {
                                                             }}
                                                         ></div>
                                                         <span className="group-hover:text-green-500 relative">{parseFloat(ethers.formatUnits(order.price, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(8)}</span>
-                                                        <span className="text-right relative">{parseFloat(ethers.formatUnits(order.totalAmount, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(8)}</span>
-                                                        <span className="text-right text-gray-500 relative">{parseFloat(ethers.formatUnits(order.totalPrice, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(8)}</span>
+                                                        <span className="text-right relative">{parseFloat(ethers.formatUnits(order.totalAmount, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(4)}</span>
+                                                        <span className="text-right text-gray-500 relative">{parseFloat(ethers.formatUnits(order.totalPrice, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(4)}</span>
                                                     </div>
                                                 ))
                                             )}

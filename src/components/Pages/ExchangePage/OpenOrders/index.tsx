@@ -184,12 +184,12 @@ const OpenOrders = () => {
                                                                 </div>
                                                                 <div className="flex flex-col">
                                                                     <span className="text-[10px] text-gray-500">Amount</span>
-                                                                    <span>{parseFloat(ethers.formatUnits(order.amount,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+                                                                    <span>{parseFloat(ethers.formatUnits(order.amount,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(4)}</span>
             
                                                                 </div>
                                                                 <div className="flex flex-col">
                                                                     <span className="text-[10px] text-gray-500">Remaining</span>
-                                                                    <span>{parseFloat(ethers.formatUnits(order.remaining,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+                                                                    <span>{parseFloat(ethers.formatUnits(order.remaining,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(4)}</span>
             
                                                                 </div>
                                                             </div>
@@ -200,7 +200,7 @@ const OpenOrders = () => {
                                                                 </div>
                                                                 <div className="w-full flex flex-col">
                                                                     <span className="text-[10px] text-gray-500">Total</span>
-                                                                    <span>{parseFloat(ethers.formatUnits(order.priceTotal,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+                                                                    <span>{parseFloat(ethers.formatUnits(order.priceTotal,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(4)}</span>
                                                                 </div>
                                                                 <div className='flex flex flex-row gap-2'>
             

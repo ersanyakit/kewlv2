@@ -201,7 +201,6 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
   
 
-      setTokens(_tokens);
       await fetchBalances(chainId,address,walletProvider, _tokens,setTokens)
       
  
