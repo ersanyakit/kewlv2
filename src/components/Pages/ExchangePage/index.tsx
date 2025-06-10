@@ -443,7 +443,7 @@ const ExchangePage = () => {
         const baseAddress = pair.base.address == ethers.ZeroAddress ? WETH9[Number(chainId)].address :  pair.base.address;
         const quoteAddress = pair.quote.address == ethers.ZeroAddress ? WETH9[Number(chainId)].address :  pair.quote.address;
 
-        await createPaidPair(walletProvider,baseAddress,quoteAddress,parseEther("5000"));
+        await createPaidPair(walletProvider,baseAddress,quoteAddress,parseEther("50000"));
         setToggleApplyForListingModal(!toggleApplyForListingModal)
 
     }
