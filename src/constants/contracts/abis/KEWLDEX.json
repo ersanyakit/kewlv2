@@ -1770,6 +1770,21 @@
       "type": "error"
     },
     {
+      "inputs": [],
+      "name": "AlreadyClaimed",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AlreadyExpired",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "AmountPriceOverflow",
+      "type": "error"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -1813,6 +1828,11 @@
     {
       "inputs": [],
       "name": "NotOrderOwner",
+      "type": "error"
+    },
+    {
+      "inputs": [],
+      "name": "OrderIsNotFilled",
       "type": "error"
     },
     {
@@ -2256,6 +2276,11 @@
               "internalType": "uint256",
               "name": "filledAt",
               "type": "uint256"
+            },
+            {
+              "internalType": "uint256",
+              "name": "claimedAt",
+              "type": "uint256"
             }
           ],
           "internalType": "struct LibLimitOrders.Order[]",
@@ -2624,6 +2649,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "getListingFee",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "address",
@@ -2717,6 +2755,19 @@
         }
       ],
       "name": "setBaseToken",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "uint256",
+          "name": "_fee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setListingFee",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"
@@ -4485,6 +4536,35 @@
       "type": "function"
     },
     {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "token",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "receiver",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "amount",
+          "type": "uint256"
+        }
+      ],
+      "name": "claim",
+      "outputs": [
+        {
+          "internalType": "bool",
+          "name": "",
+          "type": "bool"
+        }
+      ],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
       "inputs": [],
       "name": "ReentrancyGuard__ReentrantCall",
       "type": "error"
@@ -4517,7 +4597,7 @@
         },
         {
           "internalType": "bool",
-          "name": "_status",
+          "name": "banned_",
           "type": "bool"
         }
       ],
@@ -4624,7 +4704,7 @@
       "inputs": [
         {
           "internalType": "bool",
-          "name": "_status",
+          "name": "enabled_",
           "type": "bool"
         }
       ],
@@ -4642,6 +4722,19 @@
         }
       ],
       "name": "setName",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "router_",
+          "type": "address"
+        }
+      ],
+      "name": "setRouter",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

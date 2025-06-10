@@ -22,6 +22,9 @@ export const WETH9: { [chainId: number]: Token } = {
   [43114]: new Token(43114,"0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7",18,"WAVAX","Wrapped AVAX"),
   [146]: new Token(146,"0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38",18,"WS","Wrapped SONIC"),
   [31337]: new Token(31337,"0x5FbDB2315678afecb367f032d93F642f64180aa3",18,"WS","Wrapped Hardhat"),
+
+  [8453]: new Token(8453, '0x4200000000000000000000000000000000000006', 18, 'WETH', 'Wrapped Ether'),//base
+
 }
 
 export const CHILIZWRAPPER: { [chainId: number]: Token } = {
@@ -30,4 +33,6 @@ export const CHILIZWRAPPER: { [chainId: number]: Token } = {
   [43114]: new Token(43114,"0x81e28dCAAC553Fce9225c266731FC450E0954e47",18,"WCHZ","AVAX Wrapper"),
   [146]: new Token(146,"0x81e28dCAAC553Fce9225c266731FC450E0954e47",18,"WCHZ","SONIC Wrapper"),
   [31337]: new Token(31337,"0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",18,"WRAPPER","Hardhat Wrapper"),
+  [8453]: new Token(43114,"0x81e28dCAAC553Fce9225c266731FC450E0954e47",18,"WBASE","BASE Wrapper"),
+
 }

@@ -42,9 +42,9 @@ import {
     BookOpen
 } from 'lucide-react';
 import ChartView from './ChartView';
-import { LimitOrderParam, OrderKind, PriceLevelOrderBook, TokenPair, useSwapContext } from '../../../context/SwapContext';
+import { LimitOrderPairInfo, LimitOrderParam, OrderKind, PriceLevelOrderBook, TokenPair, useSwapContext } from '../../../context/SwapContext';
 import { ethers } from 'ethers';
-import { encodePacked, keccak256, parseEther, parseUnits } from 'viem';
+import { encodePacked, formatUnits, keccak256, parseEther, parseUnits } from 'viem';
 import { WETH9 } from '../../../constants/entities';
 import SwapTabs from '../../Swap/SwapTabs';
 import { LIMIT_ORDER_BOOK_DECIMALS, PRICE_DECIMAL_FACTOR } from '../../../constants/contracts/exchanges';
@@ -77,7 +77,7 @@ const ExchangePage = () => {
         activeView
     } = useTokenContext();
 
-    const { fetchOrderBook, orderBook, placeLimitOrder, selectedPair, setSelectedPair, fetchLimitOrderPairInfo, limitOrderPairs, setLimitOrderPairs, fetchLimitOrderHistory, fetchUserOrders, limitOrderModal, setLimitOrderModal } = useSwapContext();
+    const { fetchOrderBook, orderBook, placeLimitOrder, selectedPair, setSelectedPair, fetchLimitOrderPairInfo, limitOrderPairs, setLimitOrderPairs, fetchLimitOrderHistory, fetchUserOrders, limitOrderModal, setLimitOrderModal,createPaidPair } = useSwapContext();
     const { walletProvider } = useAppKitProvider('eip155');
     const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
     const { address, isConnected } = useAppKitAccount();
@@ -96,12 +96,13 @@ const ExchangePage = () => {
     const [hoveredBuyOrder, setHoveredBuyOrder] = useState<number | null>(null);
     const [selectedSellRange, setSelectedSellRange] = useState<number | null>(null);
     const [selectedBuyRange, setSelectedBuyRange] = useState<number | null>(null);
+    const [tradingPairs, setTradingPairs] = useState<TokenPair[]>([]);
+    const [commonBases, setCommonBases] = useState<string[]>([]);
+    const [toggleApplyForListingModal,setToggleApplyForListingModal] = useState(false)
+    const [applyForListingPair,setApplyForListingPair] = useState<TokenPair|null>(null)
 
 
-    const commonBases = ['Favorites', nativeToken?.symbol.toUpperCase(), 'USDC', 'USDT'] as string[];
-
-
-    const tradingPairs = generateQuotePairs(tokens, commonBases)
+  
 
 
 
@@ -135,18 +136,22 @@ const ExchangePage = () => {
             const id = getPairId(_baseAddress, _quoteAddress);
             if (seenPairs.has(id)) return;
 
+            const foundPair = limitOrderPairs.pairs.find(pair => pair.pairId === id) as LimitOrderPairInfo|| null;
+
 
 
             seenPairs.add(id);
 
             pairs.push({
+                created:foundPair ? true : false,
+                pairInfo:foundPair,
                 base: { ...base, logoURI: base.logoURI ?? base.icon },
                 quote: { ...quote, logoURI: quote.logoURI ?? quote.icon },
                 symbol: `${base.symbol}/${quote.symbol}`,
                 pair: id,
                 isFavorite: parseFloat(base.balance) > 0 && parseFloat(quote.balance) > 0,
-                price: '-',
-                change: '-',
+                price: foundPair ? parseFloat(formatUnits(foundPair.lastPrice,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)  : "-",
+                change: foundPair ? parseFloat(formatUnits(foundPair.change,LIMIT_ORDER_BOOK_DECIMALS)).toFixed(4)  : "-",
                 volume: '-',
                 logo: base.icon
             });
@@ -185,18 +190,21 @@ const ExchangePage = () => {
     }
 
 
-    const [selectedCategory, setSelectedCategory] = useState('USDC');
-    const [sortBy, setSortBy] = useState<'pair' | 'price' | 'change' | 'volume'>('volume');
+    const [selectedCategory, setSelectedCategory] = useState('All');
+    const [sortBy, setSortBy] = useState<'pair' | 'price' | 'change' | 'volume'>('change');
     const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
     const [pairSearch, setPairSearch] = useState('');
 
     const sortedPairs = React.useMemo(() => {
         return [...tradingPairs]
             .filter(pair => {
+                if (selectedCategory === 'All') {
+                    return true;
+                }
                 if (selectedCategory === 'Favorites') {
                     return pair.isFavorite;
                 }
-                return pair.quote.symbol.endsWith(selectedCategory);
+                return pair.quote.symbol.endsWith(selectedCategory) && pair.created;
             })
             .filter(pair =>
                 pair.symbol.toLowerCase().includes(pairSearch.toLowerCase()) ||
@@ -424,6 +432,22 @@ const ExchangePage = () => {
         setSelectedBuyRange(prev => (prev === index ? null : index));
     };
 
+    const handleApplyForListing= async(pair:TokenPair | null) =>{
+        if(!pair){
+            return
+        }
+        if(!chainId){
+            return
+        }
+
+        const baseAddress = pair.base.address == ethers.ZeroAddress ? WETH9[Number(chainId)].address :  pair.base.address;
+        const quoteAddress = pair.quote.address == ethers.ZeroAddress ? WETH9[Number(chainId)].address :  pair.quote.address;
+
+        await createPaidPair(walletProvider,baseAddress,quoteAddress,parseEther("5000"));
+        setToggleApplyForListingModal(!toggleApplyForListingModal)
+
+    }
+
     useEffect(() => {
         setHoveredSellOrder(null);
         setHoveredBuyOrder(null);
@@ -432,10 +456,21 @@ const ExchangePage = () => {
     }, [tradeType]);
 
 
+    useEffect(() => {
+        console.log("limitOrderPairs", limitOrderPairs,tokens)
+        const _commonBases = ['All','Favorites', nativeToken?.symbol.toUpperCase(), 'USDC', 'USDT'] as string[];
+        setCommonBases(_commonBases)
+        const _tradingPairs = generateQuotePairs(tokens, commonBases);
+        console.log("_tradingPairs",_tradingPairs)
+        setTradingPairs(_tradingPairs)
+    }, [limitOrderPairs.pairs.length,nativeToken])
+
     const loadData = async () => {
 
         setSwapMode(SWAP_MODE.LIMIT_ORDERS);
+        await reloadTokens();
         await fetchLimitOrderPairInfo(walletProvider);
+        /*
         if (selectedPair) {
             await fetchOrderBook(walletProvider);
         }
@@ -443,7 +478,7 @@ const ExchangePage = () => {
         if (address) {
             await fetchUserOrders(walletProvider, selectedPair?.pair as string, address)
         }
-
+        */
     }
 
     useEffect(() => {
@@ -451,19 +486,143 @@ const ExchangePage = () => {
     }, [selectedPair, address, isConnected])
     useEffect(() => {
         console.log("LIMIT PROTOCOL", chainId)
+        setSelectedPair(null)
         loadData();
     }, [chainId, address, isConnected]);
 
     return (<>
 
+{
+ toggleApplyForListingModal == true && <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+                onClick={()=>{
+                    setToggleApplyForListingModal(!toggleApplyForListingModal)
+                }}
+            >
+                <motion.div
+                    initial={{ scale: 0.8, opacity: 0 }}
+                    animate={{ scale: 1, opacity: 1 }}
+                    exit={{ scale: 0.8, opacity: 0 }}
+                    transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                    className={`relative rounded-2xl p-1 max-w-md w-full shadow-2xl ${isDarkMode
+                        ? 'bg-gradient-to-br from-gray-800 to-gray-900'
+                        : 'bg-gradient-to-br from-white to-gray-50'
+                        }`}
+                    onClick={(e) => e.stopPropagation()}
+                >
+                    <div className={`rounded-2xl p-6 ${isDarkMode
+                        ? 'bg-gradient-to-br from-gray-800 to-gray-900'
+                        : 'bg-gradient-to-br from-white to-gray-50'
+                        }`}>
+                        <div className="flex justify-end">
+                            <button
+                                onClick={()=>{
+                                    setToggleApplyForListingModal(!toggleApplyForListingModal)
+                                }}
+                                className={`${isDarkMode
+                                    ? 'text-gray-400 hover:text-white'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                    } transition-colors`}
+                            >
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                                </svg>
+                            </button>
+                        </div>
 
+                        <div className="text-center py-4">
+                            <motion.div
+                                initial={{ scale: 0 }}
+                                animate={{ scale: 1 }}
+                                transition={{ delay: 0.2, type: "spring", damping: 10, stiffness: 200 }}
+                                className="mx-auto w-20 h-20 rounded-full bg-gradient-to-r from-[#ff1356] to-[#ff4080] flex items-center justify-center mb-6"
+                            >
+                           
+                                    <svg className="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                    </svg>
+                               
+                            </motion.div>
+
+                            <motion.h3
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.3 }}
+                                className={`text-2xl font-bold mb-2 ${isDarkMode ? 'text-white' : 'text-gray-800'
+                                    }`}
+                            >
+                                Apply for Listing [{applyForListingPair?.symbol}]
+                            </motion.h3>
+
+
+                            <motion.div
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.5 }}
+                                className={`rounded-xl p-4 mb-6 ${isDarkMode
+                                    ? 'bg-gradient-to-r from-[#ff1356]/20 to-[#ff4080]/20'
+                                    : 'bg-gradient-to-r from-[#ff1356]/10 to-[#ff4080]/10'
+                                    }`}
+                            >
+
+<div className="max-w-xl mx-auto  text-base leading-relaxed font-sans text-sm max-h-[20dvh] overflow-y-scroll">
+  <p className="mb-4">
+    To list a token on the <strong className="font-semibold">KEWL Limit Order Protocol</strong>, a one-time listing fee of 
+    <strong className="font-semibold"> 50,000 CHZ</strong> is required.
+  </p>
+  <p className="mb-4">
+    This fee is not only a filter to maintain quality and prevent spam listings,
+    but more importantly, 
+    <strong className="font-semibold">it will be used directly in the development and long-term sustainability of the KEWL protocol</strong>.
+  </p>
+  <p className="mb-4">
+    <strong className="font-semibold">Token listing is processed automatically the moment the payment is confirmed on-chain.</strong>
+    There is no need for manual review or waiting periods.
+  </p>
+  <p className="mb-2">
+    Once paid, your token will be:
+  </p>
+  <ul className="list-disc list-inside pl-4 mb-4 space-y-1">
+    <li>Added to the KEWL orderbook system</li>
+    <li>Eligible for off-chain signed limit orders</li>
+    <li>Visible on KEWL-compatible frontends</li>
+    <li>Included in future incentive systems and advanced trading tools</li>
+  </ul>
+  <p>
+    Please ensure your token follows standard ERC-20 behavior for smooth integration.
+  </p>
+</div>
+
+                            
+                                
+                            </motion.div>
+
+                            <motion.button
+                                initial={{ y: 20, opacity: 0 }}
+                                animate={{ y: 0, opacity: 1 }}
+                                transition={{ delay: 0.6 }}
+                                onClick={()=>{
+                                    handleApplyForListing(applyForListingPair)
+                                }}
+                                className="w-full py-3 rounded-xl font-medium text-white bg-gradient-to-r from-[#ff1356] to-[#ff4080] hover:opacity-90 transition-opacity"
+                            >
+                                    Make Payment (50,000 CHZ)
+                            </motion.button>
+                        </div>
+                    </div>
+                </motion.div>
+            </motion.div>
+        }
         {limitOrderModal.visible && (
             <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
                 className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
-                onClick={closeSuccessModal}
+                onClick={(closeSuccessModal)}
             >
                 <motion.div
                     initial={{ scale: 0.8, opacity: 0 }}
@@ -709,9 +868,9 @@ const ExchangePage = () => {
                                                                     }}>
 
                                                                 </div>
-                                                                <span className="group-hover:text-pink-400 relative">{parseFloat(ethers.formatUnits(order.price, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(8)}</span>
-                                                                <span className="text-right relative">{parseFloat(ethers.formatUnits(order.totalAmount, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(8)}</span>
-                                                                <span className="text-right text-gray-500 relative">{parseFloat(ethers.formatUnits(order.totalPrice, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(8)}</span>
+                                                                <span className="group-hover:text-pink-400 relative">{parseFloat(ethers.formatUnits(order.price, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+                                                                <span className="text-right relative">{parseFloat(ethers.formatUnits(order.totalAmount, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
+                                                                <span className="text-right text-gray-500 relative">{parseFloat(ethers.formatUnits(order.totalPrice, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS)}</span>
                                                             </div>
                                                         ))
                                                     )}
@@ -719,7 +878,7 @@ const ExchangePage = () => {
                                     </div>
 
                                     <div className="text-center py-2 text-xs font-medium bg-gray-200/20 rounded-lg my-2">
-                                        <div className="text-sm font-bold">5.00</div>
+                                        <div className="text-sm font-bold">{selectedPair && selectedPair.pairInfo &&  selectedPair.created ? parseFloat(formatUnits(selectedPair.pairInfo.lastPrice, LIMIT_ORDER_BOOK_DECIMALS)).toFixed(LIMIT_ORDER_BOOK_DECIMALS) :"0.00000000"}</div>
                                         <div className="text-[10px] text-gray-500">Last Price</div>
                                     </div>
 
@@ -810,7 +969,7 @@ const ExchangePage = () => {
                         transition={{ delay: 0.3 }}>
 
                         <div className="w-full">
-                            {showPairSelector ? (
+                            {showPairSelector || !selectedPair ? (
                                 <div className={`p-4 rounded-3xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} min-h-[600px]   }`}>
                                     <div className="flex items-center justify-between mb-4">
                                         <h3 className="text-lg font-semibold">Select Market</h3>
@@ -846,7 +1005,7 @@ const ExchangePage = () => {
                                         </div>
                                     </div>
 
-                                    <div className="flex items-center gap-2 overflow-x-auto mb-4 pb-2 border-b border-gray-200/10">
+                                    <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-gray-200/10">
                                         {commonBases.map((category) => (
                                             <button
                                                 key={category}
@@ -867,7 +1026,7 @@ const ExchangePage = () => {
                                         ))}
                                     </div>
 
-                                    <div className="grid grid-cols-4 px-4 py-2 border-b border-gray-200/10 text-xs font-medium text-gray-500">
+                                    <div className="grid grid-cols-3 px-4 py-2 border-b border-gray-200/10 text-xs font-medium text-gray-500">
                                         <div className="flex items-center gap-2 cursor-pointer" onClick={() => handleSort('pair')}>
                                             <span>Pair</span>
                                             {sortBy === 'pair' && (
@@ -881,17 +1040,12 @@ const ExchangePage = () => {
                                             )}
                                         </div>
                                         <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('change')}>
-                                            <span>24h Change</span>
+                                            <span>Change</span>
                                             {sortBy === 'change' && (
                                                 <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
                                             )}
                                         </div>
-                                        <div className="flex items-center justify-end gap-2 cursor-pointer" onClick={() => handleSort('volume')}>
-                                            <span>Volume</span>
-                                            {sortBy === 'volume' && (
-                                                <ChevronDown className={`w-3.5 h-3.5 transition-transform ${sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                            )}
-                                        </div>
+    
                                     </div>
 
                                     <div className="overflow-y-auto max-h-[69dvh] scrollbar-hide custom-scrollbar">
@@ -900,28 +1054,48 @@ const ExchangePage = () => {
                                                 <div
                                                     key={pair.pair}
                                                     onClick={() => {
-                                                        setSelectedPair(pair);
-                                                        setShowPairSelector(false);
+                                                        if(pair.created){
+                                                            setSelectedPair(pair);
+                                                            setShowPairSelector(false);
+                                                        }
                                                     }}
-                                                    className={`grid grid-cols-4 px-4 py-3 cursor-pointer transition-colors
+                                                    className={`grid grid-cols-3 px-4 py-3 cursor-pointer transition-colors
                                                     ${index % 2 === 0 ? (isDarkMode ? 'bg-gray-800/10' : 'bg-gray-50/50') : ''}
-                                                    ${isDarkMode ? 'hover:bg-blue-900/10' : 'hover:bg-blue-50/70'}`}
-                                                >
+                                                    ${isDarkMode ? 'hover:bg-blue-900/10' : 'hover:bg-blue-50/70'}`}>
                                                     <div className="flex items-center gap-2">
                                                         <div className="flex -space-x-1">
                                                             <img src={pair.base.logoURI} alt={pair.base.symbol} className="w-5 h-5 min-w-5 min-h-5 rounded-full border" />
                                                             <img src={pair.quote.logoURI} alt={pair.quote.symbol} className="w-5 h-5 min-w-5 min-h-5 rounded-full border" />
                                                         </div>
-                                                        <span className="font-medium text-sm">{pair.symbol}</span>
+                                                        <span className={`font-medium text-sm ${pair.created ? "" : "text-gray-500"}`}>{pair.symbol}</span>
                                                         {pair.isFavorite && (
                                                             <Star className="w-3.5 h-3.5 text-yellow-400 fill-current" />
                                                         )}
                                                     </div>
                                                     <div className="text-right font-medium text-sm">{pair.price}</div>
-                                                    <div className={`text-right font-medium text-sm ${pair.change.startsWith('+') ? 'text-green-500' : 'text-pink-500'}`}>
-                                                        {pair.change}
+                                                    <div className={`text-right flex items-center justify-end font-medium text-sm ${pair.change.startsWith('-') ? 'text-pink-500' : 'text-green-500'}`}>
+                                                       {
+                                                        pair.created ?  pair.change :   <motion.button
+                                                        onClick={()=>{
+                                                            setApplyForListingPair(pair)
+                                                            setToggleApplyForListingModal(!toggleApplyForListingModal)
+                                                        }}
+                                                        className={`p-1 px-2 rounded-xl font-small flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden`}
+                                                        whileHover={  { scale: 1.02 }}
+                                                        whileTap={ { scale: 0.98 }}
+                                                        style={{
+                                                          background: `linear-gradient(135deg, #ff1356, #ff4080)`
+                                                        }}
+                                                      >
+                                                        
+                                            
+                                                        <span>Create Pair</span>
+                                                        <Zap className="w-4 h-4" />
+                                                      </motion.button>
+                                                       }
+                                                       
                                                     </div>
-                                                    <div className="text-right font-medium text-sm text-gray-500">{pair.volume}</div>
+                                                
                                                 </div>
                                             ))
                                         ) : (
@@ -930,7 +1104,7 @@ const ExchangePage = () => {
                                                 <span className="text-lg font-medium mb-1">No trading pairs found</span>
                                                 <span className="text-sm text-gray-400">Try adjusting your search</span>
                                                 <button
-                                                    onClick={() => { setPairSearch(''); setSelectedCategory(commonBases[1]) }}
+                                                    onClick={() => { setPairSearch(''); setSelectedCategory(commonBases[0]) }}
                                                     className="mt-4 px-4 py-2 rounded-lg text-sm font-medium bg-blue-500/20 text-blue-400"
                                                 >
                                                     Clear Filters
@@ -953,7 +1127,7 @@ const ExchangePage = () => {
                         </div>
                     </motion.div>
                     {
-                        !showPairSelector && <motion.div
+                        (!showPairSelector && selectedPair) && <motion.div
                             className={`relative ${isDarkMode
                                 ? 'bg-gray-800/30 border-gray-700/30'
                                 : 'bg-white/40 border-white/20'

@@ -178,8 +178,18 @@ export const DECENTRALIZED_EXCHANGES = [
         weth:"0x039e2fB66102314Ce7b64Ce5Ce3E5183bc94aD38",
         flag:false
     },
+
+
     
-    
+    /*base*/
+    {
+        logo:"/assets/dex/uniswap.svg",
+        chainId:8453,
+        dex:"UNISWAP",
+        router:"0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6",
+        weth:"0x4200000000000000000000000000000000000006",
+        flag:false
+    }
    
 ]
 

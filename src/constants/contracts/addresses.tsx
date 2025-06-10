@@ -60,6 +60,8 @@ export const ContractList: MultiContractConfig = {
             31337: {
                 address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
             },
+            
+
         },
     },
     [TContractType.ERC20]: {
@@ -110,6 +112,9 @@ export const ContractList: MultiContractConfig = {
                 146: {
                     address: "0xcA11bde05977b3631167028862bE2a173976CA11",
                 },
+                8453:{
+                    address: "0xcA11bde05977b3631167028862bE2a173976CA11", 
+                }
         },
     },
 }

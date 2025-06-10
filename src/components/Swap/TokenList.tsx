@@ -123,7 +123,7 @@ const TokenList: React.FC = () => {
           {filteredTokens.map(token => (
             <motion.div
               key={token.symbol}
-              className={`flex items-center justify-between p-2 rounded-xl transition-all duration-300 mb-2 cursor-pointer ${baseToken && token.symbol === baseToken.symbol
+              className={`flex select-none items-center justify-between p-2 rounded-xl transition-all duration-300 mb-2 cursor-pointer ${baseToken && token.symbol === baseToken.symbol
                 ? isDarkMode
                   ? 'bg-pink-900/30 border border-pink-800/50'
                   : 'bg-pink-50 border border-pink-200'
