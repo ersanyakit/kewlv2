@@ -264,9 +264,19 @@ const ExchangePage = () => {
 
 
     const handlePercentageClick = (percentage: number) => {
-        const maxAmount = 10; // Dummy max amount
-        const newAmount = (maxAmount * percentage / 100).toFixed(2);
-        handleAmountChange({ target: { value: newAmount } } as React.ChangeEvent<HTMLInputElement>);
+        const userBalance = selectedPair && tradeType == "buy" ? selectedPair?.quote.balance : selectedPair?.base.balance
+        const maxAmount = parseFloat(userBalance ? userBalance : "0");
+        const newAmount = (maxAmount * percentage / 100)
+
+        if(tradeType == "buy"){
+            
+            const priceVal = parseFloat(price ? price : "0")
+            const total = (newAmount / priceVal)
+            handleAmountChange({ target: { value: total.toFixed(8)} } as React.ChangeEvent<HTMLInputElement>);
+        }else{
+            handleAmountChange({ target: { value: newAmount.toFixed(8) } } as React.ChangeEvent<HTMLInputElement>);
+        }
+        
     };
 
     const toggleSection = (section: 'buyOrders' | 'sellOrders') => {
@@ -382,8 +392,9 @@ const ExchangePage = () => {
 
 
     useEffect(() => {
+        console.log("Native Token",nativeToken)
         setActiveView('limit')
-    }, [])
+    }, [nativeToken])
     const totalOrderBookHeight = 53.2; // Total height for both sections combined
 
     const orderBookVariants = {
