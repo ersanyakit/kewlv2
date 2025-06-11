@@ -1149,7 +1149,7 @@ const ExchangePage = () => {
                             <div className="w-full">
 
 
-                                <div className={`p-5 rounded-3xl backdrop-blur-sm shadow-sm `}>
+                                <div translate='no' className={`p-5 rounded-3xl backdrop-blur-sm shadow-sm `}>
                                     {/* Buy/Sell Tab */}
                                     <div className="mb-2">
                                         <div className={`flex p-0.5 rounded-xl backdrop-blur-sm transition-all duration-300 ${isDarkMode
