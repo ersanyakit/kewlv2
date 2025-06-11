@@ -23,7 +23,7 @@ const Rewards = () => {
     const { address, isConnected } = useAppKitAccount();
     const { bountiesInfo, setBountiesInfo, fetchBountiesInfo, handleClaimedRewards, isClaimLoading, setIsClaimLoading, claimModal, setClaimModal, fetchJackPotInfo, jackpotInfo } = useSwapContext();
     const navigate = useNavigate();
-    const [getTweet, setTweet] = useState<string>(getRandomTweet());
+    const [getTweet, setTweet] = useState<string>("");
     const [tweetButtonWaiting, setTweetButtonWaiting] = useState<boolean>(false);
     const [tweetWaitTime, setTweetWaitTime] = useState<number>(10);
     const [canClaimTweet, setCanClaimTweet] = useState<boolean>(false);
@@ -317,6 +317,17 @@ const Rewards = () => {
         }, 1000);
     };
 
+
+    const loadTweets = async () => {
+        let tweet = await getRandomTweet();
+         setTweet(tweet)
+    }
+    useEffect(()=>{
+        if(!getTweet){
+            loadTweets();
+        }
+
+    },[])
 
     const handleClaimTwitter = async () => {
 
@@ -769,7 +780,11 @@ const Rewards = () => {
                                         <div className="flex justify-between items-center mb-2">
                                             <p className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>Suggested Tweet:</p>
                                             <motion.button
-                                                onClick={() => setTweet(getRandomTweet())}
+                                                onClick={async () => {
+                                                    const tweet = await getRandomTweet();
+                                                    //console.log(tweet)
+                                                    setTweet(tweet);
+                                                  }}
                                                 className={`px-2 py-1 text-xs rounded-md flex items-center gap-1 ${isDarkMode ? 'bg-gray-700/60 hover:bg-gray-700 text-gray-300' : 'bg-white/70 hover:bg-white text-gray-700'} border ${isDarkMode ? 'border-gray-600' : 'border-gray-200'}`}
                                                 whileHover={{ scale: 1.03 }}
                                                 whileTap={{ scale: 0.97 }}

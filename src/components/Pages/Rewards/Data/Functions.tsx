@@ -6,14 +6,23 @@ export const getRandomUsers = (users: string[], count: number): string[] => {
     return selectedUsers.map(user => `@${user}`); // Add "@" to the beginning of each username
 };
 
-export const randomUser = (count: number): string => {
-    return [
-        ...getRandomUsers(TWITTER_USERS, count),
+
+export const randomUser = (count: number): Promise<string> => {
+  return TWITTER_USERS()
+    .then(twitterUsers => {
+      const selected = getRandomUsers(twitterUsers, count);
+      return [
+        ...selected,
         "@alex_dreyfus",
         "@kewlswap",
         "@chiliz"
-    ].join(' ');
-}
+      ].join(' ');
+    })
+    .catch(error => {
+      console.error("Error generating random users:", error);
+      return "@alex_dreyfus @kewlswap @chiliz";
+    });
+};
 
 const tweets = [
     "Just got 1000 $1K tokens. Feels like I hit a mini jackpot! 💰🎉 I’m on cloud nine! 😎",
@@ -212,10 +221,11 @@ export const airdropHashtags: string[] = [
     return shuffled.slice(0, limit).join(' ');
   };
 
-export const getRandomTweet = () => {
-    return `${tweets[Math.floor(Math.random() * tweets.length)]}\n\n${randomUser(3)}\n\n ${getRandomAirdropHashtag(3)} #1K$\n\nhttps://kewl.exchange `;
-};
 
+  export const getRandomTweet = async (): Promise<string> => {
+    const users = await randomUser(3);
+    return `${tweets[Math.floor(Math.random() * tweets.length)]}\n\n${users}\n\n${getRandomAirdropHashtag(3)} #1K$\n\nhttps://kewl.exchange`;
+  };
 export const generateTweetIntentURL = (tweetText: string): string => {
    
     const encodedTweetText = encodeURIComponent(tweetText);
