@@ -90,6 +90,9 @@ export const ContractList: MultiContractConfig = {
             146: {
                 address: "0x570e91fe0D25D46C5e0C83aF6bc95afB0072C321",
             },
+            1907: {
+                address: "0x570e91fe0D25D46C5e0C83aF6bc95afB0072C321",
+            },
         }
     },
     [TContractType.MULTICALL]: {
