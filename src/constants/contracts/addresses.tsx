@@ -57,6 +57,9 @@ export const ContractList: MultiContractConfig = {
             146: {
                 address: "0xA0BB8f9865f732C277d0C162249A4F6c157ae9D0",
             },
+            1907: {
+                address: "0x1793515D0E1132C5eF1F32881c6313Fb692D5b12",
+            },
             31337: {
                 address: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0",
             },
@@ -114,7 +117,10 @@ export const ContractList: MultiContractConfig = {
                 },
                 8453:{
                     address: "0xcA11bde05977b3631167028862bE2a173976CA11", 
-                }
+                },
+                1907: {
+                    address: "0xEd5740209FcF6974d6f3a5F11e295b5E468aC27c",
+                },
         },
     },
 }

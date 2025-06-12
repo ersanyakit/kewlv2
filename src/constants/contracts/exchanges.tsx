@@ -189,7 +189,20 @@ export const DECENTRALIZED_EXCHANGES = [
         router:"0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6",
         weth:"0x4200000000000000000000000000000000000006",
         flag:false
-    }
+    },
+
+
+    {
+        logo:"/assets/dex/kewl.svg",
+        chainId:1907,
+        dex:"KEWL",
+        router:"0x1793515D0E1132C5eF1F32881c6313Fb692D5b12",
+        weth:"0xe0D0f25b5FCFa4d3EDD9C2186451d9E04C4B9f11",
+        flag:false
+    },
+     
+
+
    
 ]
 

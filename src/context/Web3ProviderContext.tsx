@@ -29,6 +29,29 @@ export const chiliz : any = {
   },
 }
 
+export const bitci : any = {
+  id: 1907,
+  name: 'Bitci Chain',
+  network: 'bitci-chain',
+  nativeCurrency: {
+    decimals: 18,
+    name: 'BITCI',
+    symbol: 'BITCI',
+  },
+  rpcUrls: {
+    default: {
+      http: ['https://rpc.bitci.com'],
+    },
+  },
+  blockExplorers: {
+    default: {
+      name: 'Chiliz Explorer',
+      url: 'https://v3.bitciexplorer.com',
+      apiUrl: 'https://v3.bitciexplorer.com/api/v2',
+    },
+  },
+}
+
 export function getChainById(chainId: number): AppKitNetwork | Chain | undefined {
   return appkitOptions.networks.find((chain) => chain.id === chainId) || appkitOptions.defaultNetwork;
 }
@@ -42,7 +65,8 @@ export function getChainName(chainId: number): string {
     42161: "arbitrum",
     146: "sonic",
     8453:"base",
-    31337:"hardhat"
+    31337:"hardhat",
+    1907:"bitci"
   };
   return chains[chainId] || chains[DEFAULT_CHAIN_ID];
 }
@@ -64,14 +88,15 @@ const metadata = {
 export const appkitOptions: AppKitOptions = {
   adapters: [new EthersAdapter()],
   metadata: metadata,
-  networks: [chiliz,base,sonic, avalanche, arbitrum,hardhat,spicy],
+  networks: [chiliz,base,sonic, avalanche, bitci,arbitrum,hardhat,spicy],
   defaultNetwork: chiliz,
   chainImages: {
     88888: "/assets/chains/chz.svg",
     88882: "/assets/chains/chz.svg",
     146: "/assets/chains/sonic.svg",
     8453:"/assets/chains/base.svg",
-    31337:"/assets/chains/error.svg"
+    31337:"/assets/chains/error.svg",
+    1907:"/assets/chains/bitci.svg"
     
   },
   projectId,
