@@ -731,7 +731,7 @@ const ExchangePage = () => {
 
         <div className={`select-none flex flex-col gap-4 items-center justify-center px-0 py-4 md:p-4 transition-colors duration-300`}>
 
-            <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-7 gap-4">
+            <div translate='no' className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-7 gap-4">
 
 
 
