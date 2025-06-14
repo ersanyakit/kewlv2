@@ -873,7 +873,7 @@ const ExchangePage = () => {
                                                                     toggleSellOrderSelection(i);
                                                                 }}
                                                             >
-                                                                <div className="absolute inset-0 bg-pink-500/10 rounded-lg"
+                                                                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-pink-500/5 rounded-lg"
                                                                     style={{
                                                                         width: `${(order.totalAmount * 100n) / orderBook.maxSellTotal}%`
                                                                     }}>
@@ -945,7 +945,7 @@ const ExchangePage = () => {
                                                             toggleBuyOrderSelection(i);
                                                         }}
                                                     >
-                                                        <div className="absolute inset-0 bg-green-500/10 rounded-lg"
+                                                        <div className="absolute inset-0 bg-gradient-to-r from-green-500/20 to-green-500/5 rounded-lg"
                                                             style={{
                                                                 width: `${(order.totalAmount * 100n) / orderBook.maxBuyTotal}%`
                                                             }}
