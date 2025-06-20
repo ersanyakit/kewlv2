@@ -109,6 +109,22 @@ const initialPairState: TPairState = {
   liquidityValueA: undefined,
   liquidityValueB: undefined,
 };
+
+
+const initialUserInfo: LeaderBoardUserInfo = {
+  name: "",
+  telegram: "",
+  twitter: "",
+  user: "0x0000000000000000000000000000000000000000",
+};
+
+const initialScoreInfo: LeaderBoardScoreInfo = {
+  totalBaseVolume: BigInt(0),
+  totalQuoteVolume: BigInt(0),
+  userBaseVolume: BigInt(0),
+  userQuoteVolume: BigInt(0),
+  userScore: BigInt(0),
+};
 // Context için tip tanımı
 interface SwapContextProps {
 
@@ -204,7 +220,8 @@ interface SwapContextProps {
 
   fetchLeaderBoardTransactions : (walletProvider:any) => void;
   leaderboard,
-  setLeaderboard
+  setLeaderboard,
+  registerLeaderBoardUser:(walletProvider:any, userAddress : string, twitterAddress:string, nickName:string, telegramUser:string) => void;
 }
 
 // Context varsayılan değeri
@@ -329,8 +346,11 @@ const defaultContext: SwapContextProps = {
     totalTradeQuote: BigInt(0),
     entries: [],
     loading: false,
+    userInfo:initialUserInfo,
+    scoreInfo:initialScoreInfo
   },
   setLeaderboard:() => {}
+
 };
 
 // Context oluşturma
@@ -648,6 +668,38 @@ export interface LimitOrderPairInfo {
   pairId: string;              // bytes32 => string (hex)
 }
 
+
+export interface LeaderboardUser {
+  name: string;
+  telegram: string;
+  twitter: string;
+  user: `0x${string}`;
+}
+
+
+export type LeaderBoardTradeStats = {
+  totalTradeBase: bigint;
+  totalTradeQuote: bigint;
+  traders: string[];
+  baseVolume: bigint[];
+  quoteVolume: bigint[];
+}
+
+export type LeaderBoardUserInfo = {
+  name: string;
+  telegram: string;
+  twitter: string;
+  user: `0x${string}`; // Ethereum address tipinde
+};
+
+export type LeaderBoardScoreInfo = {
+  totalBaseVolume: bigint;
+  totalQuoteVolume: bigint;
+  userBaseVolume: bigint;
+  userQuoteVolume: bigint;
+  userScore: bigint;
+};
+
 export interface Order  {
   id: bigint;             // slot 0
   sequence: bigint;       // slot 1
@@ -696,6 +748,8 @@ export type LeaderboardData = {
   totalTradeQuote: bigint
   entries: LeaderboardEntry[]
   loading: boolean
+  userInfo:LeaderBoardUserInfo,
+  scoreInfo:LeaderBoardScoreInfo,
 }
 
 export interface TradeItemProps {
@@ -789,11 +843,15 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   });
 
 
+
   const [leaderboard, setLeaderboard] = useState<LeaderboardData>({
     totalTradeBase: BigInt(0),
     totalTradeQuote: BigInt(0),
     entries: [],
     loading: false,
+    userInfo:initialUserInfo,
+    scoreInfo:initialScoreInfo
+  
   })
 
   const [userTradingStats, setUserTradingStats] = useState<UserTradingStats | null>(null);
@@ -987,14 +1045,15 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       bountyUserInfo: null,
       totalClaimed: 0n,
     })
-    let userAccount = account ? account : ethers.ZeroAddress;
 
 
 
     let dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
     const [signerAccount] = await dexContract.wallet.getAddresses();
 
+    let userAccount = account ? account : ethers.ZeroAddress;
 
+    console.log("burada:ersan")
     const [_bounties, _bountyUserInfo] = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
@@ -2910,35 +2969,63 @@ const formatted = date.toLocaleString('en-US', {
     try{
 
 
-    const allWallets = await (await fetch("https://api.kewl.exchange/wallets")).json();
+    
 
     
     const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+    
+    
+    const leaderboardUsers = await dexContract.client.readContract({
+      address: dexContract.caller.address,
+      abi: dexContract.abi,
+      functionName: 'fetchLeaderBoardUsers',
+      args: [],
+      account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
+    })  as LeaderboardUser[]
+
 
     const _weth9 = WETH9[Number(chainId)].address
 
     const isNative = baseToken?.address == ZeroAddress
     const quoteAddress = isNative ? _weth9 : baseToken?.address
 
+    console.log("leaderboardUsers",leaderboardUsers)
 
 // Adresleri array olarak al
-const addresses: string[] = allWallets.results.map((item : any) => item.from_address);
+const addresses: string[] = leaderboardUsers.map((item : any) => item.user);
 
-const [totalTradeBase, totalTradeQuote, traders, baseVolume, quoteVolume] = await dexContract.client.readContract({
+console.log("addresses",addresses)
+
+const tradeStats : any = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
       functionName: 'getTradeStatsForMultipleUser',
       args: [_weth9,quoteAddress,addresses],
       account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
-    })  as {
-      totalTradeBase: bigint
-      totalTradeQuote: bigint
-      traders: string[]
-      baseVolume: bigint[]
-      quoteVolume: bigint[]
-    }
+    }) as LeaderBoardTradeStats;
 
-   
+    const [signerAccount] = await dexContract.wallet.getAddresses()
+    const [userInfo,scoreInfo] : any = await dexContract.client.readContract({
+      address: dexContract.caller.address,
+      abi: dexContract.abi,
+      functionName: 'getLeaderboardUserInfo',
+      args: [ signerAccount, quoteAddress, _weth9],
+      account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
+    }) as [LeaderBoardUserInfo, LeaderBoardScoreInfo];
+
+     
+
+
+    console.log("tradeStats",tradeStats)
+    const { totalTradeBase, totalTradeQuote, traders, baseVolume, quoteVolume } = {
+      totalTradeBase: tradeStats[0],
+      totalTradeQuote: tradeStats[1],
+      traders: tradeStats[2],
+      baseVolume: tradeStats[3],
+      quoteVolume: tradeStats[4],
+    };
+    console.log("tradeStats",tradeStats,traders,userInfo,scoreInfo)
+
     const entries = traders.map((trader:any, i:number) => {
       const base = baseVolume[i]
       const quote = quoteVolume[i]
@@ -2958,6 +3045,8 @@ const [totalTradeBase, totalTradeQuote, traders, baseVolume, quoteVolume] = awai
     }).sort((a:any, b:any) => (b.score > a.score ? 1 : -1))
 
     setLeaderboard({
+      userInfo:userInfo,
+      scoreInfo:scoreInfo,
       totalTradeBase: totalTradeBase,
       totalTradeQuote: totalTradeQuote,
       entries,
@@ -2970,6 +3059,35 @@ const [totalTradeBase, totalTradeQuote, traders, baseVolume, quoteVolume] = awai
   }finally{
 
   }
+  }
+
+  const registerLeaderBoardUser = async (walletProvider:any, userAddress : string, twitterAddress:string, nickName:string, telegramUser:string) => {
+    const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+
+
+    
+    let registerParams = {
+       name:nickName,
+       telegram:telegramUser,
+       twitter:twitterAddress,
+       user:userAddress
+  }
+
+    const [signerAccount] = await dexContract.wallet.getAddresses()
+    const registerTx: any = await dexContract.wallet.writeContract({
+      chain: dexContract.client.chain,
+      address: dexContract.caller.address as `0x${string}`,
+      abi: dexContract.abi,
+      functionName: "register",
+      args: [registerParams],
+      account: signerAccount,
+      value: 0n
+    })
+
+    const receitApprival = await waitForTransactionReceipt(dexContract.wallet, {
+      hash: registerTx,
+    });
+
   }
 
   const fetchLimitOrderHistory = async (walletProvider: any) => {
@@ -3629,7 +3747,8 @@ const [totalTradeBase, totalTradeQuote, traders, baseVolume, quoteVolume] = awai
 
     leaderboard,
     setLeaderboard,
-    fetchLeaderBoardTransactions
+    fetchLeaderBoardTransactions,
+    registerLeaderBoardUser
   };
 
   return (

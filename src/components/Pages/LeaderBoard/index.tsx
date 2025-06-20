@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTokenContext } from '../../../context/TokenContext';
 import { motion } from 'framer-motion';
 import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
@@ -41,7 +41,7 @@ const LeaderBoard = () => {
   
     } = useTokenContext();
 
-    const {fetchLeaderBoardTransactions,leaderboard} = useSwapContext();
+    const {fetchLeaderBoardTransactions,leaderboard,registerLeaderBoardUser} = useSwapContext();
     const navigate = useNavigate();
     const isMoralisReady = useMoralisInitialized();
 
@@ -202,6 +202,67 @@ const LeaderBoard = () => {
                 >
                   Active Trader
                 </motion.div>
+              </div>
+
+              <div className='space-y-4'>
+                {/* User Registration */}
+                {(() => {
+                  const [twitterUser, setTwitterUser] = useState('');
+                  const [nickName, setNickName] = useState('');
+                  const [telegramUser, setTelegramUser] = useState('');
+                  return (
+                    <div className='w-full'>
+                      <div>
+                        <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>User Address</label>
+                        <input
+                          type="text"
+                          value={address || ''}
+                          readOnly
+                          className={`w-full px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-300' : 'bg-white border-gray-300 text-gray-700'} focus:outline-none focus:ring-2 focus:ring-[#ff1356]/40 transition`}
+                        />
+                      </div>
+                      <div>
+                        <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Telegram User</label>
+                        <input
+                          type="text"
+                          placeholder="@telegram"
+                          value={telegramUser}
+                          onChange={e => setTelegramUser(e.target.value)}
+                          className={`w-full px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-300' : 'bg-white border-gray-300 text-gray-700'} focus:outline-none focus:ring-2 focus:ring-[#ff1356]/40 transition`}
+                        />
+                      </div>
+                      <div>
+                        <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Twitter User</label>
+                        <input
+                          type="text"
+                          placeholder="@twitter"
+                          value={twitterUser}
+                          onChange={e => setTwitterUser(e.target.value)}
+                          className={`w-full px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-300' : 'bg-white border-gray-300 text-gray-700'} focus:outline-none focus:ring-2 focus:ring-[#ff1356]/40 transition`}
+                        />
+                      </div>
+                      <div>
+                        <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>NickName</label>
+                        <input
+                          type="text"
+                          placeholder="Your nickname"
+                          value={nickName}
+                          onChange={e => setNickName(e.target.value)}
+                          className={`w-full px-3 py-2 rounded-lg border ${isDarkMode ? 'bg-gray-700 border-gray-600 text-gray-300' : 'bg-white border-gray-300 text-gray-700'} focus:outline-none focus:ring-2 focus:ring-[#ff1356]/40 transition`}
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          registerLeaderBoardUser(walletProvider, address || '', twitterUser, nickName, telegramUser);
+                        }}
+                        className={`w-full py-2 rounded-lg font-medium text-sm mt-2 ${isDarkMode ? 'bg-[#ff1356] text-white hover:bg-[#ff1356]/90' : 'bg-[#ff1356] text-white hover:bg-[#ff1356]/90'} transition-all duration-300`}
+                      >
+                        Register
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
               
               <div className="space-y-4">
