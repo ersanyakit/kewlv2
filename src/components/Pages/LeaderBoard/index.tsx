@@ -128,7 +128,7 @@ const LeaderBoard = () => {
                         {`Score`}
                       </div>
                       <div className={`w-full text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} group-hover:text-[#ff1356]/70 transition-colors duration-300`}>
-                        {parseFloat(formatEther(user.score)).toFixed(4)}
+                        {parseFloat(user.score).toFixed(0)}
                       </div>
                     </div>
                     <div className='w-full flex-col gap-2 items-center justify-center'>
@@ -136,7 +136,7 @@ const LeaderBoard = () => {
                       {nativeToken?.symbol}
                     </div>
                     <div className={`w-full text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} group-hover:text-[#ff1356]/70 transition-colors duration-300`}>
-                      {parseFloat(formatEther(user.baseVolume)).toFixed(4)}
+                      {parseFloat(formatEther(user.baseVolume)).toFixed(4) } {parseFloat(formatEther(leaderboard.totalTradeBase)).toFixed(4)}
 
                     </div>
                     </div>
@@ -145,7 +145,7 @@ const LeaderBoard = () => {
                       {baseToken?.symbol}
                     </div>
                     <div className={`w-full text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} group-hover:text-[#ff1356]/70 transition-colors duration-300`}>
-                      {parseFloat(formatEther(user.quoteVolume)).toFixed(4)}
+                      {parseFloat(formatEther(user.quoteVolume)).toFixed(4)}  {parseFloat(formatEther(leaderboard.totalTradeQuote)).toFixed(4)}
 
                     </div>
                     </div>

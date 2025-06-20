@@ -3030,10 +3030,17 @@ const tradeStats : any = await dexContract.client.readContract({
       const base = baseVolume[i]
       const quote = quoteVolume[i]
     
-      const divisor = BigInt("1000000000000000000000000000000000000"); // 1e36
 
-    const score = (BigInt(base) + BigInt(quote)); // bigint bölme, sonucu bigint
+
+      const baseFirst =  quoteAddress.toLowerCase() > _weth9.toLowerCase();
+    const scoreParamA = baseFirst ? base : quote;
+    const scoreParamB = baseFirst ? quote: base;
+
+// BigInt’leri Number’a çevir (uyarı: büyük değerlerde taşma olabilir)
+const scoreParamANum = Number(scoreParamA * 2n + 1n);
+const scoreParamBNum = Number(scoreParamB + 1n);
       
+ const score = Math.floor(Math.log2(scoreParamANum) + Math.log2(scoreParamBNum));  
       // veya sayı olarak
 
       return {

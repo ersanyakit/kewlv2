@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Settings, Moon, Sun, Wallet, RefreshCw, Menu, X, Percent, Clock, Shield, Star, Gem, ReplaceAllIcon } from 'lucide-react';
+import { Settings, Moon, Sun, Wallet, RefreshCw, Menu, X, Percent, Clock, Shield, Star, Gem, ReplaceAllIcon, TrophyIcon } from 'lucide-react';
 import { useTokenContext } from '../../context/TokenContext';
 import ConnectButton from '../UI/ConnectButton';
 import { useNavigate } from 'react-router-dom';
@@ -70,6 +70,23 @@ const Navbar: React.FC<NavbarProps> = () => {
         >
            <ReplaceAllIcon className="w-5 h-5" />
         </motion.button>
+
+        <motion.button 
+          className={`${
+            isDarkMode 
+              ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600' 
+              : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100 ring-pink-200'
+          } p-2 rounded-xl transition-all duration-300 focus:outline-none focus:ring-2`}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={()=>{
+            navigate("/leaderboard")
+          }}
+          aria-label="LeaderBoard"
+        >
+        <TrophyIcon className="w-5 h-5" />
+        </motion.button>
+
 
         <motion.button 
           className={`${
@@ -178,6 +195,21 @@ const Navbar: React.FC<NavbarProps> = () => {
             >
               <span>Swap</span>
               <ReplaceAllIcon className="w-5 h-5" />
+            </motion.button>
+
+            <motion.button 
+              className={`${
+                isDarkMode 
+                  ? 'bg-gray-700 text-gray-200 hover:bg-gray-600' 
+                  : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100'
+              } p-2 rounded-xl flex items-center justify-between transition-all duration-300`}
+              onClick={()=>{
+                navigate("/leaderboard")
+                setIsMobileMenuOpen(false);
+              }}
+            >
+              <span>LeaderBoard</span>
+              <TrophyIcon className="w-5 h-5" />
             </motion.button>
 
           <motion.button 
