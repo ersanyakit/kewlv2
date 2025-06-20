@@ -44,7 +44,9 @@ const LeaderBoard = () => {
     const {fetchLeaderBoardTransactions,leaderboard,registerLeaderBoardUser} = useSwapContext();
     const navigate = useNavigate();
     const isMoralisReady = useMoralisInitialized();
-
+    const [twitterUser, setTwitterUser] = useState('');
+    const [nickName, setNickName] = useState('');
+    const [telegramUser, setTelegramUser] = useState('');
 
     const loadMoralisData = async () => {
   
@@ -201,16 +203,17 @@ const LeaderBoard = () => {
                   }`}
                 >
                   Active Trader
-                </motion.div>
+                                  </motion.div>
               </div>
 
+             
+              
+              {
+                address &&  !leaderboard.loading &&
+                leaderboard.userInfo.user &&
+                leaderboard.userInfo.user.toLowerCase() !== address.toLowerCase() &&
               <div className='space-y-4'>
-                {/* User Registration */}
-                {(() => {
-                  const [twitterUser, setTwitterUser] = useState('');
-                  const [nickName, setNickName] = useState('');
-                  const [telegramUser, setTelegramUser] = useState('');
-                  return (
+         
                     <div className='w-full'>
                       <div>
                         <label className={`block text-xs font-medium mb-1 ${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>User Address</label>
@@ -261,9 +264,11 @@ const LeaderBoard = () => {
                         Register
                       </button>
                     </div>
-                  );
-                })()}
+           
+       
               </div>
+              }
+              
               
               <div className="space-y-4">
                 {/* User Address */}
