@@ -81,13 +81,13 @@ const LeaderBoard = () => {
         </div>
 
         <div className="order-1 sm:order-2 lg:col-span-3 flex flex-col gap-4">
-          <div className={`w-full ${isDarkMode ? 'bg-gray-800/30' : 'bg-white/40'} backdrop-blur-sm p-4 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border ${isDarkMode ? 'border-gray-700/30' : 'border-white/20'}`}>
+          <div className={`w-full ${isDarkMode ? 'bg-gray-800/30' : 'bg-white/40'}  backdrop-blur-sm p-4 rounded-3xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border ${isDarkMode ? 'border-gray-700/30' : 'border-white/20'}`}>
             <div className="flex justify-between items-center mb-6">
               <h3 className={`font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>Trading Volume Leaderboard</h3>
               <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>All time</div>
             </div>
 
-            <div className="space-y-3  max-h-screen overflow-scroll px-4 scrollbar-hide">
+            <div className="space-y-3  max-h-screen overflow-scroll px-2 scrollbar-hide">
 
               {
                 !leaderboard.loading &&
@@ -324,6 +324,21 @@ const LeaderBoard = () => {
                 <div className="flex items-center justify-between">
                   <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
                     {parseFloat(formatEther(leaderboard.scoreInfo.userQuoteVolume)).toFixed(4)}
+                  </span>
+
+                </div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{baseToken?.symbol} Volume</span>
+                <div className="flex items-center justify-between">
+                  <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
+                    {parseFloat(formatEther(leaderboard.scoreInfo.userBaseVolume)).toFixed(4)}
                   </span>
 
                 </div>
