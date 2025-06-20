@@ -2,10 +2,9 @@
 
 import { EthersAdapter } from '@reown/appkit-adapter-ethers';
 import { chiliz as originalChiliz,spicy,  avalanche,base, arbitrum, sonic,hardhat, Chain, AppKitNetwork } from '@reown/appkit/networks';
-import { AppKitOptions, createAppKit } from '@reown/appkit/react';
-import { ReactNode } from 'react';
+import { AppKitOptions, createAppKit, useAppKit } from '@reown/appkit/react';
+import { createContext, ReactNode, useContext } from 'react';
 import { createPublicClient, createWalletClient, http } from 'viem';
-
 
 const projectId = 'd44052dff4e08d391ea2749cd7df8422';
 
@@ -125,21 +124,41 @@ export const appkitOptions: AppKitOptions = {
 }
 
 export const publicClient = createPublicClient({
-  chain: (appkitOptions.defaultNetwork) as Chain,
+  chain: (appkitOptions.defaultNetwork) as any,
   transport: http()
 })
 
 export const walletClient = createWalletClient({
-  chain: (appkitOptions.defaultNetwork) as Chain,
+  chain: (appkitOptions.defaultNetwork) as any ,
   transport: http()
 })
 
-createAppKit(appkitOptions);
 
-export function Web3ProviderContext({
-  children,
-}: {
-  children: ReactNode;
-}): JSX.Element {
-  return <>{children}</>; // Ensure it returns a valid JSX element
+const appKit = createAppKit(appkitOptions);
+
+type Web3ContextType = {
+  appKit:typeof appKit
+  appkitOptions: typeof appkitOptions;
+  publicClient: typeof publicClient;
+  walletClient: typeof walletClient;
+};
+const Web3Context = createContext<Web3ContextType | undefined>(undefined);
+
+
+// Sağlayıcı component
+export function Web3ProviderContext({ children }: { children: ReactNode }) {
+
+  return (
+    <Web3Context.Provider value={{ appKit, appkitOptions, publicClient, walletClient }}>
+      {children}
+    </Web3Context.Provider>
+  );
+}
+
+export function useWeb3() {
+  const context = useContext(Web3Context);
+  if (!context) {
+    throw new Error('useWeb3 must be used within a Web3ProviderContext');
+  }
+  return context;
 }

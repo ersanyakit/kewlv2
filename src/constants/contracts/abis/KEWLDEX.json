@@ -2178,6 +2178,24 @@
     {
       "inputs": [
         {
+          "internalType": "address",
+          "name": "base",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "quote",
+          "type": "address"
+        }
+      ],
+      "name": "createPairOwner",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
           "internalType": "bytes32",
           "name": "pairId",
           "type": "bytes32"
@@ -3286,6 +3304,99 @@
         {
           "internalType": "uint256[]",
           "name": "individualTrades",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "baseToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "quoteToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address[]",
+          "name": "users",
+          "type": "address[]"
+        }
+      ],
+      "name": "getTradeStatsForMultipleUser",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "totalTradeBase",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalTradeQuote",
+          "type": "uint256"
+        },
+        {
+          "internalType": "address[]",
+          "name": "traders",
+          "type": "address[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "baseVolume",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "quoteVolume",
+          "type": "uint256[]"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "baseToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "quoteToken",
+          "type": "address"
+        },
+        {
+          "internalType": "address[]",
+          "name": "users",
+          "type": "address[]"
+        }
+      ],
+      "name": "getTradeStatsForMultipleUserWithoutTraders",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "totalTradeBase",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256",
+          "name": "totalTradeQuote",
+          "type": "uint256"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "baseVolume",
+          "type": "uint256[]"
+        },
+        {
+          "internalType": "uint256[]",
+          "name": "quoteVolume",
           "type": "uint256[]"
         }
       ],
@@ -4709,6 +4820,24 @@
         }
       ],
       "name": "setEnabled",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_address",
+          "type": "address"
+        },
+        {
+          "internalType": "bool",
+          "name": "_isKEWL",
+          "type": "bool"
+        }
+      ],
+      "name": "setKEWL",
       "outputs": [],
       "stateMutability": "nonpayable",
       "type": "function"

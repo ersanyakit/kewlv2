@@ -101,7 +101,7 @@ const FushionForm: React.FC = () => {
 
     useEffect(() => {
 
-    }, [baseToken, quoteToken]);
+    }, [baseToken, quoteToken,chainId,address]);
 
     return (
         <div className="flex w-full flex-col">

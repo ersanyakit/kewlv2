@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, BrowserRouter, useLocation } from 'react-router-dom';
 import TradeTerminal from './components/Swap/TradeTerminal';
 import Layout from './components/Layout/Layout';
@@ -13,9 +13,12 @@ import EmbeddedSwapPage from './components/Pages/EmbedPages';
 import ExchangePage from './components/Pages/ExchangePage';
 import { AnimatePresence,motion, LazyMotion, domAnimation, m } from 'framer-motion'
 import TestPage from './components/Pages/TestPage';
+import LeaderBoard from './components/Pages/LeaderBoard';
+import { MoralisProvider } from './context/MoralisProviderContext';
 
 function App() {
-
+//188467.014
+//188578.453
  
 
   
@@ -42,6 +45,7 @@ function App() {
                     <Route path="/rewards" element={<Rewards />} />
                     <Route path="/assets" element={<Assets />} />
                     <Route path="/tos" element={<TosPage />} />
+                    <Route path="/leaderboard" element={<LeaderBoard />} />
                     <Route path="/exchange" element={<ExchangePage />} />
                   </Routes>
                 </Layout>

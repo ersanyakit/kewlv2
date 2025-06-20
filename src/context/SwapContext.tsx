@@ -15,6 +15,7 @@ import { waitForTransactionReceipt } from 'viem/actions';
 import { getExchangeByRouterAndWETH, getRoutersByChainId, PRICE_DECIMAL_FACTOR } from '../constants/contracts/exchanges';
 import { sqrt } from '../constants/entities/utils/sqrt';
 import { Token as TokenContextToken } from './TokenContext';
+import { useWeb3 } from './Web3ProviderContext';
 
 interface UserTradingStats {
   totalReward: bigint;
@@ -200,6 +201,10 @@ interface SwapContextProps {
   claimLimitOrder: (walletProvider: any,pairHash:string,orderId:bigint) => void;
 
   createPaidPair:(walletProvider:any, baseTokenAddress:string, quoteTokenAddress : string, listingFee:bigint) => void;
+
+  fetchLeaderBoardTransactions : (walletProvider:any) => void;
+  leaderboard,
+  setLeaderboard
 }
 
 // Context varsayılan değeri
@@ -318,6 +323,14 @@ const defaultContext: SwapContextProps = {
   cancelLimitOrder: () => { },
   claimLimitOrder: () => { },
   createPaidPair:() => {},
+  fetchLeaderBoardTransactions:() => {},
+  leaderboard:{
+    totalTradeBase: BigInt(0),
+    totalTradeQuote: BigInt(0),
+    entries: [],
+    loading: false,
+  },
+  setLeaderboard:() => {}
 };
 
 // Context oluşturma
@@ -671,6 +684,20 @@ export interface TokenPair {
   logo:string;
 }
 
+export type LeaderboardEntry = {
+  address: string
+  baseVolume: bigint
+  quoteVolume: bigint
+  score: bigint
+}
+
+export type LeaderboardData = {
+  totalTradeBase: bigint
+  totalTradeQuote: bigint
+  entries: LeaderboardEntry[]
+  loading: boolean
+}
+
 export interface TradeItemProps {
   pair: TCustomPair,
 };
@@ -762,7 +789,17 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   });
 
 
+  const [leaderboard, setLeaderboard] = useState<LeaderboardData>({
+    totalTradeBase: BigInt(0),
+    totalTradeQuote: BigInt(0),
+    entries: [],
+    loading: false,
+  })
+
   const [userTradingStats, setUserTradingStats] = useState<UserTradingStats | null>(null);
+
+  const { publicClient, walletClient, appkitOptions } = useWeb3();
+ 
   // Input değişiklikleri için handler'lar
   const handleFromChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const regex = /^[0-9]*\.?[0-9]*$/;
@@ -1445,8 +1482,11 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       allSwapParams.push(swapParam)
 
     }
+    console.log("SIGNER:CHECK")
 
+    console.log(publicClient,walletClient,appkitOptions)
     const [signerAccount] = await dexContract.wallet.getAddresses();
+    console.log("SIGNER",signerAccount)
 
     try {
       if (!etherIn) {
@@ -1479,6 +1519,9 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         }
       }
 
+     
+
+
       const tx: any = await dexContract.wallet.writeContract({
         chain: dexContract.client.chain,
         address: dexContract.caller.address as `0x${string}`,
@@ -1492,6 +1535,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       const receipt = await waitForTransactionReceipt(dexContract.wallet, {
         hash: tx,
       });
+      console.log(receipt)
       setSwapResult({
         type: SwapStatusType.SUCCESS,
         message: "Swap Success",
@@ -1504,6 +1548,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         }
       })
     } catch (error) {
+      console.log("ERROR",error)
       const message = error?.toString() || "Unexpected error";
       let errorType: SwapStatusType = SwapStatusType.UNKNOWN_ERROR;
       if (message.includes("insufficient funds")) {
@@ -1516,6 +1561,8 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
         errorType = SwapStatusType.INVALID_ADDRESS;
       } else if (message.includes("network")) {
         errorType = SwapStatusType.NETWORK_ERROR;
+      }else{
+        errorType = SwapStatusType.UNKNOWN_ERROR;
       }
       setSwapResult({
         type: errorType,
@@ -2848,6 +2895,82 @@ const formatted = date.toLocaleString('en-US', {
    
   }
 
+  function normalizeAmount(value: bigint): bigint {
+    const DECIMALS = 18n;
+    const DIVISOR = 10n ** DECIMALS; // 10^18n bigint olarak
+  
+    // Büyük sayı -> float
+    return value / DIVISOR;
+  }
+
+  const fetchLeaderBoardTransactions = async (walletProvider: any) => {
+  
+  setLeaderboard(prev => ({ ...prev, loading: true }))
+
+    try{
+
+
+    const allWallets = await (await fetch("https://api.kewl.exchange/wallets")).json();
+
+    
+    const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+
+    const _weth9 = WETH9[Number(chainId)].address
+
+    const isNative = baseToken?.address == ZeroAddress
+    const quoteAddress = isNative ? _weth9 : baseToken?.address
+
+
+// Adresleri array olarak al
+const addresses: string[] = allWallets.results.map((item : any) => item.from_address);
+
+const [totalTradeBase, totalTradeQuote, traders, baseVolume, quoteVolume] = await dexContract.client.readContract({
+      address: dexContract.caller.address,
+      abi: dexContract.abi,
+      functionName: 'getTradeStatsForMultipleUser',
+      args: [_weth9,quoteAddress,addresses],
+      account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
+    })  as {
+      totalTradeBase: bigint
+      totalTradeQuote: bigint
+      traders: string[]
+      baseVolume: bigint[]
+      quoteVolume: bigint[]
+    }
+
+   
+    const entries = traders.map((trader:any, i:number) => {
+      const base = baseVolume[i]
+      const quote = quoteVolume[i]
+    
+      const divisor = BigInt("1000000000000000000000000000000000000"); // 1e36
+
+    const score = (BigInt(base) + BigInt(quote)); // bigint bölme, sonucu bigint
+      
+      // veya sayı olarak
+
+      return {
+        address: trader,
+        baseVolume: base,
+        quoteVolume: quote,
+        score,
+      }
+    }).sort((a:any, b:any) => (b.score > a.score ? 1 : -1))
+
+    setLeaderboard({
+      totalTradeBase: totalTradeBase,
+      totalTradeQuote: totalTradeQuote,
+      entries,
+      loading: false,
+    }) 
+
+
+  }catch(err){
+    console.log("fetchLimitOrderHistory:err", err)
+  }finally{
+
+  }
+  }
 
   const fetchLimitOrderHistory = async (walletProvider: any) => {
     setLimitOrderHistoryLoading(true);
@@ -3503,6 +3626,10 @@ const formatted = date.toLocaleString('en-US', {
     claimLimitOrder,
 
     createPaidPair,
+
+    leaderboard,
+    setLeaderboard,
+    fetchLeaderBoardTransactions
   };
 
   return (

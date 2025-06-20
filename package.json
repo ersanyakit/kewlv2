@@ -27,7 +27,8 @@
     "tailwind-variants": "^0.2.0",
     "tiny-invariant": "^1.1.0",
     "toformat": "^2.0.0",
-    "viem": "^2.21.56"
+    "viem": "^2.21.56",
+    "moralis": "^2.21.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",

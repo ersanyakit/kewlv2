@@ -33,7 +33,7 @@ const AssetsPage = () => {
     const navigate = useNavigate();
 
   return (
-    <div className={"w-full h-full min-h-[73dvh] mx-auto flex items-center justify-center p-8"}>
+    <div className={"w-full h-full min-h-[73dvh] mx-auto flex items-center justify-center"}>
 
     <motion.div
     className={`relative ${isDarkMode

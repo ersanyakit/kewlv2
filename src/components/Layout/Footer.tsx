@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Info, Shield, Award, Compass, Sparkles, RefreshCw } from 'lucide-react';
+import { Info, Shield, Award, Compass, Sparkles, RefreshCw, Medal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface FooterProps {
@@ -52,6 +52,12 @@ const Footer: React.FC<FooterProps> = ({ isDarkMode }) => {
           }} className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center cursor-pointer`}>
             <Award className="w-3 h-3 mr-1" />
             Rewards
+          </span>
+          <span onClick={()=>{
+            navigate('/leaderboard')
+          }} className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center cursor-pointer`}>
+            <Medal className="w-3 h-3 mr-1" />
+            LeaderBoard
           </span>
           <a href="#" className={`${isDarkMode ? 'text-gray-300 hover:text-pink-300' : 'text-gray-600 hover:text-[#ff1356]'} transition-colors flex items-center`}>
             <Compass className="w-3 h-3 mr-1" />

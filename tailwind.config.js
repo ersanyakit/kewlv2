@@ -130,16 +130,6 @@ module.exports = {
       },
     },
   },
-  variants: {
-    extend: {
-      backgroundColor: ['dark', 'dark:hover', 'hover', 'active'],
-      textColor: ['dark', 'dark:hover', 'hover', 'active'],
-      borderColor: ['dark', 'dark:hover', 'hover', 'active'],
-      opacity: ['dark', 'dark:hover', 'hover', 'active'],
-      ringColor: ['dark', 'dark:hover', 'hover', 'active', 'focus'],
-      ringWidth: ['dark', 'dark:hover', 'hover', 'active', 'focus'],
-    },
-  },
   plugins: [
     function({ addComponents, theme }) {
       addComponents({
@@ -148,7 +138,7 @@ module.exports = {
           borderRadius: theme('borderRadius.xl'),
           padding: theme('spacing.6'),
           boxShadow: theme('boxShadow.card'),
-          '@screen dark': {
+          '.dark &': {
             backgroundColor: theme('colors.gray.800'),
           },
         },
