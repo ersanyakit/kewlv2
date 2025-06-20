@@ -86,7 +86,10 @@ const LeaderBoard = () => {
           </div>
           
           <div className="space-y-3  max-h-screen overflow-scroll px-4 scrollbar-hide">
-            {leaderboard.entries.map((user:any, index:number) => (
+            
+            {
+              !leaderboard.loading &&
+            leaderboard.entries.map((user:any, index:number) => (
               <div
                 key={user.address}
                 className={`relative flex items-center justify-between p-4 rounded-xl ${
@@ -158,6 +161,18 @@ const LeaderBoard = () => {
                 <div className="absolute top-0 right-0 h-0.5 bg-gradient-to-l from-pink-500 via-purple-500 to-[#ff1356] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 delay-100" />
               </div>
             ))}
+
+            {
+              leaderboard.loading && <div className='w-full'>
+
+<div className="flex items-center justify-center h-full min-h-[200px] w-full">
+              <div className="flex flex-col items-center">
+                <div className={`animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 ${isDarkMode ? 'border-gray-300' : 'border-gray-600'}`}></div>
+                <p className={`mt-3 text-sm ${isDarkMode ? 'text-gray-300' : 'text-gray-600'}`}>Loading...</p>
+              </div>
+            </div>
+              </div>
+            }
           </div>
         </div>
         </div>
