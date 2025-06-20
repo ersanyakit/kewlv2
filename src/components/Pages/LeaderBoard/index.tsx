@@ -308,7 +308,7 @@ const LeaderBoard = () => {
                   <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{nativeToken?.symbol} Volume</span>
                   <div className="flex items-center justify-between">
                     <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                      0.00000000
+                    {parseFloat(formatEther(leaderboard.scoreInfo.userQuoteVolume)).toFixed(4)}
                     </span>
                    
                   </div>
@@ -323,7 +323,7 @@ const LeaderBoard = () => {
                   <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{baseToken?.symbol} Volume</span>
                   <div className="flex items-center justify-between">
                     <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                      0.00000000
+                      {parseFloat(formatEther(leaderboard.scoreInfo.userBaseVolume)).toFixed(4)}
                     </span>
                    
                   </div>
@@ -337,10 +337,10 @@ const LeaderBoard = () => {
                   className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
-                  <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>Available Rewards</span>
+                  <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>User Score</span>
                   <div className="flex items-center justify-between mb-4">
                     <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                      0.00000000
+                    {leaderboard.scoreInfo.userScore.toString()}
                     </span>
                     <motion.div
                       className="flex items-center gap-1"
@@ -383,7 +383,7 @@ const LeaderBoard = () => {
                         } font-bold text-sm`}
                         whileHover={{ scale: 1.1, rotate: 5 }}
                       >
-                        {leaderboard.entries.findIndex((e:any) => e.address.toLocaleLowerCase() === address?.toString().toLocaleLowerCase())}
+                        {leaderboard.entries.findIndex((e:any) => e.address.toLocaleLowerCase() === address?.toString().toLocaleLowerCase())+1}
                       </motion.div>
                     </div>
                     <motion.div
