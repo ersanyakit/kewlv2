@@ -3040,8 +3040,7 @@ const tradeStats : any = await dexContract.client.readContract({
 const scoreParamANum = Number(scoreParamA * 2n + 1n);
 const scoreParamBNum = Number(scoreParamB + 1n);
       
- const score = Math.floor(Math.log2(scoreParamANum) + Math.log2(scoreParamBNum));  
-      // veya sayı olarak
+const score = Math.floor((Math.log2(scoreParamANum) + Math.log2(scoreParamBNum)) * 100);      // veya sayı olarak
 
       return {
         address: trader,
