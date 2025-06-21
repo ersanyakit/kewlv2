@@ -116,7 +116,7 @@ const LeaderBoard = () => {
                         {index + 1}
                       </div>
 
-                      <div className="flex flex-col">
+                      <div className="flex flex-col overflow-hidden">
                         <span className={`font-medium text-xs ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} group-hover:text-[#ff1356] transition-colors duration-300`}>
                           {user.address}
                         </span>

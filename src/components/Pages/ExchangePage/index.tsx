@@ -983,7 +983,7 @@ const ExchangePage = () => {
                             {showPairSelector || !selectedPair ? (
                                 <div className={`p-4 rounded-3xl ${isDarkMode ? 'bg-gray-800/50' : 'bg-white/50'} min-h-[600px]   }`}>
                                     <div className="flex items-center justify-between mb-4">
-                                        <h3 className="text-lg font-semibold">Select Market</h3>
+                                        <h3 className="hidden sm:block text-lg font-semibold">Select Market</h3>
                                         <div className="flex items-center gap-2">
                                             <div className="relative">
                                                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />

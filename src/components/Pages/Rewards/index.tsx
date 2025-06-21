@@ -1128,7 +1128,7 @@ const Rewards = () => {
                                                     </div>
                                                 </div>
                                                 <div className={`w-full p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-100/60'}`}>
-                                                    <div className="grid grid-cols-2 gap-2">
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                                                         <div className={`p-2.5 rounded-lg ${isDarkMode ? 'bg-gray-900/70' : 'bg-white/90'} flex items-center gap-2 transition-all duration-200 hover:shadow-md hover:bg-opacity-95 cursor-pointer group`}>
                                                             <div className="w-7 h-7 rounded-full bg-gradient-to-r from-[#ff1356]/30 to-[#ff4080]/30 flex items-center justify-center flex-shrink-0">
                                                                 <svg className="w-3.5 h-3.5 text-[#ff4080]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
