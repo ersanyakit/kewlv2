@@ -269,7 +269,72 @@ const FushionForm: React.FC = () => {
                     </div>
 
                     <div className="grid grid-cols-1 gap-2">
-                        {aggregatorPairs.map((dex: TCustomPair, index: number) => {
+                        {
+                            loading  && <div className='w-full'>
+                                <div className={`flex flex-col items-center justify-center p-4 rounded-xl ${
+                                    isDarkMode
+                                        ? 'bg-gradient-to-r from-gray-700/90 to-gray-800/90 border border-gray-800/80'
+                                        : 'bg-gradient-to-r from-pink-50 to-white border border-pink-200'
+                                }`}>
+                                    <motion.div
+                                        animate={{ rotate: 360 }}
+                                        transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+                                        className={`w-6 h-6 rounded-full border-4 border-t-transparent ${
+                                            isDarkMode 
+                                                ? 'border-[#ff4080]/30 border-t-[#ff4080]' 
+                                                : 'border-[#ff1356]/30 border-t-[#ff1356]'
+                                        } mb-4`}
+                                    />
+                                    <div className={`text-sm font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+                                        Finding Best Routes
+                                    </div>
+                                    <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} text-center`}>
+                                        Scanning DEXes for optimal trading paths
+                                    </div>
+                                    <div className="flex space-x-1 mt-3">
+                                        {[0, 1, 2].map((i) => (
+                                            <motion.div
+                                                key={i}
+                                                animate={{ 
+                                                    scale: [1, 1.2, 1],
+                                                    opacity: [0.5, 1, 0.5]
+                                                }}
+                                                transition={{ 
+                                                    duration: 1.5, 
+                                                    repeat: Infinity, 
+                                                    delay: i * 0.2,
+                                                    ease: "easeInOut"
+                                                }}
+                                                className={`w-2 h-2 rounded-full ${
+                                                    isDarkMode ? 'bg-[#ff4080]' : 'bg-[#ff1356]'
+                                                }`}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                        {
+                            aggregatorPairs.length == 0 && !loading &&  fromAmount && <div className={`w-full p-4 rounded-xl ${
+                                 isDarkMode
+                                    ? 'bg-gradient-to-r from-gray-700/90 to-gray-800/90 border border-gray-800/80'
+                                    : 'bg-gradient-to-r from-pink-50 to-white border border-pink-200'
+                                
+                              } flex flex-col items-center justify-center text-center`}>
+                                <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-3 ${
+                                    isDarkMode ? 'bg-[#ff4080]/20' : 'bg-[#ff1356]/10'
+                                }`}>
+                                    <AlertCircle className={`w-5 h-5 ${isDarkMode ? 'text-[#ff4080]' : 'text-[#ff1356]'}`} />
+                                </div>
+                                <div className={`text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
+                                    No Routes Found
+                                </div>
+                                <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
+                                    You may not be able to view trades with high price impact. You can increase your risk tolerance in the settings to see trades with higher slippage and low liquidity pools.
+                                </div>
+                            </div>
+                        }
+                        {fromAmount && aggregatorPairs.map((dex: TCustomPair, index: number) => {
 
 
 

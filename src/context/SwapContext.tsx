@@ -1281,14 +1281,17 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   const fetchAggregatorInfo = async () => {
     console.log("fetchAggregatorInfo")
     setCanAggregatorSwap(false);
+    setLoading(true);
     setSwapResult(null);
     setAggregatorPairs([]);
     if (!chainId) {
       resetSwap();
+      setLoading(false)
       return null;
     }
     if (!baseToken || !quoteToken) {
       resetSwap();
+      setLoading(false)
       return null;
     }
 
@@ -1296,12 +1299,14 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       if (!fromAmount || parseFloat(fromAmount) <= 0) {
         setToAmount("");
         setTradeInfo(null);
+        setLoading(false)
         return null;
       }
     } else if (tradeType == TradeType.EXACT_OUTPUT) {
       if (!toAmount || parseFloat(toAmount) <= 0) {
         setFromAmount("");
         setTradeInfo(null);
+        setLoading(false)
         return null;
       }
     }
@@ -1433,7 +1438,9 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
 
     }
+
     setAggregatorPairs(customPairs)
+    setLoading(false);
 
   }
 
