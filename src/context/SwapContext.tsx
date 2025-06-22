@@ -1401,12 +1401,9 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
       let _baseLiquidity = CurrencyAmount.fromRawAmount(baseTokenEntity, baseReserve.toString())
       let _quoteLiquidity = CurrencyAmount.fromRawAmount(quoteTokenEntity, quoteReserve.toString())
 
+ 
       const DEFAULT_ADD_SLIPPAGE_TOLERANCE = new Percent(INITIAL_ALLOWED_SLIPPAGE, 10_000)
       const amountOutSlippage = _tradeInfo.minimumAmountOut(DEFAULT_ADD_SLIPPAGE_TOLERANCE)
-
-
-
-      let outputAmount = amountOutSlippage.toSignificant(6)
 
       const base = JSBI.BigInt(_baseLiquidity.quotient.toString())
       const quote = JSBI.BigInt(_quoteLiquidity.quotient.toString())
@@ -1422,7 +1419,7 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
           baseLiqudity: _baseLiquidity,
           quoteLiquidity: _quoteLiquidity,
           exchangeInfo: exchangeInfo,
-          outputAmount: outputAmount,
+          outputAmount: amountOutSlippage.toSignificant(6),
           baseReservePercent: new Percent(base, total),
           quoteReservePercent: new Percent(quote, total),
           totalReservePercent: new Percent(total, total),
@@ -1527,11 +1524,14 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
 
     for (const pair of selectedPairs) {
       let outputAmount = JSBI.greaterThan(JSBI.BigInt(pair.pair.amount0Out.toString()), JSBI.BigInt(0)) ? pair.pair.amount0Out : pair.pair.amount1Out
+      
+      const DEFAULT_ADD_SLIPPAGE_TOLERANCE = new Percent(INITIAL_ALLOWED_SLIPPAGE, 10_000)
+      const amountOutSlippage = pair.trade.minimumAmountOut(DEFAULT_ADD_SLIPPAGE_TOLERANCE)
 
       let INPUT_TOKEN = etherIn ? pair.pair.weth : baseToken.address;
       let swapParam = {
         amountIn: ethers.parseUnits(fromAmount, _baseToken.decimals),
-        amountOut: outputAmount,
+        amountOut: toHex(amountOutSlippage),
         weth9: pair.pair.weth,
         wrapper: FANTOKENWrapper,
         pair: pair.pair.pair,

@@ -319,7 +319,7 @@ const FushionForm: React.FC = () => {
                                                 <div className="flex items-center gap-2 mt-0.5">
                                                     <div className="flex items-center gap-1">
                                                         <span className={`text-lg font-large ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
-                                                            {dex.trade.outputAmount.toSignificant(6)}
+                                                            {dex.outputAmount}
                                                         </span>
                                                     </div>
 

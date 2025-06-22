@@ -10,7 +10,7 @@ export const DEFAULT_TOKEN_LOGO = "https://www.kewl.exchange/images/coins/skull.
 // 30 minutes, denominated in seconds
 export const DEFAULT_DEADLINE_FROM_NOW = 60 * 30
 export const L2_DEADLINE_FROM_NOW = 60 * 5
-export const INITIAL_ALLOWED_SLIPPAGE = 50
+export const INITIAL_ALLOWED_SLIPPAGE = 100
 
 // transaction popup dismisal amounts
 export const DEFAULT_TXN_DISMISS_MS = 10000
