@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useTokenContext } from '../../../context/TokenContext';
 import { motion } from 'framer-motion';
 import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
@@ -48,6 +48,15 @@ const LeaderBoard = () => {
   const [nickName, setNickName] = useState('');
   const [telegramUser, setTelegramUser] = useState('');
 
+  // Calendar selected day state
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const todayISO = today.toISOString();
+  const [selectedDay, setSelectedDay] = useState<string>(todayISO);
+  // Calendar window state (start date offset in days)
+  const [windowOffset, setWindowOffset] = useState(0); // 0 means today is last, -30 means 30 days before today is last
+  const calendarScrollRef = useRef<HTMLDivElement>(null);
+
   const loadMoralisData = async () => {
 
 
@@ -72,6 +81,13 @@ const LeaderBoard = () => {
     loadMoralisData()
   }, [address, chainId, isConnected, baseToken])
 
+  // Scroll to end (today) on mount or windowOffset change
+  useEffect(() => {
+    if (calendarScrollRef.current) {
+      calendarScrollRef.current.scrollTo({ left: calendarScrollRef.current.scrollWidth, behavior: 'smooth' });
+    }
+  }, [windowOffset]);
+
   return (
     <div className={`flex flex-col px-0 py-4 md:p-4 transition-colors duration-300`}>
       <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-7 gap-4">
@@ -85,6 +101,76 @@ const LeaderBoard = () => {
             <div className="flex justify-between items-center mb-6">
               <h3 className={`font-medium ${isDarkMode ? 'text-gray-100' : 'text-gray-800'}`}>Trading Volume Leaderboard</h3>
               <div className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>All time</div>
+            </div>
+
+            <div className="flex flex-col gap-2 mb-2">
+              {/* Calendar Header */}
+              <div className="flex items-center gap-2 mb-2">
+                <span className={`font-semibold text-sm tracking-wide ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Last 30 Days</span>
+                <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Activity Calendar</span>
+              </div>
+              {/* 30-day calendar boxes, touch-friendly */}
+              <div className="flex items-center gap-0 py-2 px-1">
+                {/* Left Arrow */}
+                <button
+                  className={`w-8 h-8 flex items-center justify-center rounded-full border transition-colors duration-200 mr-2
+                    ${isDarkMode ? 'bg-gray-800/60 border-gray-700/40 text-gray-300 hover:bg-pink-900/30' : 'bg-white/80 border-gray-300/30 text-gray-600 hover:bg-pink-50'}
+                  `}
+                  onClick={() => setWindowOffset(windowOffset - 30)}
+                  aria-label="Previous 30 days"
+                >
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="12 4 6 9 12 14"/></svg>
+                </button>
+                {/* Calendar Days */}
+                <div ref={calendarScrollRef} className="flex gap-2 p-2 overflow-x-auto scrollbar-hide flex-1">
+                  {Array.from({ length: 30 }).map((_, i) => {
+                    const date = new Date();
+                    date.setDate(date.getDate() - (29 - i) + windowOffset);
+                    date.setHours(0, 0, 0, 0);
+                    const day = date.getDate().toString().padStart(2, '0');
+                    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+                    const dateISO = date.toISOString();
+                    const isToday = dateISO === todayISO;
+                    const isSelected = dateISO === selectedDay;
+                    const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                    const weekDay = weekDays[date.getDay()];
+                    return (
+                      <div
+                        key={i}
+                        className={`flex flex-col items-center justify-center w-16 h-16 rounded-2xl border shadow-sm select-none transition-all duration-200
+                          ${isSelected
+                            ? 'bg-gradient-to-r from-pink-50 to-white border border-pink-200 text-pink-500 border-pink-400 scale-105 shadow-lg'
+                            : isToday
+                                ? 'border-pink-400 text-pink-500 bg-pink-50 dark:bg-pink-900/20'
+                                : isDarkMode
+                                  ? 'bg-gray-800/60 text-gray-200 border-gray-700/40 hover:bg-pink-900/30 hover:text-pink-300'
+                                  : 'bg-white/80 text-gray-700 border-gray-300/30 hover:bg-pink-50 hover:text-[#ff1356]'}
+                          cursor-pointer group active:scale-95 touch-manipulation'
+                        `}
+                        title={`${day}.${month}`}
+                        style={{ minWidth: 64, minHeight: 64 }}
+                        onClick={() => setSelectedDay(dateISO)}
+                      >
+                        <span className={`text-xs font-medium mb-0.5 ${isSelected ? 'text-pink-500' : isToday ? 'text-pink-500' : isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{weekDay}</span>
+                        <span className={`text-xl font-bold leading-none ${isSelected ? 'text-pink-500' : isToday ? 'text-pink-500' : ''}`}>{day}</span>
+                        <span className={`text-xs font-medium ${isSelected ? 'text-pink-500/80' : isToday ? 'text-pink-400/80' : isDarkMode ? 'text-gray-400/80' : 'text-gray-400/80'}`}>{month}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                {/* Right Arrow */}
+                <button
+                  className={`w-8 h-8 flex items-center justify-center rounded-full border transition-colors duration-200 ml-2
+                    ${isDarkMode ? 'bg-gray-800/60 border-gray-700/40 text-gray-300 hover:bg-pink-900/30' : 'bg-white/80 border-gray-300/30 text-gray-600 hover:bg-pink-50'}
+                  `}
+                  onClick={() => setWindowOffset(windowOffset + 30)}
+                  aria-label="Next 30 days"
+                  disabled={windowOffset >= 0}
+                  style={{ opacity: windowOffset >= 0 ? 0.5 : 1, cursor: windowOffset >= 0 ? 'not-allowed' : 'pointer' }}
+                >
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 4 12 9 6 14"/></svg>
+                </button>
+              </div>
             </div>
 
             <div className="space-y-3  max-h-screen overflow-scroll px-2 scrollbar-hide">
