@@ -595,7 +595,7 @@ const FushionForm: React.FC = () => {
                     >
                         {/* Background animation - only show when enabled */}
                         {canAggregatorSwap && swapMode == SWAP_MODE.AGGREGATOR && (
-                            <div className="absolute inset-0 bg-white opacity-20">
+                            <div className="absolute inset-0 bg-white opacity-0">
                                 <div className="h-full w-1/3 bg-white/40 blur-xl transform -skew-x-30 -translate-x-full animate-shimmer"></div>
                             </div>
                         )}
