@@ -9,7 +9,7 @@ import TokenList from '../../Swap/TokenList';
 import Moralis from 'moralis';
 import { useMoralisInitialized } from '../../../context/MoralisProviderContext';
 import { useSwapContext } from '../../../context/SwapContext';
-import { formatEther } from 'viem';
+import { formatEther, formatUnits } from 'viem';
 
 const LeaderBoard = () => {
 
@@ -145,7 +145,7 @@ const LeaderBoard = () => {
                         <div className='w-full flex justify-between items-center mb-1'>
                           <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{baseToken?.symbol}</span>
                           <span className={`text-xs font-semibold ${isDarkMode ? 'text-pink-300' : 'text-[#ff1356]'}`}>
-                            {`${((parseFloat(formatEther(user.quoteVolume)) / (parseFloat(formatEther(leaderboard.totalTradeQuote)) || 1)) * 100).toFixed(1)}%`}
+                            {`${((parseFloat(formatEther(user.quoteVolume)) / (parseFloat(formatUnits(leaderboard.totalTradeQuote,baseToken?.decimals)) || 1)) * 100).toFixed(1)}%`}
                           </span>
                         </div>
                         <div className={`w-full h-1.5 rounded-full ${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-200'}`}>
@@ -168,7 +168,7 @@ const LeaderBoard = () => {
 <div className="flex flex-col items-center justify-center w-full">
   <div className="flex flex-col items-center justify-between w-full mb-1">
     <span className={`text-xs font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{baseToken?.symbol} Volume</span>
-    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{parseFloat(formatEther(user.quoteVolume)).toFixed(4)}</span>
+    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{parseFloat(formatUnits(user.quoteVolume,baseToken?.decimals)).toFixed(4)}</span>
   </div>
  
 </div>
@@ -338,11 +338,44 @@ const LeaderBoard = () => {
                 <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{baseToken?.symbol} Volume</span>
                 <div className="flex items-center justify-between">
                   <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                    {parseFloat(formatEther(leaderboard.scoreInfo.userBaseVolume)).toFixed(4)}
+                    {parseFloat(formatUnits(leaderboard.scoreInfo.userBaseVolume,baseToken?.decimals)).toFixed(4)}
                   </span>
 
                 </div>
               </motion.div>
+
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{nativeToken?.symbol} Volume Daily</span>
+                <div className="flex items-center justify-between">
+                  <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
+                    {parseFloat(formatEther(leaderboard.scoreInfo.userDailyQuoteVolume)).toFixed(4)}
+                  </span>
+
+                </div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{baseToken?.symbol} Volume Daily</span>
+                <div className="flex items-center justify-between">
+                  <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
+                    {parseFloat(formatUnits(leaderboard.scoreInfo.userDailyBaseVolume,baseToken?.decimals)).toFixed(4)}
+                  </span>
+
+                </div>
+              </motion.div>
+
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}

@@ -123,6 +123,10 @@ const initialScoreInfo: LeaderBoardScoreInfo = {
   totalQuoteVolume: BigInt(0),
   userBaseVolume: BigInt(0),
   userQuoteVolume: BigInt(0),
+  userDailyBaseVolume: BigInt(0),
+  userDailyQuoteVolume: BigInt(0),
+  totalDailyBaseVolume: BigInt(0),
+  totalDailyQuoteVolume: BigInt(0),
   userScore: BigInt(0),
 };
 // Context için tip tanımı
@@ -697,6 +701,10 @@ export type LeaderBoardScoreInfo = {
   totalQuoteVolume: bigint;
   userBaseVolume: bigint;
   userQuoteVolume: bigint;
+  userDailyBaseVolume: bigint;
+  userDailyQuoteVolume: bigint;
+  totalDailyBaseVolume: bigint;
+  totalDailyQuoteVolume: bigint;
   userScore: bigint;
 };
 
