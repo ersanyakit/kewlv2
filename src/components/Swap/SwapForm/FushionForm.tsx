@@ -327,7 +327,7 @@ const FushionForm: React.FC = () => {
                                     <AlertCircle className={`w-5 h-5 ${isDarkMode ? 'text-[#ff4080]' : 'text-[#ff1356]'}`} />
                                 </div>
                                 <div className={`text-sm font-medium mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>
-                                    No Routes Found
+                                    Insufficient Liquidity or No Route Found
                                 </div>
                                 <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
                                     You may not be able to view trades with high price impact. You can increase your risk tolerance in the settings to see trades with higher slippage and low liquidity pools.
