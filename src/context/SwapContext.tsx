@@ -2969,6 +2969,33 @@ const formatted = date.toLocaleString('en-US', {
     return value / DIVISOR;
   }
 
+
+  function log2BigInt(n: bigint): bigint {
+    if (n <= 0n) return 0n;
+    let log = 0n;
+    while (n > 1n) {
+      n >>= 1n;
+      log++;
+    }
+    return log;
+  }
+  
+  function getLeaderboardUserScore(userBase: bigint, userQuote: bigint, totalBase: bigint, totalQuote: bigint): bigint {
+    const scale = 10n ** 18n;
+  
+    const normalizedBase = totalBase > 0n ? (userBase * scale) / totalBase : 0n;
+    const normalizedQuote = totalQuote > 0n ? (userQuote * scale) / totalQuote : 0n;
+  
+    const logComponent =
+      log2BigInt(1n + userBase * 2n) + log2BigInt(1n + userQuote); // Birebir Solidity ile uyumlu
+  
+    const normalizedComponent = normalizedBase + normalizedQuote;
+  
+    const userScore = logComponent * 50n + normalizedComponent / 10n ** 14n;
+  
+    return userScore
+  }
+
   const fetchLeaderBoardTransactions = async (walletProvider: any) => {
   
   setLeaderboard(prev => ({ ...prev, loading: true }))
@@ -3040,14 +3067,16 @@ const tradeStats : any = await dexContract.client.readContract({
 
 
       const baseFirst =  quoteAddress.toLowerCase() > _weth9.toLowerCase();
-    const scoreParamA = baseFirst ? base : quote;
-    const scoreParamB = baseFirst ? quote: base;
 
-// BigInt’leri Number’a çevir (uyarı: büyük değerlerde taşma olabilir)
-const scoreParamANum = Number(scoreParamA * 2n + 1n);
-const scoreParamBNum = Number(scoreParamB + 1n);
+    const scoreUserParamA = baseFirst ? base : quote;
+    const scoreUserParamB = baseFirst ? quote: base;
+
+    const scoreTotalParamA = baseFirst ? totalTradeBase : totalTradeQuote;
+    const scoreTotalParamB = baseFirst ? totalTradeQuote: totalTradeBase;
       
-const score = Math.floor((Math.log2(scoreParamANum) + Math.log2(scoreParamBNum)) * 100);      // veya sayı olarak
+const score = getLeaderboardUserScore(scoreUserParamA,scoreUserParamB,scoreTotalParamA,scoreTotalParamB)
+console.log("SCORE",trader,scoreUserParamA,scoreUserParamB,scoreTotalParamA,scoreTotalParamB)
+
 
       return {
         address: trader,
