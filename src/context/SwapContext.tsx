@@ -3138,6 +3138,8 @@ console.log("SCORE",trader,scoreUserParamA,scoreUserParamB,scoreTotalParamA,scor
       hash: registerTx,
     });
 
+    await fetchLeaderBoardTransactions(walletProvider)
+
   }
 
   const fetchLimitOrderHistory = async (walletProvider: any) => {
