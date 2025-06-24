@@ -223,8 +223,10 @@ interface SwapContextProps {
   createPaidPair:(walletProvider:any, baseTokenAddress:string, quoteTokenAddress : string, listingFee:bigint) => void;
 
   fetchLeaderBoardTransactions : (walletProvider:any) => void;
-  leaderboard,
-  setLeaderboard,
+  leaderboard:LeaderboardData,
+  leaderboardDate:bigint,
+  setLeaderboardDate:(date:bigint)=>void,
+  setLeaderboard:(data:LeaderboardData)=>void,
   registerLeaderBoardUser:(walletProvider:any, userAddress : string, twitterAddress:string, nickName:string, telegramUser:string) => void;
 }
 
@@ -353,7 +355,12 @@ const defaultContext: SwapContextProps = {
     userInfo:initialUserInfo,
     scoreInfo:initialScoreInfo
   },
-  setLeaderboard:() => {}
+  setLeaderboard:() => {},
+  registerLeaderBoardUser : () =>{},
+  leaderboardDate:0n,
+  setLeaderboardDate : () => {}
+    
+  
 
 };
 
@@ -684,9 +691,12 @@ export interface LeaderboardUser {
 export type LeaderBoardTradeStats = {
   totalTradeBase: bigint;
   totalTradeQuote: bigint;
-  traders: string[];
+  totalDailyTradeBase: bigint;
+  totalDailyTradeQuote: bigint;
   baseVolume: bigint[];
   quoteVolume: bigint[];
+  baseVolumeDaily: bigint[];
+  quoteVolumeDaily: bigint[];
 }
 
 export type LeaderBoardUserInfo = {
@@ -695,6 +705,11 @@ export type LeaderBoardUserInfo = {
   twitter: string;
   user: `0x${string}`; // Ethereum address tipinde
 };
+
+export type LeaderBoardTradeStatsInfo = {
+  tradeStats:LeaderBoardTradeStats,
+  traders:LeaderBoardUserInfo,
+}
 
 export type LeaderBoardScoreInfo = {
   totalBaseVolume: bigint;
@@ -744,17 +759,25 @@ export interface TokenPair {
   logo:string;
 }
 
-export type LeaderboardEntry = {
-  address: string
+export type LeaderboardScoreEntry = {
   baseVolume: bigint
   quoteVolume: bigint
   score: bigint
 }
 
+
+export interface LeaderboardUserEntry {
+  trader:LeaderboardUser,
+  score:LeaderboardScoreEntry,
+}
+
+
 export type LeaderboardData = {
   totalTradeBase: bigint
   totalTradeQuote: bigint
-  entries: LeaderboardEntry[]
+  totalDailyTradeBase:bigint
+  totalDailyTradeQuote:bigint
+  entries: LeaderboardUserEntry[]
   loading: boolean
   userInfo:LeaderBoardUserInfo,
   scoreInfo:LeaderBoardScoreInfo,
@@ -851,10 +874,13 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   });
 
 
+  const [leaderboardDate, setLeaderboardDate] = useState<bigint>(0n);
 
   const [leaderboard, setLeaderboard] = useState<LeaderboardData>({
-    totalTradeBase: BigInt(0),
-    totalTradeQuote: BigInt(0),
+    totalTradeBase: 0n,
+    totalTradeQuote: 0n,
+    totalDailyTradeBase:0n,
+    totalDailyTradeQuote:0n,
     entries: [],
     loading: false,
     userInfo:initialUserInfo,
@@ -3015,7 +3041,10 @@ const formatted = date.toLocaleString('en-US', {
 
     
     const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
-    
+    const multicallContract = await getContractByName(TContractType.MULTICALL, Number(chainId), walletProvider);
+
+ 
+
     
     const leaderboardUsers = await dexContract.client.readContract({
       address: dexContract.caller.address,
@@ -3038,11 +3067,32 @@ const addresses: string[] = leaderboardUsers.map((item : any) => item.user);
 
 console.log("addresses",addresses)
 
+
+const currentBlockNumber = await multicallContract.client.readContract({
+  address: multicallContract.caller.address,
+  abi: multicallContract.abi,
+  functionName: 'getCurrentBlockTimestamp',
+  args: [],
+  account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
+})  
+
+
+
+const chainNow = Number(currentBlockNumber)
+const chainStartOfDay = chainNow - (chainNow % 86400);
+const startOfDay = chainStartOfDay - (86400 * Number(leaderboardDate));
+
+console.log("ersan",leaderboardDate)
+
+
+
+
+
 const tradeStats : any = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
       functionName: 'getTradeStatsForMultipleUser',
-      args: [_weth9,quoteAddress,addresses],
+      args: [_weth9,quoteAddress,startOfDay,addresses],
       account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
     }) as LeaderBoardTradeStats;
 
@@ -3058,48 +3108,57 @@ const tradeStats : any = await dexContract.client.readContract({
      
 
 
-    console.log("tradeStats",tradeStats)
-    const { totalTradeBase, totalTradeQuote, traders, baseVolume, quoteVolume } = {
-      totalTradeBase: tradeStats[0],
-      totalTradeQuote: tradeStats[1],
-      traders: tradeStats[2],
-      baseVolume: tradeStats[3],
-      quoteVolume: tradeStats[4],
-    };
-    console.log("tradeStats",tradeStats,traders,userInfo,scoreInfo)
 
-    const entries = traders.map((trader:any, i:number) => {
-      const base = baseVolume[i]
-      const quote = quoteVolume[i]
+      
+
+
     
 
-
-      const baseFirst =  quoteAddress.toLowerCase() > _weth9.toLowerCase();
+    
+    const entries : LeaderboardUserEntry[] = leaderboardUsers
+  .map((trader: any, i: number) => {
+    const base = tradeStats.baseVolume[i];
+    const quote = tradeStats.quoteVolume[i];
+    const baseFirst = quoteAddress.toLowerCase() > _weth9.toLowerCase();
 
     const scoreUserParamA = baseFirst ? base : quote;
-    const scoreUserParamB = baseFirst ? quote: base;
+    const scoreUserParamB = baseFirst ? quote : base;
+    const scoreTotalParamA = baseFirst ? tradeStats.totalTradeBase : tradeStats.totalTradeQuote;
+    const scoreTotalParamB = baseFirst ? tradeStats.totalTradeQuote : tradeStats.totalTradeBase;
 
-    const scoreTotalParamA = baseFirst ? totalTradeBase : totalTradeQuote;
-    const scoreTotalParamB = baseFirst ? totalTradeQuote: totalTradeBase;
-      
-const score = getLeaderboardUserScore(scoreUserParamA,scoreUserParamB,scoreTotalParamA,scoreTotalParamB)
-console.log("SCORE",trader,scoreUserParamA,scoreUserParamB,scoreTotalParamA,scoreTotalParamB)
+    const score = getLeaderboardUserScore(
+      scoreUserParamA,
+      scoreUserParamB,
+      scoreTotalParamA,
+      scoreTotalParamB
+    );
 
 
-      return {
-        address: trader,
+  
+    return {
+      trader: trader,
+      score: {
         baseVolume: base,
         quoteVolume: quote,
-        score,
-      }
-    }).sort((a:any, b:any) => (b.score > a.score ? 1 : -1))
+        score: score,
+      },
+    };
+  })
+  .sort((a, b) => (a.score.score < b.score.score ? 1 : a.score.score > b.score.score ? -1 : 0)); // bigint karşılaştırma
 
+console.log("tradeStatsentries", entries);
+
+    console.log("tradeStatsentries",entries)
+
+    
     setLeaderboard({
       userInfo:userInfo,
       scoreInfo:scoreInfo,
-      totalTradeBase: totalTradeBase,
-      totalTradeQuote: totalTradeQuote,
-      entries,
+      totalTradeBase: tradeStats.totalTradeBase,
+      totalTradeQuote: tradeStats.totalTradeQuote,
+      totalDailyTradeBase:tradeStats.totalDailyTradeQuote,
+      totalDailyTradeQuote: tradeStats.totalDailyTradeQuote,
+      entries:entries,
       loading: false,
     }) 
 
@@ -3800,7 +3859,9 @@ console.log("SCORE",trader,scoreUserParamA,scoreUserParamB,scoreTotalParamA,scor
     leaderboard,
     setLeaderboard,
     fetchLeaderBoardTransactions,
-    registerLeaderBoardUser
+    registerLeaderBoardUser,
+    leaderboardDate, 
+    setLeaderboardDate
   };
 
   return (

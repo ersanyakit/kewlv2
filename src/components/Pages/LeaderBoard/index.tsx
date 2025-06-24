@@ -8,7 +8,7 @@ import TokenShape from '../../UI/TokenShape';
 import TokenList from '../../Swap/TokenList';
 import Moralis from 'moralis';
 import { useMoralisInitialized } from '../../../context/MoralisProviderContext';
-import { useSwapContext } from '../../../context/SwapContext';
+import { LeaderboardUserEntry, useSwapContext } from '../../../context/SwapContext';
 import { formatEther, formatUnits } from 'viem';
 
 const LeaderBoard = () => {
@@ -41,7 +41,7 @@ const LeaderBoard = () => {
 
   } = useTokenContext();
 
-  const { fetchLeaderBoardTransactions, leaderboard, registerLeaderBoardUser } = useSwapContext();
+  const { fetchLeaderBoardTransactions, leaderboard, registerLeaderBoardUser,setLeaderboardDate,leaderboardDate } = useSwapContext();
   const navigate = useNavigate();
   const isMoralisReady = useMoralisInitialized();
   const [twitterUser, setTwitterUser] = useState('');
@@ -79,7 +79,7 @@ const LeaderBoard = () => {
 
   useEffect(() => {
     loadMoralisData()
-  }, [address, chainId, isConnected, baseToken])
+  }, [address, chainId, isConnected, baseToken,leaderboardDate])
 
   // Scroll to end (today) on mount or windowOffset change
   useEffect(() => {
@@ -109,6 +109,7 @@ const LeaderBoard = () => {
                 <span className={`font-semibold text-sm tracking-wide ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Last 30 Days</span>
                 <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Activity Calendar</span>
               </div>
+    
               {/* 30-day calendar boxes, touch-friendly */}
               <div className="flex items-center gap-0 py-2 px-1">
                 {/* Left Arrow */}
@@ -131,6 +132,7 @@ const LeaderBoard = () => {
                     const month = (date.getMonth() + 1).toString().padStart(2, '0');
                     const dateISO = date.toISOString();
                     const isToday = dateISO === todayISO;
+                    const startOfDayTimestamp = Math.floor(date.getTime() / 1000); // in seconds
                     const isSelected = dateISO === selectedDay;
                     const weekDays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
                     const weekDay = weekDays[date.getDay()];
@@ -149,8 +151,11 @@ const LeaderBoard = () => {
                         `}
                         title={`${day}.${month}`}
                         style={{ minWidth: 64, minHeight: 64 }}
-                        onClick={() => setSelectedDay(dateISO)}
-                      >
+                        onClick={() => {
+                          setSelectedDay(dateISO)
+                          setLeaderboardDate(BigInt(29-i))
+
+                        }}>
                         <span className={`text-xs font-medium mb-0.5 ${isSelected ? 'text-pink-500' : isToday ? 'text-pink-500' : isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{weekDay}</span>
                         <span className={`text-xl font-bold leading-none ${isSelected ? 'text-pink-500' : isToday ? 'text-pink-500' : ''}`}>{day}</span>
                         <span className={`text-xs font-medium ${isSelected ? 'text-pink-500/80' : isToday ? 'text-pink-400/80' : isDarkMode ? 'text-gray-400/80' : 'text-gray-400/80'}`}>{month}</span>
@@ -171,15 +176,47 @@ const LeaderBoard = () => {
                   <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 4 12 9 6 14"/></svg>
                 </button>
               </div>
+
+                        {/* Professional 2-column stats grid */}
+                        <div className='w-full grid grid-cols-2 gap-2 p-2'>
+                {/* Total Native Volume */}
+                <div className={`flex flex-col items-center justify-between w-full mb-1 p-3 rounded-xl shadow-sm border backdrop-blur-md
+                  ${isDarkMode ? 'bg-gray-900/60 border-gray-700/40' : 'bg-white/60 border-white/40'}`}
+                >
+                  <span className={`text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Total {nativeToken?.symbol} Volume</span>
+                  <span className={`text-base font-bold font-mono ${isDarkMode ? 'text-pink-200' : 'text-pink-600'}`}>{parseFloat(formatEther(leaderboard.totalTradeBase)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
+                </div>
+                {/* Total Base Volume */}
+                <div className={`flex flex-col items-center justify-between w-full mb-1 p-3 rounded-xl shadow-sm border backdrop-blur-md
+                  ${isDarkMode ? 'bg-gray-900/60 border-gray-700/40' : 'bg-white/60 border-white/40'}`}
+                >
+                  <span className={`text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Total {baseToken?.symbol} Volume</span>
+                  <span className={`text-base font-bold font-mono ${isDarkMode ? 'text-purple-200' : 'text-purple-700'}`}>{parseFloat(formatUnits(leaderboard.totalTradeQuote, baseToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
+                </div>
+                {/* Daily Native Volume */}
+                <div className={`flex flex-col items-center justify-between w-full mb-1 p-3 rounded-xl shadow-sm border backdrop-blur-md
+                  ${isDarkMode ? 'bg-gray-900/60 border-gray-700/40' : 'bg-white/60 border-white/40'}`}
+                >
+                  <span className={`text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Daily {nativeToken?.symbol} Volume</span>
+                  <span className={`text-base font-bold font-mono ${isDarkMode ? 'text-pink-200' : 'text-pink-600'}`}>{parseFloat(formatEther(leaderboard.totalDailyTradeBase)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
+                </div>
+                {/* Daily Base Volume */}
+                <div className={`flex flex-col items-center justify-between w-full mb-1 p-3 rounded-xl shadow-sm border backdrop-blur-md
+                  ${isDarkMode ? 'bg-gray-900/60 border-gray-700/40' : 'bg-white/60 border-white/40'}`}
+                >
+                  <span className={`text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Daily {baseToken?.symbol} Volume</span>
+                  <span className={`text-base font-bold font-mono ${isDarkMode ? 'text-purple-200' : 'text-purple-700'}`}>{parseFloat(formatUnits(leaderboard.totalDailyTradeQuote, baseToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
+                </div>
+              </div>
             </div>
 
             <div className="space-y-3  max-h-screen overflow-scroll px-2 scrollbar-hide">
 
               {
                 !leaderboard.loading &&
-                leaderboard.entries.map((user: any, index: number) => (
+                leaderboard.entries.map((userEntry: LeaderboardUserEntry, index: number) => (
                   <div
-                    key={user.address}
+                    key={userEntry.trader.user}
                     className={`relative  flex flex-col gap-2 items-center justify-between py-4 px-4 rounded-xl ${isDarkMode
                         ? 'bg-gray-700/30 hover:bg-gray-700/50'
                         : 'bg-white/50 hover:bg-white/70'
@@ -204,7 +241,7 @@ const LeaderBoard = () => {
 
                       <div className="flex flex-col overflow-hidden">
                         <span className={`font-medium text-xs ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} group-hover:text-[#ff1356] transition-colors duration-300`}>
-                          {user.address}
+                          {userEntry.trader.user}
                         </span>
                       </div>
                     </div>
@@ -212,18 +249,18 @@ const LeaderBoard = () => {
                     <div className='w-full grid grid-cols-3 gap-4 text-center mt-2'>
                       <div className='flex flex-col items-center justify-center'>
                         <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>SCORE</span>
-                        <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{parseFloat(user.score).toFixed(0)}</span>
+                        <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{parseFloat(userEntry.score.score.toString()).toFixed(0)}</span>
                       </div>
 
                       <div className='flex flex-col items-start w-full'>
                         <div className='w-full flex justify-between items-center mb-1'>
                           <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{nativeToken?.symbol}</span>
                           <span className={`text-xs font-semibold ${isDarkMode ? 'text-pink-300' : 'text-[#ff1356]'}`}>
-                            {`${((parseFloat(formatEther(user.baseVolume)) / (parseFloat(formatEther(leaderboard.totalTradeBase)) || 1)) * 100).toFixed(1)}%`}
+                            {`${((parseFloat(formatEther(userEntry.score.baseVolume)) / (parseFloat(formatEther(leaderboard.totalTradeBase)) || 1)) * 100).toFixed(1)}%`}
                           </span>
                         </div>
                         <div className={`w-full h-1.5 rounded-full ${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-200'}`}>
-                          <div className='h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500' style={{ width: `${Math.min(100, (parseFloat(formatEther(user.baseVolume)) / (parseFloat(formatEther(leaderboard.totalTradeBase)) || 1)) * 100)}%` }}></div>
+                          <div className='h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500' style={{ width: `${Math.min(100, (parseFloat(formatEther(userEntry.score.baseVolume)) / (parseFloat(formatEther(leaderboard.totalTradeBase)) || 1)) * 100)}%` }}></div>
                         </div>
                       </div>
 
@@ -231,11 +268,11 @@ const LeaderBoard = () => {
                         <div className='w-full flex justify-between items-center mb-1'>
                           <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{baseToken?.symbol}</span>
                           <span className={`text-xs font-semibold ${isDarkMode ? 'text-pink-300' : 'text-[#ff1356]'}`}>
-                            {`${((parseFloat(formatEther(user.quoteVolume)) / (parseFloat(formatUnits(leaderboard.totalTradeQuote,baseToken?.decimals)) || 1)) * 100).toFixed(1)}%`}
+                            {`${((parseFloat(formatEther(userEntry.score.quoteVolume)) / (parseFloat(formatUnits(leaderboard.totalTradeQuote,baseToken?.decimals ?? 18)) || 1)) * 100).toFixed(1)}%`}
                           </span>
                         </div>
                         <div className={`w-full h-1.5 rounded-full ${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-200'}`}>
-                          <div className='h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500' style={{ width: `${Math.min(100, (parseFloat(formatEther(user.quoteVolume)) / (parseFloat(formatEther(leaderboard.totalTradeQuote)) || 1)) * 100)}%` }}></div>
+                          <div className='h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500' style={{ width: `${Math.min(100, (parseFloat(formatEther(userEntry.score.quoteVolume)) / (parseFloat(formatEther(leaderboard.totalTradeQuote)) || 1)) * 100)}%` }}></div>
                         </div>
                       </div>
                     </div>
@@ -247,14 +284,14 @@ const LeaderBoard = () => {
 <div className="flex flex-col items-center justify-center w-full">
   <div className="flex flex-col items-center justify-between w-full mb-1">
     <span className={`text-xs font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{nativeToken?.symbol} Volume</span>
-    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{parseFloat(formatEther(user.baseVolume)).toFixed(4)}</span>
+    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{parseFloat(formatEther(userEntry.score.baseVolume)).toFixed(4)}</span>
   </div>
   
 </div>
 <div className="flex flex-col items-center justify-center w-full">
   <div className="flex flex-col items-center justify-between w-full mb-1">
     <span className={`text-xs font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{baseToken?.symbol} Volume</span>
-    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{parseFloat(formatUnits(user.quoteVolume,baseToken?.decimals)).toFixed(4)}</span>
+    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{parseFloat(formatUnits(userEntry.score.quoteVolume,baseToken?.decimals ?? 18)).toFixed(4)}</span>
   </div>
  
 </div>
@@ -424,7 +461,7 @@ const LeaderBoard = () => {
                 <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{baseToken?.symbol} Volume</span>
                 <div className="flex items-center justify-between">
                   <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                    {parseFloat(formatUnits(leaderboard.scoreInfo.userBaseVolume,baseToken?.decimals)).toFixed(4)}
+                    {parseFloat(formatUnits(leaderboard.scoreInfo.userBaseVolume,baseToken?.decimals ?? 18)).toFixed(4)}
                   </span>
 
                 </div>
@@ -456,7 +493,7 @@ const LeaderBoard = () => {
                 <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{baseToken?.symbol} Volume Daily</span>
                 <div className="flex items-center justify-between">
                   <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                    {parseFloat(formatUnits(leaderboard.scoreInfo.userDailyBaseVolume,baseToken?.decimals)).toFixed(4)}
+                    {parseFloat(formatUnits(leaderboard.scoreInfo.userDailyBaseVolume,baseToken?.decimals ?? 18)).toFixed(4)}
                   </span>
 
                 </div>
@@ -513,7 +550,7 @@ const LeaderBoard = () => {
                         } font-bold text-sm`}
                       whileHover={{ scale: 1.1, rotate: 5 }}
                     >
-                      {leaderboard.entries.findIndex((e: any) => e.address.toLocaleLowerCase() === address?.toString().toLocaleLowerCase()) + 1}
+                      {leaderboard.entries.findIndex((e: LeaderboardUserEntry) => e.trader.user.toLocaleLowerCase() === address?.toString().toLocaleLowerCase()) + 1}
                     </motion.div>
                   </div>
                   <motion.div
