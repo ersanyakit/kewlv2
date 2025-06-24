@@ -805,7 +805,7 @@ const BundleForm: React.FC = () => {
         <div className="flex justify-between items-start mb-1">
           <div>
             <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} mb-0.5`}>You Pay</div>
-            <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Balance: {nativeToken && nativeToken.balance} {nativeToken && nativeToken.symbol}</div>
+            <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Balance: {nativeToken && parseFloat(nativeToken.balance).toLocaleString(undefined, {maximumFractionDigits: 4})} {nativeToken && nativeToken.symbol}</div>
           </div>
 
           <div className="flex gap-1 flex-row items-center">

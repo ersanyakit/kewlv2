@@ -109,7 +109,7 @@ const TransactionHistory: React.FC = () => {
                   <div>
                     <div className="flex justify-between text-xs mb-1">
                       <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Total Trade Volume</span>
-                      <span className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{parseFloat(statItem.totalTrades).toFixed(4)}</span>
+                      <span className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{parseFloat(statItem.totalTrades).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
                     </div>
                     <div className={`h-1.5 w-full rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
                       <div className={`h-full rounded-full bg-indigo-500`} style={{ width: '100%' }}></div>
@@ -120,7 +120,7 @@ const TransactionHistory: React.FC = () => {
                   <div>
                     <div className="flex justify-between text-xs mb-1">
                       <span className={`${isDarkMode ? 'text-gray-400' : 'text-gray-600'}`}>Your Trade Volume</span>
-                      <span className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{parseFloat(statItem.individualTrades).toFixed(4)}</span>
+                      <span className={`font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{parseFloat(statItem.individualTrades).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
                     </div>
                     <div className={`h-1.5 w-full rounded-full ${isDarkMode ? 'bg-gray-700' : 'bg-gray-200'}`}>
                       <div className={`h-full rounded-full ${isDarkMode ? 'bg-emerald-500' : 'bg-emerald-600'}`}

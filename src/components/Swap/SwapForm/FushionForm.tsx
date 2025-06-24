@@ -112,7 +112,7 @@ const FushionForm: React.FC = () => {
                     <div className="flex justify-between items-start mb-1">
                         <div>
                             <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} mb-0.5`}>You Pay</div>
-                            <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Balance: {baseToken && baseToken.balance} {baseToken && baseToken.symbol}</div>
+                            <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Balance: {baseToken && parseFloat(baseToken.balance).toLocaleString(undefined, {maximumFractionDigits: 4})} {baseToken && baseToken.symbol}</div>
                         </div>
 
                         <div className="flex gap-1 flex-row items-center">
@@ -384,7 +384,8 @@ const FushionForm: React.FC = () => {
                                                 <div className="flex items-center gap-2 mt-0.5">
                                                     <div className="flex items-center gap-1">
                                                         <span className={`text-lg font-large ${isDarkMode ? 'text-green-400' : 'text-green-600'}`}>
-                                                            {dex.outputAmount}
+                                                            {
+                                                            parseFloat(dex.outputAmount).toLocaleString(undefined, {maximumFractionDigits: 8})}
                                                         </span>
                                                     </div>
 
@@ -681,7 +682,7 @@ const FushionForm: React.FC = () => {
                                         } p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2`}
                                     whileHover={{ scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    aria-label="Ayarlar"
+                                    aria-label="Settings"
                                 >
                                     <RefreshCcw className="w-5 h-5" />
                                 </motion.button>
@@ -749,7 +750,8 @@ const FushionForm: React.FC = () => {
                                                                     aria-hidden="true">
                                                                 </div>
                                                             ) : (
-                                                                parseFloat(token.balance).toFixed(4)
+                                                                parseFloat(token.balance).toLocaleString(undefined, {maximumFractionDigits: 4})
+
                                                             )}
                                                         </div>
 

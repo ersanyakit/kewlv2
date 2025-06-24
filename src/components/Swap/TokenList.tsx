@@ -183,7 +183,8 @@ const TokenList: React.FC = () => {
                       aria-hidden="true">
                     </div>
                   ) : (
-                    parseFloat(token.balance).toFixed(4)
+                    parseFloat(token.balance).toLocaleString(undefined, {maximumFractionDigits: 4})
+                 
                   )}
                 </div>
               </div>

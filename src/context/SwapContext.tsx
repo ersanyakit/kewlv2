@@ -3096,6 +3096,8 @@ const tradeStats : any = await dexContract.client.readContract({
       account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
     }) as LeaderBoardTradeStats;
 
+    
+
     const [signerAccount] = await dexContract.wallet.getAddresses()
     const [userInfo,scoreInfo] : any = await dexContract.client.readContract({
       address: dexContract.caller.address,

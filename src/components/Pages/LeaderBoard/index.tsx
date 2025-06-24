@@ -184,28 +184,28 @@ const LeaderBoard = () => {
                   ${isDarkMode ? 'bg-gray-900/60 border-gray-700/40' : 'bg-white/60 border-white/40'}`}
                 >
                   <span className={`text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Total {nativeToken?.symbol} Volume</span>
-                  <span className={`text-base font-bold font-mono ${isDarkMode ? 'text-pink-200' : 'text-pink-600'}`}>{parseFloat(formatEther(leaderboard.totalTradeBase)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
+                  <span className={`text-base text-xs font-bold font-mono ${isDarkMode ? 'text-pink-200' : 'text-pink-600'}`}>{parseFloat(formatEther(leaderboard.totalTradeBase)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
                 </div>
                 {/* Total Base Volume */}
                 <div className={`flex flex-col items-center justify-between w-full mb-1 p-3 rounded-xl shadow-sm border backdrop-blur-md
                   ${isDarkMode ? 'bg-gray-900/60 border-gray-700/40' : 'bg-white/60 border-white/40'}`}
                 >
                   <span className={`text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Total {baseToken?.symbol} Volume</span>
-                  <span className={`text-base font-bold font-mono ${isDarkMode ? 'text-purple-200' : 'text-purple-700'}`}>{parseFloat(formatUnits(leaderboard.totalTradeQuote, baseToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
+                  <span className={`text-base text-xs font-bold font-mono ${isDarkMode ? 'text-purple-200' : 'text-purple-700'}`}>{parseFloat(formatUnits(leaderboard.totalTradeQuote, baseToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
                 </div>
                 {/* Daily Native Volume */}
                 <div className={`flex flex-col items-center justify-between w-full mb-1 p-3 rounded-xl shadow-sm border backdrop-blur-md
                   ${isDarkMode ? 'bg-gray-900/60 border-gray-700/40' : 'bg-white/60 border-white/40'}`}
                 >
                   <span className={`text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Daily {nativeToken?.symbol} Volume</span>
-                  <span className={`text-base font-bold font-mono ${isDarkMode ? 'text-pink-200' : 'text-pink-600'}`}>{parseFloat(formatEther(leaderboard.totalDailyTradeBase)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
+                  <span className={`text-base text-xs font-bold font-mono ${isDarkMode ? 'text-pink-200' : 'text-pink-600'}`}>{parseFloat(formatEther(leaderboard.totalDailyTradeBase)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
                 </div>
                 {/* Daily Base Volume */}
                 <div className={`flex flex-col items-center justify-between w-full mb-1 p-3 rounded-xl shadow-sm border backdrop-blur-md
                   ${isDarkMode ? 'bg-gray-900/60 border-gray-700/40' : 'bg-white/60 border-white/40'}`}
                 >
                   <span className={`text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Daily {baseToken?.symbol} Volume</span>
-                  <span className={`text-base font-bold font-mono ${isDarkMode ? 'text-purple-200' : 'text-purple-700'}`}>{parseFloat(formatUnits(leaderboard.totalDailyTradeQuote, baseToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
+                  <span className={`text-base text-xs font-bold font-mono ${isDarkMode ? 'text-purple-200' : 'text-purple-700'}`}>{parseFloat(formatUnits(leaderboard.totalDailyTradeQuote, baseToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
                 </div>
               </div>
             </div>
