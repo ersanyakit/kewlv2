@@ -73,7 +73,6 @@ const LeaderBoard = () => {
   }
 
   useEffect(() => {
-    console.log("LEADE", leaderboard)
 
   }, [leaderboard])
 
@@ -435,106 +434,6 @@ const LeaderBoard = () => {
                 </div>
               </motion.div>
 
-              {/* Trading Volume */}
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
-                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{nativeToken?.symbol} Volume</span>
-                <div className="flex items-center justify-between">
-                  <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                    {parseFloat(formatEther(leaderboard.scoreInfo.userQuoteVolume)).toFixed(4)}
-                  </span>
-
-                </div>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
-                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{baseToken?.symbol} Volume</span>
-                <div className="flex items-center justify-between">
-                  <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                    {parseFloat(formatUnits(leaderboard.scoreInfo.userBaseVolume,baseToken?.decimals ?? 18)).toFixed(4)}
-                  </span>
-
-                </div>
-              </motion.div>
-
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
-                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{nativeToken?.symbol} Volume Daily</span>
-                <div className="flex items-center justify-between">
-                  <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                    {parseFloat(formatEther(leaderboard.scoreInfo.userDailyQuoteVolume)).toFixed(4)}
-                  </span>
-
-                </div>
-              </motion.div>
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
-                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{baseToken?.symbol} Volume Daily</span>
-                <div className="flex items-center justify-between">
-                  <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                    {parseFloat(formatUnits(leaderboard.scoreInfo.userDailyBaseVolume,baseToken?.decimals ?? 18)).toFixed(4)}
-                  </span>
-
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2 }}
-                className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
-                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>User Score</span>
-                <div className="flex items-center justify-between mb-4">
-                  <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                    {leaderboard.scoreInfo.userScore.toString()}
-                  </span>
-                  <motion.div
-                    className="flex items-center gap-1"
-                    initial={{ opacity: 0, x: -10 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.3 }}
-                  >
-                    <Gift className={`w-4 h-4 ${isDarkMode ? 'text-pink-400' : 'text-[#ff1356]'}`} />
-                  </motion.div>
-                </div>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`w-full py-2.5 rounded-xl font-medium text-sm relative overflow-hidden ${isDarkMode
-                      ? 'bg-[#ff1356] text-white hover:bg-[#ff1356]/90'
-                      : 'bg-[#ff1356] text-white hover:bg-[#ff1356]/90'
-                    } transition-all duration-300 flex items-center justify-center gap-2 group`}
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/20 group-hover:via-purple-500/20 group-hover:to-[#ff1356]/20 transition-all duration-500" />
-                  <Gift className="w-4 h-4" />
-                  Claim Rewards
-                </motion.button>
-              </motion.div>
-
-              {/* Rank */}
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -551,7 +450,12 @@ const LeaderBoard = () => {
                       whileHover={{ scale: 1.1, rotate: 5 }}
                     >
                       {leaderboard.entries.findIndex((e: LeaderboardUserEntry) => e.trader.user.toLocaleLowerCase() === address?.toString().toLocaleLowerCase()) + 1}
+
+                      
                     </motion.div>
+                    <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
+                    {leaderboard.scoreInfo.userScore.toString()}
+                  </span>
                   </div>
                   <motion.div
                     className="flex items-center gap-1"
@@ -563,6 +467,98 @@ const LeaderBoard = () => {
                   </motion.div>
                 </div>
               </motion.div>
+
+              {/* Trading Volume */}
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{nativeToken?.symbol} Volume</span>
+                <div className="flex items-center justify-between">
+                  <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
+                    {parseFloat(formatUnits(leaderboard.scoreInfo.userQuoteVolume, nativeToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}
+
+                  </span>
+
+                </div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{baseToken?.symbol} Volume</span>
+                <div className="flex items-center justify-between">
+                  <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
+                    {parseFloat(formatUnits(leaderboard.scoreInfo.userBaseVolume, baseToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}
+
+                  </span>
+
+                </div>
+              </motion.div>
+
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{nativeToken?.symbol} Volume Daily</span>
+                <div className="flex items-center justify-between">
+                  <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
+                    {parseFloat(formatUnits(leaderboard.scoreInfo.userDailyQuoteVolume, nativeToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}
+                  </span>
+
+                </div>
+              </motion.div>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
+                <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{baseToken?.symbol} Volume Daily</span>
+                <div className="flex items-center justify-between">
+                  <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
+                    {parseFloat(formatUnits(leaderboard.scoreInfo.userDailyBaseVolume, baseToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}
+
+                  </span>
+
+                </div>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2 }}
+                className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
+              >
+                <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
+               
+                <motion.button
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className={`w-full py-2.5 rounded-xl font-medium text-sm relative overflow-hidden ${isDarkMode
+                      ? 'bg-[#ff1356] text-white hover:bg-[#ff1356]/90'
+                      : 'bg-[#ff1356] text-white hover:bg-[#ff1356]/90'
+                    } transition-all duration-300 flex items-center justify-center gap-2 group`}
+                >
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/20 group-hover:via-purple-500/20 group-hover:to-[#ff1356]/20 transition-all duration-500" />
+                  <Gift className="w-4 h-4" />
+                  Claim Rewards
+                </motion.button>
+              </motion.div>
+
+ 
+          
             </div>
           </div>
         </div>

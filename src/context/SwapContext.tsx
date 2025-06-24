@@ -348,8 +348,10 @@ const defaultContext: SwapContextProps = {
   createPaidPair:() => {},
   fetchLeaderBoardTransactions:() => {},
   leaderboard:{
-    totalTradeBase: BigInt(0),
-    totalTradeQuote: BigInt(0),
+    totalTradeBase: 0n,
+    totalTradeQuote: 0n,
+    totalDailyTradeBase:0n,
+    totalDailyTradeQuote:0n,
     entries: [],
     loading: false,
     userInfo:initialUserInfo,
@@ -3043,7 +3045,9 @@ const formatted = date.toLocaleString('en-US', {
     const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
     const multicallContract = await getContractByName(TContractType.MULTICALL, Number(chainId), walletProvider);
 
- 
+    const [signerAccount] = await dexContract.wallet.getAddresses()
+    const userAccount = signerAccount ? signerAccount : ETHER_ADDRESS
+
 
     
     const leaderboardUsers = await dexContract.client.readContract({
@@ -3051,7 +3055,7 @@ const formatted = date.toLocaleString('en-US', {
       abi: dexContract.abi,
       functionName: 'fetchLeaderBoardUsers',
       args: [],
-      account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
+      account: userAccount,
     })  as LeaderboardUser[]
 
 
@@ -3060,12 +3064,10 @@ const formatted = date.toLocaleString('en-US', {
     const isNative = baseToken?.address == ZeroAddress
     const quoteAddress = isNative ? _weth9 : baseToken?.address
 
-    console.log("leaderboardUsers",leaderboardUsers)
 
 // Adresleri array olarak al
 const addresses: string[] = leaderboardUsers.map((item : any) => item.user);
 
-console.log("addresses",addresses)
 
 
 const currentBlockNumber = await multicallContract.client.readContract({
@@ -3073,7 +3075,7 @@ const currentBlockNumber = await multicallContract.client.readContract({
   abi: multicallContract.abi,
   functionName: 'getCurrentBlockTimestamp',
   args: [],
-  account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
+  account: userAccount,
 })  
 
 
@@ -3082,7 +3084,6 @@ const chainNow = Number(currentBlockNumber)
 const chainStartOfDay = chainNow - (chainNow % 86400);
 const startOfDay = chainStartOfDay - (86400 * Number(leaderboardDate));
 
-console.log("ersan",leaderboardDate)
 
 
 
@@ -3093,18 +3094,17 @@ const tradeStats : any = await dexContract.client.readContract({
       abi: dexContract.abi,
       functionName: 'getTradeStatsForMultipleUser',
       args: [_weth9,quoteAddress,startOfDay,addresses],
-      account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
+      account: userAccount,
     }) as LeaderBoardTradeStats;
 
     
 
-    const [signerAccount] = await dexContract.wallet.getAddresses()
     const [userInfo,scoreInfo] : any = await dexContract.client.readContract({
       address: dexContract.caller.address,
       abi: dexContract.abi,
       functionName: 'getLeaderboardUserInfo',
-      args: [ signerAccount, quoteAddress, _weth9],
-      account: account ? ethers.getAddress(account) as `0x${string}` : undefined,
+      args: [ userAccount, quoteAddress, _weth9],
+      account: userAccount,
     }) as [LeaderBoardUserInfo, LeaderBoardScoreInfo];
 
      
