@@ -3146,9 +3146,7 @@ const tradeStats : any = await dexContract.client.readContract({
   })
   .sort((a, b) => (a.score.score < b.score.score ? 1 : a.score.score > b.score.score ? -1 : 0)); // bigint karşılaştırma
 
-console.log("tradeStatsentries", entries);
 
-    console.log("tradeStatsentries",entries)
 
     
     setLeaderboard({
@@ -3156,7 +3154,7 @@ console.log("tradeStatsentries", entries);
       scoreInfo:scoreInfo,
       totalTradeBase: tradeStats.totalTradeBase,
       totalTradeQuote: tradeStats.totalTradeQuote,
-      totalDailyTradeBase:tradeStats.totalDailyTradeQuote,
+      totalDailyTradeBase:tradeStats.totalDailyTradeBase,
       totalDailyTradeQuote: tradeStats.totalDailyTradeQuote,
       entries:entries,
       loading: false,
