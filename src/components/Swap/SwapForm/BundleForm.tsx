@@ -758,6 +758,15 @@ const BundleForm: React.FC = () => {
         "decimals": 18,
         "logoURI": "https://raw.githubusercontent.com/kewlexchange/assets/main/chiliz/tokens/0x12129ad866906ab5aa456ae1ebaea9e8a13e8197/logo.svg",
         "pair": "0xa7c364Ff98239f5fc91644752f88bEC5a6211147"
+      },
+      {
+        "chainId": 88888,
+        "name": "DOJO",
+        "symbol": "DOJO",
+        "address": "0xb66D72efc5fD77A8F9Dc2E7c0f14304828956644",
+        "decimals": 18,
+        "logoURI": "https://raw.githubusercontent.com/kewlexchange/assets/main/chiliz/tokens/0xb66D72efc5fD77A8F9Dc2E7c0f14304828956644/logo.png",
+        "pair": "0x4b73692bd9b34c9e352faad07de132f790521562"
       }
     ]
 
