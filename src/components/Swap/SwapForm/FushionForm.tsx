@@ -254,7 +254,7 @@ const FushionForm: React.FC = () => {
                 <div className='flex flex-col gap-3 p-3'>
                     <div className="flex items-center justify-between">
                         <div className={`text-sm font-medium ${isDarkMode ? 'text-gray-200' : 'text-gray-700'}`}>
-                            Available DEXes
+                            Liquidity Sources
                         </div>
                         <button
                             onClick={() => setToggleDetails(!toggleDetails)}
