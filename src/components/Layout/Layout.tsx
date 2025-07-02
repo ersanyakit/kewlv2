@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import { useTokenContext } from '../../context/TokenContext';
@@ -29,9 +29,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     },
   };
 
+  useEffect(()=>{
+
+  },[isDarkMode]);
+
   const location = useLocation();
   return (
-    <div className={`${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 text-gray-900'} min-h-screen safe-padding bg-white min-h-screen flex flex-col gap-2 p-4 md:p-2 scrollbar-hide transition-colors duration-300`}>
+    <div className={`${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 text-gray-900'} min-h-screen safe-padding min-h-screen flex flex-col gap-2 p-4 md:p-2 scrollbar-hide transition-colors duration-300`}>
       <Navbar />
      
       
