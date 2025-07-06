@@ -74,7 +74,6 @@ export function getChainDefaultAssetsURI(chainId: number): string {
   let chainName = getChainName(Number(chainId))
   return `https://raw.githubusercontent.com/kewlexchange/assets/main/${chainName}/index.json`
 }
-
 const metadata = {
   name: 'KEWL',
   description: 'Intelligent Asset Swapping for the Next Generation of DeFi.',

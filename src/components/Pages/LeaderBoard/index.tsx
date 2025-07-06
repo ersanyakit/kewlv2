@@ -41,7 +41,7 @@ const LeaderBoard = () => {
 
   } = useTokenContext();
 
-  const { fetchLeaderBoardTransactions, leaderboard, registerLeaderBoardUser,setLeaderboardDate,leaderboardDate } = useSwapContext();
+  const { fetchLeaderBoardTransactions, leaderboard, registerLeaderBoardUser, setLeaderboardDate, leaderboardDate } = useSwapContext();
   const navigate = useNavigate();
   const isMoralisReady = useMoralisInitialized();
   const [twitterUser, setTwitterUser] = useState('');
@@ -78,7 +78,7 @@ const LeaderBoard = () => {
 
   useEffect(() => {
     loadMoralisData()
-  }, [address, chainId, isConnected, baseToken,leaderboardDate])
+  }, [address, chainId, isConnected, baseToken, leaderboardDate])
 
   // Scroll to end (today) on mount or windowOffset change
   useEffect(() => {
@@ -108,7 +108,7 @@ const LeaderBoard = () => {
                 <span className={`font-semibold text-sm tracking-wide ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Last 30 Days</span>
                 <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Activity Calendar</span>
               </div>
-    
+
               {/* 30-day calendar boxes, touch-friendly */}
               <div className="flex items-center gap-0 py-2 px-1">
                 {/* Left Arrow */}
@@ -119,7 +119,7 @@ const LeaderBoard = () => {
                   onClick={() => setWindowOffset(windowOffset - 30)}
                   aria-label="Previous 30 days"
                 >
-                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="12 4 6 9 12 14"/></svg>
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="12 4 6 9 12 14" /></svg>
                 </button>
                 {/* Calendar Days */}
                 <div ref={calendarScrollRef} className="flex gap-2 p-2 overflow-x-auto scrollbar-hide flex-1">
@@ -142,17 +142,17 @@ const LeaderBoard = () => {
                           ${isSelected
                             ? 'bg-gradient-to-r from-pink-50 to-white border border-pink-200 text-pink-500 border-pink-400 scale-105 shadow-lg'
                             : isToday
-                                ? 'border-pink-400 text-pink-500 bg-pink-50 dark:bg-pink-900/20'
-                                : isDarkMode
-                                  ? 'bg-gray-800/60 text-gray-200 border-gray-700/40 hover:bg-pink-900/30 hover:text-pink-300'
-                                  : 'bg-white/80 text-gray-700 border-gray-300/30 hover:bg-pink-50 hover:text-[#ff1356]'}
+                              ? 'border-pink-400 text-pink-500 bg-pink-50 dark:bg-pink-900/20'
+                              : isDarkMode
+                                ? 'bg-gray-800/60 text-gray-200 border-gray-700/40 hover:bg-pink-900/30 hover:text-pink-300'
+                                : 'bg-white/80 text-gray-700 border-gray-300/30 hover:bg-pink-50 hover:text-[#ff1356]'}
                           cursor-pointer group active:scale-95 touch-manipulation'
                         `}
                         title={`${day}.${month}`}
                         style={{ minWidth: 64, minHeight: 64 }}
                         onClick={() => {
                           setSelectedDay(dateISO)
-                          setLeaderboardDate(BigInt(29-i))
+                          setLeaderboardDate(BigInt(29 - i))
 
                         }}>
                         <span className={`text-xs font-medium mb-0.5 ${isSelected ? 'text-pink-500' : isToday ? 'text-pink-500' : isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{weekDay}</span>
@@ -172,39 +172,39 @@ const LeaderBoard = () => {
                   disabled={windowOffset >= 0}
                   style={{ opacity: windowOffset >= 0 ? 0.5 : 1, cursor: windowOffset >= 0 ? 'not-allowed' : 'pointer' }}
                 >
-                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 4 12 9 6 14"/></svg>
+                  <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 4 12 9 6 14" /></svg>
                 </button>
               </div>
 
-                        {/* Professional 2-column stats grid */}
-                        <div className='w-full grid grid-cols-2 gap-2 p-2'>
+              {/* Professional 2-column stats grid */}
+              <div className='w-full grid grid-cols-2 gap-2 p-2'>
                 {/* Total Native Volume */}
                 <div className={`flex flex-col items-center justify-between w-full mb-1 p-3 rounded-xl shadow-sm border backdrop-blur-md
                   ${isDarkMode ? 'bg-gray-900/60 border-gray-700/40' : 'bg-white/60 border-white/40'}`}
                 >
                   <span className={`text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Total {nativeToken?.symbol} Volume</span>
-                  <span className={`text-base text-xs font-bold font-mono ${isDarkMode ? 'text-pink-200' : 'text-pink-600'}`}>{parseFloat(formatEther(leaderboard.totalTradeBase)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
+                  <span className={`text-base text-xs font-bold font-mono ${isDarkMode ? 'text-pink-200' : 'text-pink-600'}`}>{parseFloat(formatEther(leaderboard.totalTradeBase)).toLocaleString(undefined, { maximumFractionDigits: 4 })}</span>
                 </div>
                 {/* Total Base Volume */}
                 <div className={`flex flex-col items-center justify-between w-full mb-1 p-3 rounded-xl shadow-sm border backdrop-blur-md
                   ${isDarkMode ? 'bg-gray-900/60 border-gray-700/40' : 'bg-white/60 border-white/40'}`}
                 >
                   <span className={`text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Total {baseToken?.symbol} Volume</span>
-                  <span className={`text-base text-xs font-bold font-mono ${isDarkMode ? 'text-purple-200' : 'text-purple-700'}`}>{parseFloat(formatUnits(leaderboard.totalTradeQuote, baseToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
+                  <span className={`text-base text-xs font-bold font-mono ${isDarkMode ? 'text-purple-200' : 'text-purple-700'}`}>{parseFloat(formatUnits(leaderboard.totalTradeQuote, baseToken?.decimals ?? 18)).toLocaleString(undefined, { maximumFractionDigits: 4 })}</span>
                 </div>
                 {/* Daily Native Volume */}
                 <div className={`flex flex-col items-center justify-between w-full mb-1 p-3 rounded-xl shadow-sm border backdrop-blur-md
                   ${isDarkMode ? 'bg-gray-900/60 border-gray-700/40' : 'bg-white/60 border-white/40'}`}
                 >
                   <span className={`text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Daily {nativeToken?.symbol} Volume</span>
-                  <span className={`text-base text-xs font-bold font-mono ${isDarkMode ? 'text-pink-200' : 'text-pink-600'}`}>{parseFloat(formatEther(leaderboard.totalDailyTradeBase)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
+                  <span className={`text-base text-xs font-bold font-mono ${isDarkMode ? 'text-pink-200' : 'text-pink-600'}`}>{parseFloat(formatEther(leaderboard.totalDailyTradeBase)).toLocaleString(undefined, { maximumFractionDigits: 4 })}</span>
                 </div>
                 {/* Daily Base Volume */}
                 <div className={`flex flex-col items-center justify-between w-full mb-1 p-3 rounded-xl shadow-sm border backdrop-blur-md
                   ${isDarkMode ? 'bg-gray-900/60 border-gray-700/40' : 'bg-white/60 border-white/40'}`}
                 >
                   <span className={`text-xs font-semibold mb-1 ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>Daily {baseToken?.symbol} Volume</span>
-                  <span className={`text-base text-xs font-bold font-mono ${isDarkMode ? 'text-purple-200' : 'text-purple-700'}`}>{parseFloat(formatUnits(leaderboard.totalDailyTradeQuote, baseToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}</span>
+                  <span className={`text-base text-xs font-bold font-mono ${isDarkMode ? 'text-purple-200' : 'text-purple-700'}`}>{parseFloat(formatUnits(leaderboard.totalDailyTradeQuote, baseToken?.decimals ?? 18)).toLocaleString(undefined, { maximumFractionDigits: 4 })}</span>
                 </div>
               </div>
             </div>
@@ -217,14 +217,14 @@ const LeaderBoard = () => {
                   <div
                     key={userEntry.trader.user}
                     className={`relative  flex flex-col gap-2 items-center justify-between py-4 px-4 rounded-xl ${isDarkMode
-                        ? 'bg-gray-700/30 hover:bg-gray-700/50'
-                        : 'bg-white/50 hover:bg-white/70'
+                      ? 'bg-gray-700/30 hover:bg-gray-700/50'
+                      : 'bg-white/50 hover:bg-white/70'
                       } transition-all duration-300 group cursor-pointer`}
                   >
                     <div className='w-full flex flex-col gap-2'>
-                    <div className="w-full flex items-center gap-4">
-                      <div
-                        className={`w-8 h-8 min-w-8 min-h-8 flex items-center justify-center rounded-full ${index === 0
+                      <div className="w-full flex items-center gap-4">
+                        <div
+                          className={`w-8 h-8 min-w-8 min-h-8 flex items-center justify-center rounded-full ${index === 0
                             ? 'bg-yellow-500/20 text-yellow-500'
                             : index === 1
                               ? 'bg-gray-400/20 text-gray-400'
@@ -233,73 +233,73 @@ const LeaderBoard = () => {
                                 : isDarkMode
                                   ? 'bg-gray-600/20 text-gray-400'
                                   : 'bg-gray-200 text-gray-600'
-                          } font-bold text-sm`}
-                      >
-                        {index + 1}
-                      </div>
+                            } font-bold text-sm`}
+                        >
+                          {index + 1}
+                        </div>
 
-                      <div className="flex flex-col overflow-hidden">
-                        <span className={`font-medium text-xs ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} group-hover:text-[#ff1356] transition-colors duration-300`}>
-                          {userEntry.trader.user}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className='w-full grid grid-cols-3 gap-4 text-center mt-2'>
-                      <div className='flex flex-col items-center justify-center'>
-                        <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>SCORE</span>
-                        <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{parseFloat(userEntry.score.score.toString()).toFixed(0)}</span>
-                      </div>
-
-                      <div className='flex flex-col items-start w-full'>
-                        <div className='w-full flex justify-between items-center mb-1'>
-                          <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{nativeToken?.symbol}</span>
-                          <span className={`text-xs font-semibold ${isDarkMode ? 'text-pink-300' : 'text-[#ff1356]'}`}>
-                            {`${((parseFloat(formatEther(userEntry.score.baseVolume)) / (parseFloat(formatEther(leaderboard.totalTradeBase)) || 1)) * 100).toFixed(1)}%`}
+                        <div className="flex flex-col overflow-hidden">
+                          <span className={`font-medium text-xs ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} group-hover:text-[#ff1356] transition-colors duration-300`}>
+                            {userEntry.trader.user}
                           </span>
                         </div>
-                        <div className={`w-full h-1.5 rounded-full ${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-200'}`}>
-                          <div className='h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500' style={{ width: `${Math.min(100, (parseFloat(formatEther(userEntry.score.baseVolume)) / (parseFloat(formatEther(leaderboard.totalTradeBase)) || 1)) * 100)}%` }}></div>
-                        </div>
                       </div>
 
-                      <div className='flex flex-col items-start w-full'>
-                        <div className='w-full flex justify-between items-center mb-1'>
-                          <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{baseToken?.symbol}</span>
-                          <span className={`text-xs font-semibold ${isDarkMode ? 'text-pink-300' : 'text-[#ff1356]'}`}>
-                            {`${((parseFloat(formatEther(userEntry.score.quoteVolume)) / (parseFloat(formatUnits(leaderboard.totalTradeQuote,baseToken?.decimals ?? 18)) || 1)) * 100).toFixed(1)}%`}
-                          </span>
+                      <div className='w-full grid grid-cols-3 gap-4 text-center mt-2'>
+                        <div className='flex flex-col items-center justify-center'>
+                          <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>SCORE</span>
+                          <span className={`text-lg font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>{parseFloat(userEntry.score.score.toString()).toFixed(0)}</span>
                         </div>
-                        <div className={`w-full h-1.5 rounded-full ${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-200'}`}>
-                          <div className='h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500' style={{ width: `${Math.min(100, (parseFloat(formatEther(userEntry.score.quoteVolume)) / (parseFloat(formatEther(leaderboard.totalTradeQuote)) || 1)) * 100)}%` }}></div>
+
+                        <div className='flex flex-col items-start w-full'>
+                          <div className='w-full flex justify-between items-center mb-1'>
+                            <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{nativeToken?.symbol}</span>
+                            <span className={`text-xs font-semibold ${isDarkMode ? 'text-pink-300' : 'text-[#ff1356]'}`}>
+                              {`${((parseFloat(formatEther(userEntry.score.baseVolume)) / (parseFloat(formatEther(leaderboard.totalTradeBase)) || 1)) * 100).toFixed(1)}%`}
+                            </span>
+                          </div>
+                          <div className={`w-full h-1.5 rounded-full ${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-200'}`}>
+                            <div className='h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500' style={{ width: `${Math.min(100, (parseFloat(formatEther(userEntry.score.baseVolume)) / (parseFloat(formatEther(leaderboard.totalTradeBase)) || 1)) * 100)}%` }}></div>
+                          </div>
+                        </div>
+
+                        <div className='flex flex-col items-start w-full'>
+                          <div className='w-full flex justify-between items-center mb-1'>
+                            <span className={`text-xs font-medium ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{baseToken?.symbol}</span>
+                            <span className={`text-xs font-semibold ${isDarkMode ? 'text-pink-300' : 'text-[#ff1356]'}`}>
+                              {`${((parseFloat(formatEther(userEntry.score.quoteVolume)) / (parseFloat(formatUnits(leaderboard.totalTradeQuote, baseToken?.decimals ?? 18)) || 1)) * 100).toFixed(1)}%`}
+                            </span>
+                          </div>
+                          <div className={`w-full h-1.5 rounded-full ${isDarkMode ? 'bg-gray-900/50' : 'bg-gray-200'}`}>
+                            <div className='h-1.5 rounded-full bg-gradient-to-r from-pink-500 to-purple-500' style={{ width: `${Math.min(100, (parseFloat(formatEther(userEntry.score.quoteVolume)) / (parseFloat(formatEther(leaderboard.totalTradeQuote)) || 1)) * 100)}%` }}></div>
+                          </div>
                         </div>
                       </div>
-                    </div>
                     </div>
                     <div className='w-full'>
-                        <div className='w-full grid grid-cols-2 gap-2 text-center'>
+                      <div className='w-full grid grid-cols-2 gap-2 text-center'>
 
 
-<div className="flex flex-col items-center justify-center w-full">
-  <div className="flex flex-col items-center justify-between w-full mb-1">
-    <span className={`text-xs font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{nativeToken?.symbol} Volume</span>
-    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{parseFloat(formatEther(userEntry.score.baseVolume)).toFixed(4)}</span>
-  </div>
-  
-</div>
-<div className="flex flex-col items-center justify-center w-full">
-  <div className="flex flex-col items-center justify-between w-full mb-1">
-    <span className={`text-xs font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{baseToken?.symbol} Volume</span>
-    <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{parseFloat(formatUnits(userEntry.score.quoteVolume,baseToken?.decimals ?? 18)).toFixed(4)}</span>
-  </div>
- 
-</div>
+                        <div className="flex flex-col items-center justify-center w-full">
+                          <div className="flex flex-col items-center justify-between w-full mb-1">
+                            <span className={`text-xs font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{nativeToken?.symbol} Volume</span>
+                            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{parseFloat(formatEther(userEntry.score.baseVolume)).toFixed(4)}</span>
+                          </div>
 
-</div>
+                        </div>
+                        <div className="flex flex-col items-center justify-center w-full">
+                          <div className="flex flex-col items-center justify-between w-full mb-1">
+                            <span className={`text-xs font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'}`}>{baseToken?.symbol} Volume</span>
+                            <span className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>{parseFloat(formatUnits(userEntry.score.quoteVolume, baseToken?.decimals ?? 18)).toFixed(4)}</span>
+                          </div>
+
                         </div>
 
+                      </div>
+                    </div>
 
-       
+
+
                   </div>
                 ))}
 
@@ -451,11 +451,11 @@ const LeaderBoard = () => {
                     >
                       {leaderboard.entries.findIndex((e: LeaderboardUserEntry) => e.trader.user.toLocaleLowerCase() === address?.toString().toLocaleLowerCase()) + 1}
 
-                      
+
                     </motion.div>
                     <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                    {leaderboard.scoreInfo.userScore.toString()}
-                  </span>
+                      {leaderboard.scoreInfo.userScore.toString()}
+                    </span>
                   </div>
                   <motion.div
                     className="flex items-center gap-1"
@@ -479,7 +479,7 @@ const LeaderBoard = () => {
                 <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{nativeToken?.symbol} Volume</span>
                 <div className="flex items-center justify-between">
                   <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                    {parseFloat(formatUnits(leaderboard.scoreInfo.userQuoteVolume, nativeToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}
+                    {parseFloat(formatUnits(leaderboard.scoreInfo.userQuoteVolume, nativeToken?.decimals ?? 18)).toLocaleString(undefined, { maximumFractionDigits: 4 })}
 
                   </span>
 
@@ -495,7 +495,7 @@ const LeaderBoard = () => {
                 <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{baseToken?.symbol} Volume</span>
                 <div className="flex items-center justify-between">
                   <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                    {parseFloat(formatUnits(leaderboard.scoreInfo.userBaseVolume, baseToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}
+                    {parseFloat(formatUnits(leaderboard.scoreInfo.userBaseVolume, baseToken?.decimals ?? 18)).toLocaleString(undefined, { maximumFractionDigits: 4 })}
 
                   </span>
 
@@ -513,7 +513,7 @@ const LeaderBoard = () => {
                 <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{nativeToken?.symbol} Volume Daily</span>
                 <div className="flex items-center justify-between">
                   <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                    {parseFloat(formatUnits(leaderboard.scoreInfo.userDailyQuoteVolume, nativeToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}
+                    {parseFloat(formatUnits(leaderboard.scoreInfo.userDailyQuoteVolume, nativeToken?.decimals ?? 18)).toLocaleString(undefined, { maximumFractionDigits: 4 })}
                   </span>
 
                 </div>
@@ -528,7 +528,7 @@ const LeaderBoard = () => {
                 <span className={`text-sm ${isDarkMode ? 'text-gray-400' : 'text-gray-500'} block mb-2`}>{baseToken?.symbol} Volume Daily</span>
                 <div className="flex items-center justify-between">
                   <span className={`font-semibold ${isDarkMode ? 'text-gray-200' : 'text-gray-800'} text-lg group-hover:text-[#ff1356] transition-colors duration-300`}>
-                    {parseFloat(formatUnits(leaderboard.scoreInfo.userDailyBaseVolume, baseToken?.decimals ?? 18)).toLocaleString(undefined, {maximumFractionDigits: 4})}
+                    {parseFloat(formatUnits(leaderboard.scoreInfo.userDailyBaseVolume, baseToken?.decimals ?? 18)).toLocaleString(undefined, { maximumFractionDigits: 4 })}
 
                   </span>
 
@@ -542,13 +542,13 @@ const LeaderBoard = () => {
                 className={`p-4 rounded-xl ${isDarkMode ? 'bg-gray-700/30' : 'bg-gray-50/50'} transition-all duration-300 relative group`}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/5 group-hover:via-purple-500/5 group-hover:to-[#ff1356]/5 transition-all duration-500 rounded-xl" />
-               
+
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className={`w-full py-2.5 rounded-xl font-medium text-sm relative overflow-hidden ${isDarkMode
-                      ? 'bg-[#ff1356] text-white hover:bg-[#ff1356]/90'
-                      : 'bg-[#ff1356] text-white hover:bg-[#ff1356]/90'
+                    ? 'bg-[#ff1356] text-white hover:bg-[#ff1356]/90'
+                    : 'bg-[#ff1356] text-white hover:bg-[#ff1356]/90'
                     } transition-all duration-300 flex items-center justify-center gap-2 group`}
                 >
                   <div className="absolute inset-0 bg-gradient-to-r from-pink-500/0 via-purple-500/0 to-[#ff1356]/0 group-hover:from-pink-500/20 group-hover:via-purple-500/20 group-hover:to-[#ff1356]/20 transition-all duration-500" />
@@ -557,8 +557,8 @@ const LeaderBoard = () => {
                 </motion.button>
               </motion.div>
 
- 
-          
+
+
             </div>
           </div>
         </div>
