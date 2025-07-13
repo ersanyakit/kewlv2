@@ -263,7 +263,14 @@ export const DECENTRALIZED_EXCHANGES = [
         weth:"0x4200000000000000000000000000000000000006",
         flag:false
     },
-   
+    {
+        logo:"/assets/dex/deltaswap.svg",
+        chainId:8453,
+        dex:"DeltaSwap",
+        router:"0x9A9A171c69cC811dc6B59bB2f9990E34a22Fc971",
+        weth:"0x4200000000000000000000000000000000000006",
+        flag:false
+    },
     
     
     
