@@ -65,7 +65,11 @@ export const ContractList: MultiContractConfig = {
             },
             56: {
                 address: "0x5636A64B835F4E3821C798fdA16E0bA106357646"
+            },
+            8453: {
+                address: "0x5636A64B835F4E3821C798fdA16E0bA106357646"
             }
+            
 
 
         },
@@ -99,6 +103,9 @@ export const ContractList: MultiContractConfig = {
             56: {
                 address: "0x570e91fe0D25D46C5e0C83aF6bc95afB0072C321",
             },
+            8453: {
+                address: "0x5636A64B835F4E3821C798fdA16E0bA106357646"
+            }
         }
     },
     [TContractType.MULTICALL]: {
@@ -132,7 +139,7 @@ export const ContractList: MultiContractConfig = {
             },
             56: {
                 address: "0xcA11bde05977b3631167028862bE2a173976CA11",
-            }
+            },
         },
     },
 }

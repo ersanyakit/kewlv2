@@ -226,7 +226,35 @@ export const DECENTRALIZED_EXCHANGES = [
         router:"0x858E3312ed3A876947EA49d572A7C42DE08af7EE",
         weth:"0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
         flag:false
-    }
+    },
+
+
+
+    {//base
+        logo:"/assets/dex/uniswap.svg",
+        chainId:8453,
+        dex:"UNISWAP",
+        router:"0x8909Dc15e40173Ff4699343b6eB8132c65e18eC6",
+        weth:"0x4200000000000000000000000000000000000006",
+        flag:false
+    },
+    {
+        logo:"/assets/dex/kewl.svg",
+        chainId:8453,
+        dex:"KEWL",
+        router:"0x5636A64B835F4E3821C798fdA16E0bA106357646",
+        weth:"0x4200000000000000000000000000000000000006",
+        flag:false
+    },
+    {
+        logo:"/assets/dex/sushi.svg",
+        chainId:8453,
+        dex:"SUSHI",
+        router:"0x71524B4f93c58fcbF659783284E38825f0622859",
+        weth:"0x4200000000000000000000000000000000000006",
+        flag:false
+    },
+    
 
 
     
