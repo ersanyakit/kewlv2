@@ -271,6 +271,15 @@ export const DECENTRALIZED_EXCHANGES = [
         weth:"0x4200000000000000000000000000000000000006",
         flag:false
     },
+    {
+        logo:"/assets/dex/squadswap.png",
+        chainId:8453,
+        dex:"SquadSwap",
+        router:"0xba34aA640b8Be02A439221BCbea1f48c1035EEF9",
+        weth:"0x4200000000000000000000000000000000000006",
+        flag:false
+    },
+
     
     
     
