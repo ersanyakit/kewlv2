@@ -24,6 +24,7 @@ export const WETH9: { [chainId: number]: Token } = {
   [31337]: new Token(31337,"0x5FbDB2315678afecb367f032d93F642f64180aa3",18,"WS","Wrapped Hardhat"),
 
   [8453]: new Token(8453, '0x4200000000000000000000000000000000000006', 18, 'WETH', 'Wrapped Ether'),//base
+  [56]: new Token(56,"0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",18,"WBNB","Wrapped BNB"),
 
 }
 
@@ -35,5 +36,7 @@ export const CHILIZWRAPPER: { [chainId: number]: Token } = {
   [31337]: new Token(31337,"0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",18,"WRAPPER","Hardhat Wrapper"),
   [8453]: new Token(8453,"0x81e28dCAAC553Fce9225c266731FC450E0954e47",18,"WBASE","BASE Wrapper"),
   [1907]: new Token(1907,"0x674db749B07f5779C2c912595B60417BE4F881Cd",18,"WBITCIWRAPPER","BITCI Wrapper"),
+  [56]: new Token(56,"0x03f41d36A0a7aF81F4165FBc1C3B622F923441DE",18,"BSC Wrapper","BNB Wrapper"),
+
 
 }

@@ -114,7 +114,21 @@ export const DECENTRALIZED_EXCHANGES = [
         router:"0xA0BB8f9865f732C277d0C162249A4F6c157ae9D0",
         weth:"0xB31f66AA3C1e785363F0875A1B74E27b85FD66c7"
     }
-
+    ,
+    {
+        logo:"/assets/dex/kewl.svg",
+        chainId:56,
+        dex:"KEWL",
+        router:"0x5636A64B835F4E3821C798fdA16E0bA106357646",
+        weth:"0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
+    },
+    {
+        logo:"/assets/dex/pancake.svg",
+        chainId:56,
+        dex:"PancakeSwapv2",
+        router:"0xcA143Ce32Fe78f1f7019d7d551a6402fC5350c73",
+        weth:"0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c"
+    }
 
     
 ]
