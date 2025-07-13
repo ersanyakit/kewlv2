@@ -255,7 +255,16 @@ export const DECENTRALIZED_EXCHANGES = [
         flag:false
     },
     
-
+    {
+        logo:"/assets/dex/treble.svg",
+        chainId:8453,
+        dex:"Treble",
+        router:"0x6Ae1d7EfA0640b6A2FA393d1EFf21fC38a08cd8f",
+        weth:"0x4200000000000000000000000000000000000006",
+        flag:false
+    },
+    
+    
 
     
    
