@@ -268,6 +268,8 @@ export const DECENTRALIZED_EXCHANGES = [
         flag: false
     },
 
+    
+
 
     {//base
         logo: "/assets/dex/uniswap.svg",
@@ -293,6 +295,16 @@ export const DECENTRALIZED_EXCHANGES = [
         weth: "0x4200000000000000000000000000000000000006",
         flag: false
     },
+    {
+        logo: "/assets/dex/alienbase.svg",
+        chainId: 8453,
+        dex: "ALIEN BASE",
+        router: "0x3E84D913803b02A4a7f027165E8cA42C14C0FdE7",
+        weth: "0x4200000000000000000000000000000000000006",
+        flag: false
+    },
+
+    
 
     {
         logo: "/assets/dex/treble.svg",
