@@ -259,7 +259,14 @@ export const DECENTRALIZED_EXCHANGES = [
         weth: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
         flag: false
     },
-    
+    {
+        logo: "/assets/dex/bakeryswap.svg",
+        chainId: 56,
+        dex: "BakerySwap",
+        router: "0x01bF7C66c6BD861915CdaaE475042d3c4BaE16A7",
+        weth: "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c",
+        flag: false
+    },
 
 
     {//base
