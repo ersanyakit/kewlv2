@@ -3059,6 +3059,7 @@ const formatted = date.toLocaleString('en-US', {
     })  as LeaderboardUser[]
 
 
+
     const _weth9 = WETH9[Number(chainId)].address
 
     const isNative = baseToken?.address == ZeroAddress

@@ -55,7 +55,7 @@ export function getChainById(chainId: number): AppKitNetwork | Chain | undefined
   return appkitOptions.networks.find((chain) => chain.id === chainId) || appkitOptions.defaultNetwork;
 }
 
-const DEFAULT_CHAIN_ID = 88888;
+const DEFAULT_CHAIN_ID = 56;
 export function getChainName(chainId: number): string {
   const chains: Record<number, string> = {
     88888: "chiliz",
@@ -87,8 +87,8 @@ const metadata = {
 export const appkitOptions: AppKitOptions = {
   adapters: [new EthersAdapter()],
   metadata: metadata,
-  networks: [chiliz,bsc,base,sonic, avalanche, bitci,arbitrum,hardhat,spicy],
-  defaultNetwork: chiliz,
+  networks: [bsc,chiliz,base,sonic, avalanche, bitci,arbitrum,hardhat,spicy],
+  defaultNetwork: bsc,
   chainImages: {
     88888: "/assets/chains/chz.svg",
     88882: "/assets/chains/chz.svg",

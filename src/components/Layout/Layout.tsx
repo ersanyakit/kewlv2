@@ -37,12 +37,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
     <div className={`${isDarkMode ? 'bg-gray-900 text-gray-100' : 'bg-gradient-to-br from-gray-50 via-gray-100 to-gray-200 text-gray-900'} min-h-screen safe-padding min-h-screen flex flex-col gap-2 p-4 md:p-2 scrollbar-hide transition-colors duration-300`}>
       <Navbar />
+      <div className='w-full mx-auto max-w-6xl mx-auto  py-4 px-4'>
+        <a href='https://betonaff.com/links/?btag=2510639' target='_blank'>
+          <img src='/ads/ads.webp'/>
+        </a>
+      </div>
      
       
 
       {children}
        
-
+    <div className='w-full mx-auto max-w-6xl mx-auto  py-4 px-4'>
+        <a href='https://betonaff.com/links/?btag=2510639' target='_blank'>
+          <img src='/ads/ads.webp'/>
+        </a>
+      </div>
  
       <Footer isDarkMode={isDarkMode} />
     </div>
