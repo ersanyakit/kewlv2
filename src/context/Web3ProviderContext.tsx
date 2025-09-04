@@ -55,7 +55,7 @@ export function getChainById(chainId: number): AppKitNetwork | Chain | undefined
   return appkitOptions.networks.find((chain) => chain.id === chainId) || appkitOptions.defaultNetwork;
 }
 
-const DEFAULT_CHAIN_ID = 56;
+const DEFAULT_CHAIN_ID = 88888;
 export function getChainName(chainId: number): string {
   const chains: Record<number, string> = {
     88888: "chiliz",
