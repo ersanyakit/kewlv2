@@ -31,7 +31,8 @@ import {
   Compass,
   Moon,
   Sun,
-  Wallet
+  Wallet,
+  Heart
 } from 'lucide-react';
 
 // Enhanced token type with more professional information
@@ -60,7 +61,7 @@ import PoolsView from './Pools/PoolsView';
 import ETFView from './ETF/ETFView';
 import SwapLayout from './SwapForm/SwapLayout';
 import SwapSettingsForm from './SwapForm/SwapSettingsForm';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 export default function TradeTerminal() {
   // Token context'inden verileri alıyoruz
@@ -83,6 +84,7 @@ export default function TradeTerminal() {
   const [showAdvanced, setShowAdvanced] = useState(true);
   const [slippageTolerance, setSlippageTolerance] = useState(0.5);
   const [showHistory, setShowHistory] = useState(true);
+    const navigate = useNavigate();
 
   // Reference for draggable elements (eğer kullanılıyorsa)
   const constraintsRef = useRef(null);
@@ -118,6 +120,30 @@ export default function TradeTerminal() {
               <SwapSettingsForm/>
             )
           }
+          
+
+<motion.button
+      whileHover={{
+        boxShadow: isDarkMode
+          ? "0 4px 15px rgba(255, 19, 86, 0.6)"
+          : "0 4px 15px rgba(255, 19, 86, 0.3)",
+      }}
+      whileTap={{ scale: 0.95 }}
+      transition={{ type: "spring", stiffness: 300, damping: 15 }}
+      onClick={()=>{
+        navigate("/launchpad")
+        
+      }}
+      className={`flex items-center gap-2 px-5 py-5 rounded-full font-semibold 
+        ${isDarkMode
+          ? "bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white"
+          : "bg-gradient-to-r from-pink-500 to-pink-400 text-white"}
+      `}
+    >
+      <Heart className="w-4 h-4" />
+      Donate for the Development of KEWL Casino
+    </motion.button>
+
           <SwapTabs
             isLimitOrder={false}
             isDarkMode={isDarkMode}

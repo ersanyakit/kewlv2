@@ -33,7 +33,7 @@ const Launchpad = () => {
     const [canClaimTweet, setCanClaimTweet] = useState<boolean>(false);
 
     const [inputValue, setInputValue] = useState<string>("");
-    const [activeView, setActiveView] = useState<string>("rewards");
+    const [activeView, setActiveView] = useState<string>("overview");
     const [jackpotUserCount, setJackpotUserCount] = useState<number>(200);
 
 
