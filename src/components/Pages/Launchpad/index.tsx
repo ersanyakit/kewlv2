@@ -14,6 +14,7 @@ import VestingInfo from './Casino/vesting';
 import TeamInfo from './Casino/team';
 import LaunchpadDisclaimer from './Casino/disclaimer';
 import ContributeCard from './Casino/contribute';
+import TransactionList from './Casino/transactions';
 
 const Launchpad = () => {
     // Token context'inden verileri al
@@ -159,6 +160,14 @@ const Launchpad = () => {
                     <CasinoOverview/>
 
                     }
+
+                     {activeView === 'contributors' &&
+                    <TransactionList/>
+
+                    }
+
+
+                    
              
  
                   
