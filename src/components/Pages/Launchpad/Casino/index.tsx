@@ -23,7 +23,7 @@ const CasinoOverview: React.FC<KEWLLaunchpadProps> = ({ isDarkMode = false }) =>
 
       <div className="mb-4">
         <p><strong>Project:</strong> KEWL Playground – Decentralized Gaming & Entertainment Platform</p>
-        <p><strong>Games:</strong> Bingo, DICE, Roulette, Plinko</p>
+        <p><strong>Games:</strong> Bingo, DICE, Roulette, Plinko, SLOT</p>
         <p><strong>Blockchain:</strong> Chiliz</p>
       </div>
 
