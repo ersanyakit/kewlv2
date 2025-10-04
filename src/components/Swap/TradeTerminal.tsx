@@ -141,7 +141,7 @@ export default function TradeTerminal() {
   `}
     >
       <Heart className="w-4 h-4" />
-      Donate for the Development of KEWL Casino
+      Donate for the Development of KEWL Playground 
     </motion.button>
 
           <SwapTabs

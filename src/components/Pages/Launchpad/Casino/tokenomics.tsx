@@ -11,10 +11,10 @@ const TokenomicsInfo: React.FC<Props> = ({ isDarkMode }) => {
         isDarkMode ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
       }`}
     >
-      <h2 className="text-xl font-bold mb-4">KEWL Casino – Tokenomics / Asset Model</h2>
+      <h2 className="text-xl font-bold mb-4">KEWL Playground – Tokenomics / Asset Model</h2>
 
       <p className="mb-4">
-        <strong>No Token:</strong> KEWL Casino does not require a native platform token. All games,
+        <strong>No Token:</strong> KEWL Playground does not require a native platform token. All games,
         rewards, and incentives operate using existing <strong>ecosystem assets</strong> (e.g., CHZ or other supported tokens).
       </p>
 
@@ -50,7 +50,7 @@ const TokenomicsInfo: React.FC<Props> = ({ isDarkMode }) => {
       </ul>
 
       <p className="mt-4">
-        <strong>Summary:</strong> KEWL Casino operates <strong>fully on-chain and tokenless</strong>,
+        <strong>Summary:</strong> KEWL Playground operates <strong>fully on-chain and tokenless</strong>,
         utilizing existing ecosystem assets. This approach keeps the system simple, fair, and secure,
         while encouraging maximum user engagement.
       </p>

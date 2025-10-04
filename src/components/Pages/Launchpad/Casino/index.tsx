@@ -19,11 +19,11 @@ const CasinoOverview: React.FC<KEWLLaunchpadProps> = ({ isDarkMode = false }) =>
   return (
     <>
     <div className={containerClasses}>
-      <h2 className={sectionTitleClasses}>KEWL Casino Launchpad Introduction</h2>
+      <h2 className={sectionTitleClasses}>KEWL Playground Launchpad Introduction</h2>
 
       <div className="mb-4">
-        <p><strong>Project:</strong> KEWL Casino – Decentralized Gaming & Entertainment Platform</p>
-        <p><strong>Games:</strong> Tombola, DICE, Roulette, Plinko</p>
+        <p><strong>Project:</strong> KEWL Playground – Decentralized Gaming & Entertainment Platform</p>
+        <p><strong>Games:</strong> Bingo, DICE, Roulette, Plinko</p>
         <p><strong>Blockchain:</strong> Chiliz</p>
       </div>
 
@@ -34,8 +34,8 @@ const CasinoOverview: React.FC<KEWLLaunchpadProps> = ({ isDarkMode = false }) =>
       <div className="bg-blue-100 dark:bg-blue-900/40 p-3 my-5 rounded-lg">
         <h3 className="font-semibold mb-2">Development Timeline</h3>
         <ul className="list-disc list-inside">
-          <li>Casino Platform: 3 months</li>
-          <li>Tombola: 3 months</li>
+          <li>KEWL Playground Platform: 3 months</li>
+          <li>Bingo: 3 months</li>
           <li>Roulette: 3 months</li>
           <li>DICE: 1 months</li>
           <li>Plinko: 3 months</li>
@@ -46,7 +46,7 @@ const CasinoOverview: React.FC<KEWLLaunchpadProps> = ({ isDarkMode = false }) =>
       <div className="mb-4">
         <h3 className="font-semibold mb-1">Project Goal:</h3>
         <p>
-          KEWL Platform merges DeFi and gaming to create a decentralized casino ecosystem. Users earn a free game ticket for their preferred game for every 1000 CHZ swapped, incentivizing both liquidity provision and platform engagement.
+          KEWL Platform merges DeFi and gaming to create a decentralized game ecosystem. Users earn a free game ticket for their preferred game for every 1000 CHZ swapped, incentivizing both liquidity provision and platform engagement.
         </p>
       </div>
 
@@ -66,7 +66,7 @@ const CasinoOverview: React.FC<KEWLLaunchpadProps> = ({ isDarkMode = false }) =>
         <ul className="list-disc ml-6">
           <li className={listItemClasses}>Early investors get access to platform tokens and exclusive game incentives.</li>
           <li className={listItemClasses}>As user engagement grows, platform revenue and token demand naturally increase.</li>
-          <li className={listItemClasses}>Decentralized casino trend is rapidly expanding globally, offering strategic advantage to early participants.</li>
+          <li className={listItemClasses}>Decentralized game playground trend is rapidly expanding globally, offering strategic advantage to early participants.</li>
         </ul>
       </div>
 
@@ -83,7 +83,7 @@ const CasinoOverview: React.FC<KEWLLaunchpadProps> = ({ isDarkMode = false }) =>
       <div>
         <h3 className="font-semibold mb-1">Message to Investors:</h3>
         <p>
-          KEWL Casino is set to be one of the first decentralized platforms combining DeFi and gaming. Early investors will maximize benefits from both platform tokens and game incentives.
+          KEWL Playground is set to be one of the first decentralized platforms combining DeFi and gaming. Early investors will maximize benefits from both platform tokens and game incentives.
         </p>
       </div>
     </div>

@@ -11,10 +11,10 @@ const VestingInfo: React.FC<Props> = ({ isDarkMode }) => {
         isDarkMode ? "bg-gray-800 text-gray-100" : "bg-white text-gray-900"
       }`}
     >
-      <h2 className="text-xl font-bold mb-4">KEWL Casino – Vesting & Lockup Policy</h2>
+      <h2 className="text-xl font-bold mb-4">KEWL Playground – Vesting & Lockup Policy</h2>
 
       <p className="mb-4">
-        <strong>No Token & No Vesting:</strong> KEWL Casino does not issue a native token. As a
+        <strong>No Token & No Vesting:</strong> KEWL Playground does not issue a native token. As a
         result, there is <strong>no vesting period</strong>, <strong>no lockup</strong>, and
         users or investors have immediate access to the platform benefits.
       </p>
@@ -47,7 +47,7 @@ const VestingInfo: React.FC<Props> = ({ isDarkMode }) => {
       </ul>
 
       <p className="mt-4">
-        <strong>Summary:</strong> KEWL Casino’s ecosystem is tokenless and does not have any
+        <strong>Summary:</strong> KEWL Playground ecosystem is tokenless and does not have any
         vesting or lockup mechanisms. All users and investors enjoy immediate access to platform
         rewards and incentives.
       </p>
