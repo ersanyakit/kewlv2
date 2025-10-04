@@ -15,6 +15,7 @@ import { AnimatePresence,motion, LazyMotion, domAnimation, m } from 'framer-moti
 import TestPage from './components/Pages/TestPage';
 import LeaderBoard from './components/Pages/LeaderBoard';
 import { MoralisProvider } from './context/MoralisProviderContext';
+import Launchpad from './components/Pages/Launchpad';
 
 function App() {
 //188467.014
@@ -43,6 +44,7 @@ function App() {
                     <Route path="/swap" element={<TradeTerminal />} />
                     <Route path="/about" element={<About />} />
                     <Route path="/rewards" element={<Rewards />} />
+                    <Route path="/launchpad" element={<Launchpad />} />
                     <Route path="/assets" element={<Assets />} />
                     <Route path="/tos" element={<TosPage />} />
                     <Route path="/leaderboard" element={<LeaderBoard />} />

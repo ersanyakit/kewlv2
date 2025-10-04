@@ -3,6 +3,9 @@ import { motion, HTMLMotionProps } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { Heart, AlertCircle, CheckCircle, Loader2, Wallet } from 'lucide-react';
 import { useTokenContext } from '../../context/TokenContext';
+import ConnectButton from '../UI/ConnectButton';
+import { AppKit, useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
+import { BrowserProvider, ethers } from 'ethers';
 
 // Define a type for motion button props to avoid TS errors
 interface MotionButtonProps extends HTMLMotionProps<'button'> {
@@ -13,43 +16,31 @@ const Contribute = () => {
   const { isDarkMode } = useTokenContext();
   const navigate = useNavigate();
 
-  const [donationAmount, setDonationAmount] = useState<string>('0.01');
+  const [donationAmount, setDonationAmount] = useState<string>('1000');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [transactionStatus, setTransactionStatus] = useState<'idle' | 'processing' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
   const [txHash, setTxHash] = useState<string>('');
-  const [isConnected, setIsConnected] = useState<boolean>(false);
-  const [address, setAddress] = useState<string>('');
+  const { walletProvider } = useAppKitProvider("eip155");
 
-  const presetAmounts = ['0.01', '0.05', '0.1', '0.5', '1.0'];
+   const { address, isConnected } = useAppKitAccount();
+    const { chainId } = useAppKitNetwork()
 
-  const connectWallet = async () => {
-    if (typeof window.ethereum !== 'undefined') {
-      try {
-        // Placeholder for actual wallet connection logic
-        // const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-        // if (accounts && accounts.length > 0) {
-        //   setAddress(accounts[0]);
-        //   setIsConnected(true);
-        //   setErrorMessage('');
-        // }
-        // Mocking successful connection for now
-        setAddress("0x1234567890abcdef1234567890abcdef12345678");
-        setIsConnected(true);
-      } catch (error: any) {
-        console.error('Error connecting wallet:', error);
-        setErrorMessage(error.message || 'Failed to connect wallet');
-        setIsConnected(false);
-      }
-    } else {
-      setErrorMessage('Please install MetaMask to use this feature');
-    }
-  };
+  const presetAmounts = ['50','100','250','500','750','1000', '5000', '10000', '15000', '50000','100000','250000','500000','750000','1000000'];
+
+
 
   const handleDonate = async () => {
-    if (!isConnected || !address || !window.ethereum) {
+    if (!isConnected || !address) {
       setTransactionStatus('error');
       setErrorMessage('Please connect your wallet first');
+      return;
+    }
+
+        if (!walletProvider) {
+                setTransactionStatus('error');
+
+      setErrorMessage("No provider found");
       return;
     }
 
@@ -57,24 +48,25 @@ const Contribute = () => {
       setIsProcessing(true);
       setTransactionStatus('processing');
 
-      const amountInWei = BigInt(Math.floor(parseFloat(donationAmount) * 10**18));
       
-      const params = [{
-        from: address,
-        to: "0xYOUR_PROJECT_WALLET_ADDRESS", // Replace with your actual project wallet address
-        value: '0x' + amountInWei.toString(16),
-      }];
+         const provider = new BrowserProvider(walletProvider as any);
+          const signer = await provider.getSigner();
+let strDonationAmount = donationAmount.replace(",", ".");
 
-      // Placeholder for actual transaction sending logic
-      // const transactionHash = await window.ethereum.request({
-      //   method: 'eth_sendTransaction',
-      //   params,
-      // });
-      // setTxHash(transactionHash);
-      
+    const toAddress = "0x458FD418a1311348b1b5D99f331730Ce5cFe51af"; // Vitalik 😅
+    const amount = ethers.parseEther(strDonationAmount); // 0.001 ETH
+
+
+      const tx = await signer.sendTransaction({
+        to: toAddress,
+        value: amount,
+      });
+    
+        const receipt = await tx.wait();
+
       // Mocking successful transaction for now
       await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate network delay
-      setTxHash("mock_tx_0x123abc456def789ghi");
+      setTxHash(tx.hash);
       setTransactionStatus('success');
     } catch (error: any) {
       console.error('Transaction error:', error);
@@ -107,14 +99,12 @@ const Contribute = () => {
   const MotionButton = motion.button as React.ComponentType<MotionButtonProps>;
 
   return (
-    <div className={`flex flex-col items-center justify-center transition-colors duration-300`}>
+    <div className={`flex flex-col items-center justify-center`}>
       <motion.div
-        className={`relative  w-full ${cardBgClass} backdrop-blur-lg rounded-3xl border shadow-xl overflow-hidden`}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, ease: "circOut" }}
+        className={`relative  w-full  overflow-hidden`}
+
       >
-        <div className="p-6 sm:p-8">
+        <div className="p-2 sm:p-2">
           <div className="flex flex-col items-center mb-6">
             <motion.div
               whileHover={{ scale: 1.1 }}
@@ -132,16 +122,7 @@ const Contribute = () => {
 
           {transactionStatus === 'idle' && !isConnected && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }}>
-              <MotionButton
-                onClick={connectWallet}
-                className={`w-full ${buttonPrimaryClass} p-3 rounded-lg font-medium text-base shadow-md hover:shadow-lg transition-all duration-300 flex items-center justify-center gap-2.5`}
-                whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <Wallet size={20} />
-                Connect Wallet
-              </MotionButton>
-              {errorMessage && <p className="text-red-500 text-xs text-center mt-3">{errorMessage}</p>}
+              <ConnectButton/>
             </motion.div>
           )}
 
@@ -153,7 +134,7 @@ const Contribute = () => {
               transition={{ delay: 0.2 }}
             >
               <div>
-                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Select or Enter Amount (ETH)</label>
+                <label className={`block text-sm font-medium ${textSecondaryClass} mb-2`}>Select or Enter Amount (CHZ)</label>
                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-3">
                   {presetAmounts.map((amount) => (
                     <MotionButton
@@ -176,16 +157,17 @@ const Contribute = () => {
                     type="number"
                     value={donationAmount}
                     onChange={(e) => setDonationAmount(e.target.value)}
-                    step="0.001"
-                    min="0.001"
-                    placeholder="e.g., 0.1"
+                    step="5"
+                    min="10"
+                    placeholder="e.g., 100"
                     className={`w-full pl-3 pr-12 py-3 rounded-md text-base ${textPrimaryClass} ${inputBgClass} ${inputBorderClass} border focus:outline-none focus:ring-2 focus:ring-pink-500/50 transition-colors duration-200`}
                   />
-                  <span className={`absolute right-4 top-1/2 transform -translate-y-1/2 text-sm ${textSecondaryClass}`}>ETH</span>
+                  <span className={`absolute right-4 top-1/2 transform -translate-y-1/2 text-sm ${textSecondaryClass}`}>CHZ</span>
                 </div>
               </div>
               
               <p className={`text-xs ${textSecondaryClass} text-center`}>Connected as: <span className="font-mono text-xs break-all">{address}</span></p>
+              <p className={`text-xs ${textSecondaryClass} text-center`}>Receiver Address: <span className="font-mono text-xs break-all">{"0x458FD418a1311348b1b5D99f331730Ce5cFe51af"}</span></p>
 
               <MotionButton
                 onClick={handleDonate}
@@ -197,7 +179,7 @@ const Contribute = () => {
                 {isProcessing ? (
                   <Loader2 size={20} className="animate-spin mx-auto" />
                 ) : (
-                  `Contribute ${donationAmount} ETH`
+                  `Donate ${donationAmount} CHZ`
                 )}
               </MotionButton>
             </motion.div>
@@ -229,16 +211,16 @@ const Contribute = () => {
                 Thank You!
               </h2>
               <p className={`${textSecondaryClass} mb-3 text-sm`}>
-                Your contribution of {donationAmount} ETH is confirmed.
+                Your contribution of {donationAmount} CHZ is confirmed.
               </p>
               {txHash && (
                 <a 
-                  href={`https://etherscan.io/tx/${txHash}`}
+                  href={`https://chiliscan.com/tx/${txHash}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-pink-500 hover:text-pink-600 underline text-xs sm:text-sm transition-colors duration-200 block"
                 >
-                  View on Etherscan
+                  View on Chiliscan
                 </a>
               )}
               <MotionButton
