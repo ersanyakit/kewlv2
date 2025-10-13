@@ -122,27 +122,6 @@ export default function TradeTerminal() {
           }
           
 
-<motion.button
-      whileHover={{
-        boxShadow: isDarkMode
-    ? "0 4px 15px rgba(0, 255, 120, 0.6)"
-      : "0 4px 15px rgba(0, 255, 120, 0.3)",
-      }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ type: "spring", stiffness: 300, damping: 15 }}
-      onClick={()=>{
-        navigate("/launchpad")
-        
-      }}
-    className={`flex items-center gap-2 px-5 py-5 rounded-lg font-semibold 
-    ${isDarkMode
-      ? "bg-gradient-to-r from-[#00c853] to-[#00e676] text-white"
-      : "bg-gradient-to-r from-green-500 to-green-400 text-white"}
-  `}
-    >
-      <Heart className="w-4 h-4" />
-      Contribute for the Development of KEWL Playground 
-    </motion.button>
 
           <SwapTabs
             isLimitOrder={false}
