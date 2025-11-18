@@ -13,10 +13,10 @@ export const chiliz : any = {
   ...originalChiliz,
   rpcUrls: {
     default: {
-      http: ['https://rpc.chiliz.com'], // ← Sadece burası değişiyor
+      http: ['https://rpc.ankr.com/chiliz','https://rpc.chiliz.com'], // ← Sadece burası değişiyor
     },
     public: {
-      http: ['https://rpc.chiliz.com'],
+      http: ['https://rpc.ankr.com/chiliz','https://rpc.chiliz.com'],
     },
     explorers: {
       default: {
