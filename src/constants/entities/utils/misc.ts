@@ -87,13 +87,6 @@ export const DECENTRALIZED_EXCHANGES = [
         weth:"0x677F7e16C7Dd57be1D4C8aD1244883214953DC47"
     },
     {
-        logo:"/assets/dex/chilizswap.svg",
-        chainId:88888,
-        dex:"CHILIZSWAP",
-        router:"0xcF4A2be8Fe92fEe8e350AD8D876274749Ae0CBb1",
-        weth:"0x677F7e16C7Dd57be1D4C8aD1244883214953DC47"
-    },
-    {
         logo:"/assets/dex/dswap.png",
         chainId:88888,
         dex:"DIVISWAP",
