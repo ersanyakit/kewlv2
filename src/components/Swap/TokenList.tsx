@@ -120,9 +120,9 @@ const TokenList: React.FC = () => {
       </div>
       <div className='w-full flex flex-1 items-start justify-center gap-2'>
         <div className={`w-full px-3 py-2 overflow-y-scroll scrollbar-hide max-h-[calc(68dvh-300px)] ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'}`}>
-          {filteredTokens.map(token => (
+          {filteredTokens.map((token,index) => (
             <motion.div
-              key={`${token.symbol}-${token.address}`}
+              key={`filtered-${index}-${token.symbol}-${token.address}`}
               className={`flex select-none items-center justify-between p-2 rounded-xl transition-all duration-300 mb-2 cursor-pointer ${baseToken && token.symbol === baseToken.symbol
                 ? isDarkMode
                   ? 'bg-pink-900/30 border border-pink-800/50'

@@ -6,8 +6,6 @@ import { useNavigate } from 'react-router-dom';
 import { CheckCircle, RefreshCcw, Search, Star, XCircle, Copy, TrendingUp, Gift, Trophy, User, Wallet } from 'lucide-react';
 import TokenShape from '../../UI/TokenShape';
 import TokenList from '../../Swap/TokenList';
-import Moralis from 'moralis';
-import { useMoralisInitialized } from '../../../context/MoralisProviderContext';
 import { LeaderboardUserEntry, useSwapContext } from '../../../context/SwapContext';
 import { formatEther, formatUnits } from 'viem';
 
@@ -43,7 +41,6 @@ const LeaderBoard = () => {
 
   const { fetchLeaderBoardTransactions, leaderboard, registerLeaderBoardUser, setLeaderboardDate, leaderboardDate } = useSwapContext();
   const navigate = useNavigate();
-  const isMoralisReady = useMoralisInitialized();
   const [twitterUser, setTwitterUser] = useState('');
   const [nickName, setNickName] = useState('');
   const [telegramUser, setTelegramUser] = useState('');
@@ -57,29 +54,7 @@ const LeaderBoard = () => {
   const [windowOffset, setWindowOffset] = useState(0); // 0 means today is last, -30 means 30 days before today is last
   const calendarScrollRef = useRef<HTMLDivElement>(null);
 
-  const loadMoralisData = async () => {
-
-
-    try {
-
-      await fetchLeaderBoardTransactions(walletProvider);
-
-
-
-    } catch (e) {
-      console.error(e);
-    }
-
-  }
-
-  useEffect(() => {
-
-  }, [leaderboard])
-
-  useEffect(() => {
-    loadMoralisData()
-  }, [address, chainId, isConnected, baseToken, leaderboardDate])
-
+ 
   // Scroll to end (today) on mount or windowOffset change
   useEffect(() => {
     if (calendarScrollRef.current) {

@@ -67,9 +67,9 @@ const TransactionHistory: React.FC = () => {
               </div>
             </div>
           ) : (
-            userTradingStats.tradingStats.map((statItem: any) => (
+            userTradingStats.tradingStats.map((statItem: any, index: number) => (
               <motion.div
-                key={statItem.token.address}
+                key={`stat-item-${statItem.token.address}-${index}`}
                 className={`flex flex-col select-none justify-between p-2 border-transparent rounded-xl transition-all duration-300 mb-2 cursor-pointer 
               ${isDarkMode 
                   ? 'hover:bg-pink-900/30 hover:border hover:border-pink-800/50' 
