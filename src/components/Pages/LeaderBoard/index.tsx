@@ -62,6 +62,24 @@ const LeaderBoard = () => {
     }
   }, [windowOffset]);
 
+
+  const loadMoralisData = async () => {
+
+
+    try {
+       await fetchLeaderBoardTransactions(walletProvider);
+
+
+
+    } catch (e) {
+      console.error(e);
+    }
+
+  }
+  useEffect(() => {
+        loadMoralisData()
+},[leaderboardDate])
+
   return (
     <div className={`flex flex-col px-0 py-4 md:p-4 transition-colors duration-300`}>
       <div className="w-full max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-7 gap-4">
