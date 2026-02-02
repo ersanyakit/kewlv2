@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, AlertTriangle, Loader2, Plus } from 'lucide-react';
+import { X, AlertTriangle, Loader2, Plus, XCircle } from 'lucide-react';
 import { useSwapContext } from '../../context/SwapContext';
 import { useAppKitProvider } from '@reown/appkit/react';
 import { Token, useTokenContext } from '../../context/TokenContext';
@@ -91,9 +91,22 @@ const { addCustomToken } = useTokenContext();
             {/* Header */}
             <div className={`p-2 border-b ${isDarkMode ? 'border-gray-800' : 'border-gray-100'} flex justify-between items-center`}>
               <h3 className={`text-md font-bold ${isDarkMode ? 'text-white' : 'text-gray-800'}`}>Import Token</h3>
-              <button onClick={onClose} className={`p-2 rounded-full hover:bg-gray-100/10 transition-colors ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>
-                <X className="w-5 h-5" />
-              </button>
+         
+               <motion.button
+                  className={`${isDarkMode
+                    ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600'
+                    : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100 ring-pink-200'
+                    } p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    onClose();
+                  
+                  }}
+                  aria-label="Close"
+                >
+                  <XCircle className={`w-6 h-6 `} />
+                </motion.button>
             </div>
 
             <div className="p-2 space-y-4">

@@ -21,12 +21,14 @@ import {
   MountainSnow,
   Grid2x2,
   Blocks,
+  Skull,
 } from 'lucide-react';
 import { SWAP_MODE, useTokenContext } from '../../../context/TokenContext';
 import TokenShape from '../../UI/TokenShape';
 import { TradeType } from '../../../constants/entities/utils/misc';
 import { useAppKitNetwork, useAppKitProvider } from '@reown/appkit/react';
 import { useSwapContext } from '../../../context/SwapContext';
+import ImportTokenModal from '../TokenImportModal';
 
 
 
@@ -78,7 +80,11 @@ const RemoveLiquidityForm: React.FC = () => {
   const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
   const { walletProvider } = useAppKitProvider('eip155');
 
-
+  const [isImportModalOpen, setIsImportModalOpen] = React.useState(false); // Modal state'i
+  const handleImportToken = (data: any) => {
+    console.log("Yeni token eklendi:", data);
+    reloadTokens()
+  }
 
 
   useEffect(() => {
@@ -509,6 +515,19 @@ const RemoveLiquidityForm: React.FC = () => {
                   <RefreshCcw className="w-5 h-5" />
                 </motion.button>
 
+                  <motion.button
+                  className={`${isDarkMode
+                    ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600'
+                    : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100 ring-pink-200'
+                    } p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsImportModalOpen(true)}
+                  aria-label="Close"
+                >
+                  <Skull className={`w-6 h-6 `} />
+                </motion.button>
+
                 <motion.button
                   className={`${isDarkMode
                     ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600'
@@ -593,6 +612,14 @@ const RemoveLiquidityForm: React.FC = () => {
           </motion.div>
         )}
       </AnimatePresence>
+
+
+      <ImportTokenModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        isDarkMode={isDarkMode}
+        onImport={handleImportToken}
+      />
 
 
 

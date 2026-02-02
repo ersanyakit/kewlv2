@@ -17,6 +17,7 @@ import {
   DollarSign,
   XCircle,
   RefreshCcw,
+  Skull,
 } from 'lucide-react';
 import { SWAP_MODE, useTokenContext } from '../../../context/TokenContext';
 import TokenShape from '../../UI/TokenShape';
@@ -25,6 +26,7 @@ import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/ap
 import { useSwapContext } from '../../../context/SwapContext';
 import { warningSeverity } from '../../../constants/entities/utils/calculateSlippageAmount';
 import ConnectButton from '../../UI/ConnectButton';
+import ImportTokenModal from '../TokenImportModal';
 
 
 
@@ -74,24 +76,28 @@ const SwapForm: React.FC<SwapFormProps> = ({ disableTokenSelector = false }) => 
     handleFromChange,
     handleSwap,
     handleToChange } = useSwapContext();
-    const { address, isConnected } = useAppKitAccount();
+  const { address, isConnected } = useAppKitAccount();
   const { chainId } = useAppKitNetwork(); // AppKit'ten chainId'yi al
   const { walletProvider } = useAppKitProvider('eip155');
 
-
+  const [isImportModalOpen, setIsImportModalOpen] = React.useState(false); // Modal state'i
+  const handleImportToken = (data: any) => {
+    console.log("Yeni token eklendi:", data);
+    reloadTokens()
+  }
 
   useEffect(() => {
     setSwapMode(SWAP_MODE.SIMPLESWAP);
-}, []);
+  }, []);
 
   useEffect(() => {
-    if(isConnected){
-      if(address){
+    if (isConnected) {
+      if (address) {
         setAccount(address);
       }
     }
 
-  }, [baseToken, quoteToken,isConnected,address]);
+  }, [baseToken, quoteToken, isConnected, address]);
 
   return (
 
@@ -103,7 +109,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ disableTokenSelector = false }) => 
           <div className="flex justify-between items-start mb-1">
             <div>
               <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} mb-0.5`}>You Pay</div>
-              <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Balance: {baseToken &&  parseFloat(baseToken.balance).toLocaleString(undefined, {maximumFractionDigits: 4})} {baseToken && baseToken.symbol}</div>
+              <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Balance: {baseToken && parseFloat(baseToken.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })} {baseToken && baseToken.symbol}</div>
             </div>
 
             <div className="flex gap-1 flex-row items-center">
@@ -189,7 +195,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ disableTokenSelector = false }) => 
           <div className="flex justify-between items-start mb-1">
             <div>
               <div className={`text-xs font-medium ${isDarkMode ? 'text-gray-300' : 'text-gray-500'} mb-0.5`}>You Receive                  </div>
-              <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Balance: {quoteToken && parseFloat(quoteToken.balance).toLocaleString(undefined, {maximumFractionDigits: 4})} {quoteToken && quoteToken.symbol}</div>
+              <div className={`text-xs ${isDarkMode ? 'text-gray-400' : 'text-gray-500'}`}>Balance: {quoteToken && parseFloat(quoteToken.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })} {quoteToken && quoteToken.symbol}</div>
             </div>
 
             <div className="flex gap-1 flex-row items-center">
@@ -608,39 +614,39 @@ const SwapForm: React.FC<SwapFormProps> = ({ disableTokenSelector = false }) => 
 
 
         {
-          isConnected ? 
-          <div className="px-3 pb-3">
-          <motion.button
-            onClick={() => handleSwap(walletProvider)}
-            className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${!canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
-            whileHover={swapMode == SWAP_MODE.SIMPLESWAP && canSwap ? { scale: 1.02 } : undefined}
-            whileTap={swapMode == SWAP_MODE.SIMPLESWAP && canSwap ? { scale: 0.98 } : undefined}
-            disabled={(!canSwap || isSwapping) && swapMode == SWAP_MODE.SIMPLESWAP}
-            style={{
-              background: `linear-gradient(135deg, #ff1356, #ff4080)`
-            }}
-          >
-            {/* Background animation - only show when enabled */}
-            {canSwap && swapMode == SWAP_MODE.SIMPLESWAP && (
-              <div className="absolute inset-0 bg-white opacity-20">
-                <div className="h-full w-1/3 bg-white/40 blur-xl transform -skew-x-30 -translate-x-full animate-shimmer"></div>
-              </div>
-            )}
+          isConnected ?
+            <div className="px-3 pb-3">
+              <motion.button
+                onClick={() => handleSwap(walletProvider)}
+                className={`w-full py-3 rounded-xl font-medium flex items-center justify-center space-x-2 shadow-md text-white relative overflow-hidden ${!canSwap ? 'opacity-60 cursor-not-allowed' : ''}`}
+                whileHover={swapMode == SWAP_MODE.SIMPLESWAP && canSwap ? { scale: 1.02 } : undefined}
+                whileTap={swapMode == SWAP_MODE.SIMPLESWAP && canSwap ? { scale: 0.98 } : undefined}
+                disabled={(!canSwap || isSwapping) && swapMode == SWAP_MODE.SIMPLESWAP}
+                style={{
+                  background: `linear-gradient(135deg, #ff1356, #ff4080)`
+                }}
+              >
+                {/* Background animation - only show when enabled */}
+                {canSwap && swapMode == SWAP_MODE.SIMPLESWAP && (
+                  <div className="absolute inset-0 bg-white opacity-20">
+                    <div className="h-full w-1/3 bg-white/40 blur-xl transform -skew-x-30 -translate-x-full animate-shimmer"></div>
+                  </div>
+                )}
 
-            <span>{swapMode == SWAP_MODE.SIMPLESWAP && isSwapping ? "Swapping..." : "Swap"}</span>
-            <Zap className="w-4 h-4" />
-          </motion.button>
+                <span>{swapMode == SWAP_MODE.SIMPLESWAP && isSwapping ? "Swapping..." : "Swap"}</span>
+                <Zap className="w-4 h-4" />
+              </motion.button>
 
 
-        </div>
-          : 
-        <div className="px-3 pb-3">
-          <ConnectButton />
-        </div>
+            </div>
+            :
+            <div className="px-3 pb-3">
+              <ConnectButton />
+            </div>
         }
-        
-       
-        
+
+
+
       </>)}
 
       {/* Ortak Token Seçim Paneli - Her iki input için tek liste */}
@@ -673,21 +679,21 @@ const SwapForm: React.FC<SwapFormProps> = ({ disableTokenSelector = false }) => 
                       : 'bg-gray-50 border-gray-100 text-gray-800 placeholder-gray-400'
                       } border rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-pink-500 transition-colors`}
                   />
-                    
-                         {/* Clear button */}
-                {tokenFilter && (
-                  <button
-                    onClick={() => setTokenFilter('')}
-                    className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-opacity-80 transition-colors ${isDarkMode
-                      ? 'hover:bg-gray-500/30 text-gray-400 hover:text-gray-300'
-                      : 'hover:bg-gray-200/50 text-gray-500 hover:text-gray-700'
-                      }`}
-                    type="button"
-                    aria-label="Clear search"
-                  >
-                    <XCircle className="w-4 h-4" />
-                  </button>
-                )}
+
+                  {/* Clear button */}
+                  {tokenFilter && (
+                    <button
+                      onClick={() => setTokenFilter('')}
+                      className={`absolute right-2 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-opacity-80 transition-colors ${isDarkMode
+                        ? 'hover:bg-gray-500/30 text-gray-400 hover:text-gray-300'
+                        : 'hover:bg-gray-200/50 text-gray-500 hover:text-gray-700'
+                        }`}
+                      type="button"
+                      aria-label="Clear search"
+                    >
+                      <XCircle className="w-4 h-4" />
+                    </button>
+                  )}
                 </div>
                 <button
                   onClick={() => setFavoriteOnly(!favoriteOnly)}
@@ -718,7 +724,21 @@ const SwapForm: React.FC<SwapFormProps> = ({ disableTokenSelector = false }) => 
                   <RefreshCcw className="w-5 h-5" />
                 </motion.button>
 
+              
                 <motion.button
+                  className={`${isDarkMode
+                    ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600'
+                    : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100 ring-pink-200'
+                    } p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsImportModalOpen(true)}
+                  aria-label="Close"
+                >
+                  <Skull className={`w-6 h-6 `} />
+                </motion.button>
+
+                  <motion.button
                   className={`${isDarkMode
                     ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600'
                     : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100 ring-pink-200'
@@ -731,10 +751,9 @@ const SwapForm: React.FC<SwapFormProps> = ({ disableTokenSelector = false }) => 
                   <XCircle className={`w-6 h-6 `} />
                 </motion.button>
 
-
               </div>
 
-              {/* Tek Token Listesi - Hangi token seçildiğine bağlı olarak farklı stil */}
+
               <div className={` scrollbar-hide min-h-[53dvh]  max-h-[53dvh]  overflow-y-auto ${isDarkMode ? 'scrollbar-dark' : 'scrollbar-light'
                 } pr-1`}>
                 <div className="space-y-1">
@@ -781,7 +800,7 @@ const SwapForm: React.FC<SwapFormProps> = ({ disableTokenSelector = false }) => 
                                   aria-hidden="true">
                                 </div>
                               ) : (
-                                parseFloat(token.balance).toLocaleString(undefined, {maximumFractionDigits: 4})
+                                parseFloat(token.balance).toLocaleString(undefined, { maximumFractionDigits: 4 })
 
                               )}
                             </div>
@@ -799,9 +818,17 @@ const SwapForm: React.FC<SwapFormProps> = ({ disableTokenSelector = false }) => 
                 </div>
               </div>
             </div>
+
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ImportTokenModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        isDarkMode={isDarkMode}
+        onImport={handleImportToken}
+      />
 
 
 

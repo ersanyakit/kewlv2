@@ -19,6 +19,7 @@ import {
     RefreshCcw,
     Repeat,
     PlusCircle,
+    Skull,
 } from 'lucide-react';
 import { SWAP_MODE, useTokenContext } from '../../../context/TokenContext';
 import TokenShape from '../../UI/TokenShape';
@@ -27,6 +28,7 @@ import { useAppKitAccount, useAppKitNetwork, useAppKitProvider } from '@reown/ap
 import { TCustomPair, useSwapContext } from '../../../context/SwapContext';
 import { warningSeverity } from '../../../constants/entities/utils/calculateSlippageAmount';
 import ConnectButton from '../../UI/ConnectButton';
+import ImportTokenModal from '../TokenImportModal';
 
 // Token type
 
@@ -76,6 +78,11 @@ const FushionForm: React.FC = () => {
     const { walletProvider } = useAppKitProvider('eip155');
     const { address, isConnected } = useAppKitAccount();
 
+  const [isImportModalOpen, setIsImportModalOpen] = React.useState(false); // Modal state'i
+  const handleImportToken = (data: any) => {
+    console.log("Yeni token eklendi:", data);
+    reloadTokens()
+  }
 
 
 
@@ -687,6 +694,19 @@ const FushionForm: React.FC = () => {
                                     <RefreshCcw className="w-5 h-5" />
                                 </motion.button>
 
+                                  <motion.button
+                  className={`${isDarkMode
+                    ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600'
+                    : 'bg-pink-50 text-[#ff1356] hover:bg-pink-100 ring-pink-200'
+                    } p-2 rounded-full transition-all duration-300 focus:outline-none focus:ring-2`}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setIsImportModalOpen(true)}
+                  aria-label="Close"
+                >
+                  <Skull className={`w-6 h-6 `} />
+                </motion.button>
+
                                 <motion.button
                                     className={`${isDarkMode
                                         ? 'bg-gray-700 text-gray-200 hover:bg-gray-600 ring-gray-600'
@@ -699,6 +719,8 @@ const FushionForm: React.FC = () => {
                                 >
                                     <XCircle className={`w-6 h-6 `} />
                                 </motion.button>
+
+
 
 
                             </div>
@@ -771,6 +793,14 @@ const FushionForm: React.FC = () => {
                     </motion.div>
                 )}
             </AnimatePresence>
+
+                  <ImportTokenModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        isDarkMode={isDarkMode}
+        onImport={handleImportToken}
+      />
+
 
 
 

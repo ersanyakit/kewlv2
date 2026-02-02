@@ -21,15 +21,15 @@ const TokenList: React.FC = () => {
     isDarkMode
   } = useTokenContext();
   const [isImportModalOpen, setIsImportModalOpen] = React.useState(false); // Modal state'i
-
+  const handleImportToken = (data: any) => {
+    console.log("Yeni token eklendi:", data);
+    reloadTokens()
+  }
   const handleSelectToken = (token: Token) => {
     setBaseToken(token);
   };
 
-   const handleImportToken = (data: any) => {
-    console.log("Yeni token eklendi:", data);
-    reloadTokens()
-  }
+ 
 
   useEffect(() => {
   }, [isDarkMode]);
