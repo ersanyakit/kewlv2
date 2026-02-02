@@ -85,6 +85,7 @@ interface TokenContextType {
   setTokenList: (tokenList: Token[]) => void;
   toggleDarkMode: () => void; // Tema değiştirme fonksiyonu
   reloadTokens: () => void;
+  addCustomToken: (token: Token) => void;
 }
 
 // Default context değeri
@@ -131,6 +132,7 @@ const defaultContext: TokenContextType = {
   toggleDarkMode: () => {},
   setTokenList: () => {},
   reloadTokens: () => {},
+  addCustomToken: () => {},
 };
 
 // Context'i oluştur
@@ -145,7 +147,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   const [tokens, setTokens] = useState<Token[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isChartExpanded,setIsChartExpanded] = useState<boolean>(false);
-  
+  const [customTokens, setCustomTokens] = useState<Token[]>([]);
 
    const loadTokens = async () => {
     setTokens([]);
@@ -196,8 +198,10 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         loading: true
       }
       setNativeToken(nativeCurrencyInfo);
+          const _tokens = [nativeCurrencyInfo, ...formattedTokens, ...customTokens];
+
        
-      let _tokens = [nativeCurrencyInfo, ...formattedTokens];
+    //  let _tokens = [nativeCurrencyInfo, ...formattedTokens];
 
   
 
@@ -297,8 +301,28 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setIsDarkMode(prev => !prev);
   };
 
-  // Filtrelenmiş token listesi
-  const filteredTokens = useMemo(() => {
+
+  
+  const allTokens = useMemo(() => {
+  const combined = [...tokens, ...customTokens];
+  const uniqueTokensMap = new Map<string, Token>();
+  for (const token of combined) {
+    uniqueTokensMap.set(token.address.toLowerCase(), token);
+  }
+  return Array.from(uniqueTokensMap.values());
+}, [tokens, customTokens]);
+
+
+const filteredTokens = useMemo(() => {
+  return allTokens.filter(token => {
+    const matchesSearch = token.symbol.toLowerCase().includes(tokenFilter.toLowerCase()) || 
+                          token.name.toLowerCase().includes(tokenFilter.toLowerCase());
+    const matchesFavorite = favoriteOnly ? token.favorite : true;
+    return matchesSearch && matchesFavorite;
+  });
+}, [allTokens, tokenFilter, favoriteOnly]);
+
+  const filteredTokensEx = useMemo(() => {
     return tokens.filter(token => {
       const matchesSearch = token.symbol.toLowerCase().includes(tokenFilter.toLowerCase()) || 
                           token.name.toLowerCase().includes(tokenFilter.toLowerCase());
@@ -330,6 +354,29 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       setTokens(tokenList);
   }
 
+  const addCustomToken = (token: Token) => {
+  const exists = customTokens.some(t => t.address.toLowerCase() === token.address.toLowerCase());
+  if (!exists) {
+    setCustomTokens(prev => [...prev, token]);
+  }
+};
+
+
+useEffect(() => {
+  const stored = localStorage.getItem('customTokens');
+  if (stored) {
+    try {
+      const parsed: Token[] = JSON.parse(stored);
+      setCustomTokens(parsed);
+    } catch (e) {
+      console.error('Failed to parse custom tokens from localStorage', e);
+    }
+  }
+}, []);
+
+useEffect(() => {
+  localStorage.setItem('customTokens', JSON.stringify(customTokens));
+}, [customTokens]);
   
   const reloadTokens = () => {
     setTokens([]);
@@ -363,6 +410,7 @@ export const TokenProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     setSwapMode,
     setSlippageTolerance,
     reloadTokens,
+    addCustomToken,
     setAccount,
     setOpenTokenSelector,
     setTradeType,

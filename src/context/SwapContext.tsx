@@ -161,6 +161,7 @@ interface SwapContextProps {
   pairState: TPairState;
   setPairState: (pairState: TPairState) => void;
   handleAggregatorSwap: (walletProvider: any) => void;
+  fetchTokenInfo :  (walletProvider: any, tokenAddress: any) => Promise<Token>
   fetchClaimedRewards: (walletProvider: any) => void;
   claimedRewardsLoading: boolean;
   setClaimedRewardsLoading: (loading: boolean) => void;
@@ -286,6 +287,7 @@ const defaultContext: SwapContextProps = {
   setJackpotInfo: () => { },
   fetchJackPotInfo: (walletProvider: any, limit:number) => { },
 
+  fetchTokenInfo: (walletProvider: any, tokenAddress: any) => Promise<Token>,
   setRemoveLiquidityPercent: () => { },
   handleAggregatorSwap: () => { },
   setAggregatorPairs: () => { },
@@ -1490,6 +1492,23 @@ export const SwapProvider: React.FC<SwapProviderProps> = ({ children }) => {
   }, [aggregatorPairs])
 
 
+  
+  const fetchTokenInfo = async (walletProvider: any, tokenAddress: any): Promise<Token> => {
+      setLoading(true)
+  const dexContract = await getContractByName(TContractType.DEX, Number(chainId), walletProvider);
+  const tokenContract = getContract({
+    address: tokenAddress as `0x${string}`,
+    abi: erc20Abi,
+    client: dexContract.client,
+  });
+
+  const tokenName = await tokenContract.read.name();
+  const tokenSymbol = await tokenContract.read.symbol();
+  const tokenDecimals = await tokenContract.read.decimals();
+    setLoading(false)
+
+  return new Token(Number(chainId), tokenAddress, tokenDecimals, tokenSymbol, tokenName);
+};
 
   const handleAggregatorSwap = async (walletProvider: any) => {
     console.log("handleAggregatorSwap")
@@ -3791,6 +3810,7 @@ const tradeStats : any = await dexContract.client.readContract({
     setToggleDetails,
     handleSwap,
     handleAggregatorSwap,
+    fetchTokenInfo,
     baseReservePercent,
     quoteReservePercent,
     totalReservePercent,

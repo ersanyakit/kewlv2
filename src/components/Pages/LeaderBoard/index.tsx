@@ -63,7 +63,7 @@ const LeaderBoard = () => {
   }, [windowOffset]);
 
 
-  const loadMoralisData = async () => {
+  const fetchBoardTransactions = async () => {
 
 
     try {
@@ -77,7 +77,7 @@ const LeaderBoard = () => {
 
   }
   useEffect(() => {
-        loadMoralisData()
+        fetchBoardTransactions()
 },[leaderboardDate])
 
   return (

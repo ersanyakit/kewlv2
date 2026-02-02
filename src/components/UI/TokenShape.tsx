@@ -24,7 +24,7 @@ const TokenShape: React.FC<TokenShapeProps> = memo(({
   
   // Stil objesi
   const bgStyle = {
-    background: token?.color || '#627eea'
+    background: token?.color || '#ff0000'
   };
   
   // Basitleştirilmiş JSX, minimum animasyon ve transition
@@ -36,7 +36,7 @@ const TokenShape: React.FC<TokenShapeProps> = memo(({
     >
       <div className={`absolute inset-0.5 rounded-full flex items-center justify-center`}>
         <img 
-          src={token?.icon || token?.logoURI} 
+          src={token?.icon || token?.logoURI || "/assets/icons/skull.svg"} 
           className="w-full h-full rounded-full" 
           alt={token?.name}
           loading="lazy" // Lazy loading eklendi
