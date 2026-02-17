@@ -4,7 +4,7 @@ import TradeTerminal from './components/Swap/TradeTerminal';
 import Layout from './components/Layout/Layout';
 import About from './components/About/About';
 import { TokenProvider } from './context/TokenContext';
-import { Web3ProviderContext } from './context/Web3ProviderContext';
+import { publicClient, walletClient, Web3ProviderContext } from './context/Web3ProviderContext';
 import { SwapProvider } from './context/SwapContext';
 import Rewards from './components/Pages/Rewards';
 import TosPage from './components/Pages/TosPage';
@@ -13,9 +13,11 @@ import EmbeddedSwapPage from './components/Pages/EmbedPages';
 import ExchangePage from './components/Pages/ExchangePage';
 import { AnimatePresence,motion, LazyMotion, domAnimation, m } from 'framer-motion'
 import TestPage from './components/Pages/TestPage';
+import NFTsPage from './components/Pages/NFTs';
 import LeaderBoard from './components/Pages/LeaderBoard';
 import { MoralisProvider } from './context/MoralisProviderContext';
 import Launchpad from './components/Pages/Launchpad';
+import { NFTProvider } from './context/NFTContext';
 
 function App() {
 //188467.014
@@ -26,6 +28,7 @@ function App() {
   return (
     
     <Web3ProviderContext>
+         <NFTProvider>
       <TokenProvider>
         <SwapProvider>
             <Routes>
@@ -49,6 +52,7 @@ function App() {
                     <Route path="/tos" element={<TosPage />} />
                     <Route path="/leaderboard" element={<LeaderBoard />} />
                     <Route path="/exchange" element={<ExchangePage />} />
+                     <Route path="/nfts" element={<NFTsPage />} />
                   </Routes>
                 </Layout>
               }
@@ -56,7 +60,10 @@ function App() {
             </Routes>
         </SwapProvider>
       </TokenProvider>
+      </NFTProvider>
     </Web3ProviderContext>
+
+ 
   );
 }
 

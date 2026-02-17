@@ -2,6 +2,8 @@ import DEX_ABI from "./abis/KEWLDEX.json";
 import ERC20_ABI from "./abis/ERC20.json";
 import PAIR_ABI from "./abis/PAIR.json";
 import MULTICALL_ABI from "./abis/MULTICALL.json";
+import MARKET_ABI from "./abis/MARKET.json";
+import ERC721_ABI from "./abis/ERC721.json";
 import { Address } from "@reown/appkit-adapter-ethers";
 import { PublicClient, WalletClient } from "viem";
 
@@ -9,6 +11,8 @@ export enum TContractType {
     DEX,
     ERC20,
     MULTICALL,
+    NFT_MARKETPLACE,
+    ERC721,
 }
 
 export interface TContract {
@@ -142,5 +146,73 @@ export const ContractList: MultiContractConfig = {
             },
         },
     },
+    [TContractType.NFT_MARKETPLACE]:{
+        abi: MARKET_ABI.abi,
+        multicall: MULTICALL_ABI.abi,
+        pair: PAIR_ABI.abi,
+        contracts: {
+            88888: {
+                address: "0x955ed1460Ec2C9fCF485eaf36392e16ac4c40596",
+            },
+            88882: {
+                address: "0x0000000000000000000000000000000000000000",
+            },
+            42161: {
+                address: "0x955ed1460Ec2C9fCF485eaf36392e16ac4c40596",
+            },
+            43114: {
+                address: "0x0000000000000000000000000000000000000000",
+            },
+            31337: {
+                address: "0x0000000000000000000000000000000000000000",
+            },
+            146: {
+                address: "0x32A72466314D12AbD0091C0BF7F7eaeDE1BeE48e",
+            },
+            8453: {
+                address: "0x0000000000000000000000000000000000000000",
+            },
+            1907: {
+                address: "0x273F0A2E03447177f246462D0EB9A1e63E718edD",
+            },
+            56: {
+                address: "0x0000000000000000000000000000000000000000",
+            },
+        },
+    },
+    [TContractType.ERC721]: {
+        abi: ERC721_ABI.abi,
+        multicall: MULTICALL_ABI.abi,
+        pair: PAIR_ABI.abi,  
+        contracts: {
+            88888: {
+                address: "0x955ed1460Ec2C9fCF485eaf36392e16ac4c40596",
+            },
+            88882: {
+                address: "0x0000000000000000000000000000000000000000",
+            },
+            42161: {
+                address: "0x955ed1460Ec2C9fCF485eaf36392e16ac4c40596",
+            },
+            43114: {
+                address: "0x0000000000000000000000000000000000000000",
+            },
+            31337: {
+                address: "0x0000000000000000000000000000000000000000",
+            },
+            146: {
+                address: "0x32A72466314D12AbD0091C0BF7F7eaeDE1BeE48e",
+            },
+            8453: {
+                address: "0x0000000000000000000000000000000000000000",
+            },
+            1907: {
+                address: "0x273F0A2E03447177f246462D0EB9A1e63E718edD",
+            },
+            56: {
+                address: "0x0000000000000000000000000000000000000000",
+            },
+        }
+    }
 }
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { RefreshCw, PieChart, Clock, Waves, NotebookText, ServerCrash } from 'lucide-react';
+import { RefreshCw, PieChart, Clock, Waves, NotebookText, ServerCrash, ImageMinus } from 'lucide-react';
 import { useTokenContext } from '../../../context/TokenContext';
 import { useNavigate } from 'react-router-dom';
 import { useAppKitNetwork } from '@reown/appkit/react';
@@ -35,6 +35,26 @@ const SwapTabs: React.FC<SwapTabsProps> = ({
           : 'bg-white/80 border-white/30'
       } backdrop-blur-lg p-1.5 rounded-full shadow-[0_4px_12px_rgba(0,0,0,0.06)] border flex space-x-1 transition-all duration-300`}>
 
+        {
+          chainId == 88888 &&
+       
+         <button 
+          className={`hidden text-sm select-none font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'nfts' 
+            ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white shadow-lg' 
+            : isDarkMode 
+              ? 'text-gray-300 hover:bg-gray-700/50' 
+              : 'text-gray-600 hover:bg-white/50'}`}
+          onClick={() => {
+            setActiveView('nfts')
+
+            navigate('/nfts')
+          }
+          }
+        >
+          <ImageMinus className="w-4 h-4 mr-1.5" />
+          NFTs
+        </button>
+         }
         {
           chainId == 88888 &&
        
