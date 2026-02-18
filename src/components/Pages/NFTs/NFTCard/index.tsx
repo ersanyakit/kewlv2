@@ -17,18 +17,18 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, onView, onBuy, isSelected }) => 
   // Helper to format BigInt prices (18 decimals)
   const formatPrice = (price: any) => {
     try {
-      if (!price) return "0.00";
-      const p = BigInt(price);
+      if (price === undefined || price === null) return "0.00";
+      const p = BigInt(price.toString());
       const etherValue = Number(p) / 1e18;
       return etherValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 4 });
-    } catch {
+    } catch (err) {
+      console.error("Price formatting error", err);
       return "0.00";
     }
   };
 
   useEffect(() => {
     const fetchMetadata = async () => {
-      // Ensure we have the required parameters
       if (!nft.contract_address || nft.tokenId === undefined) {
         setLoading(false);
         return;
@@ -36,11 +36,9 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, onView, onBuy, isSelected }) => 
 
       try {
         setLoading(true);
-        // Convert BigInt tokenId to string for URL
         const tid = nft.tokenId.toString();
-        let u = `https://chilitize.com/api/metadata?contract=${nft.contract_address}&tokenId=${tid}`
-        let proxyURL =  `https://cors.isomorphic-git.org/${encodeURIComponent(u)}`
-        const response = await fetch(u);
+        let url = `https://scan-api.chiliz.com/api/v2/tokens/${nft.contract_address}/instances/${tid}`
+        const response = await fetch(url);
         
         if (!response.ok) throw new Error("Metadata fetch failed");
         
@@ -56,10 +54,21 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, onView, onBuy, isSelected }) => 
     fetchMetadata();
   }, [nft.contract_address, nft.tokenId]);
 
-  // Derived data
-  const displayName = metadata?.name || nft.name || `Token #${nft.tokenId?.toString().slice(0, 6)}...`;
-  const displayImage = imgError ? `https://api.dicebear.com/9.x/identicon/svg?seed=${nft.tokenId}` : (metadata?.image || nft.image);
-  const rarity = metadata?.attributes?.find((a: any) => a.trait_type === 'Rarity')?.value || 'Common';
+  // Derived data based on the provided JSON structure
+  const innerMeta = metadata?.metadata;
+  const displayName = innerMeta?.name || nft.name || `Token #${nft.tokenId?.toString().slice(0, 8)}...`;
+  
+  // Handle image: prefer root image_url, fallback to inner metadata image with IPFS conversion
+  let displayImage = metadata?.image_url || innerMeta?.image || nft.image;
+  if (displayImage && typeof displayImage === 'string' && displayImage.startsWith('ipfs://')) {
+    displayImage = displayImage.replace('ipfs://', 'https://ipfs.io/ipfs/');
+  }
+  
+  const finalImage = imgError ? `https://api.dicebear.com/9.x/identicon/svg?seed=${nft.tokenId}` : displayImage;
+
+  // Extract rarity from attributes
+  const attributes = innerMeta?.attributes || [];
+  const rarity = attributes.find((a: any) => a.trait_type === 'Rarity')?.value || 'Common';
 
   return (
     <div 
@@ -78,14 +87,13 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, onView, onBuy, isSelected }) => 
           </div>
         ) : (
           <img 
-            src={displayImage} 
+            src={finalImage} 
             alt={displayName} 
             onError={() => setImgError(true)}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105 transform-gpu"
           />
         )}
         
-        {/* Sweep Selection Overlay */}
         {isSelected && (
           <div className="absolute inset-0 bg-pink-500/10 backdrop-blur-[2px] flex items-center justify-center z-20">
             <div className="bg-pink-500 text-white p-3 rounded-full shadow-2xl scale-110">
@@ -106,9 +114,9 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, onView, onBuy, isSelected }) => 
         {!loading && (
           <div className="absolute bottom-4 left-4 z-20">
             <span className={`px-3 py-1.5 text-[9px] font-black tracking-widest rounded-xl text-white shadow-lg uppercase ${
-              rarity === 'Legendary' ? 'bg-orange-500' :
-              rarity === 'Epic' ? 'bg-purple-600' :
-              rarity === 'Rare' ? 'bg-blue-600' : 'bg-slate-700'
+              rarity.toString().toLowerCase().includes('legendary') ? 'bg-orange-500' :
+              rarity.toString().toLowerCase().includes('epic') ? 'bg-purple-600' :
+              rarity.toString().toLowerCase().includes('rare') ? 'bg-blue-600' : 'bg-slate-700'
             }`}>
               {rarity}
             </span>
@@ -125,11 +133,11 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, onView, onBuy, isSelected }) => 
               <h3 className="font-black text-gray-900 truncate tracking-tight">{displayName}</h3>
             )}
           </div>
-          {nft.verified !== false && <CheckCircle size={16} className="text-pink-500 flex-shrink-0 mt-0.5 ml-1" fill="currentColor" fillOpacity={0.1} />}
+          <CheckCircle size={16} className="text-pink-500 flex-shrink-0 mt-0.5 ml-1" fill="currentColor" fillOpacity={0.1} />
         </div>
         
         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mb-4 truncate">
-          {metadata?.collection || nft.collectionName || 'Unknown Collection'}
+          {attributes.find((a: any) => a.trait_type === 'Collection')?.value || nft.collectionName || 'IMON Collection'}
         </p>
         
         <div className="flex justify-between items-end">
@@ -144,7 +152,7 @@ const NFTCard: React.FC<NFTCardProps> = ({ nft, onView, onBuy, isSelected }) => 
           </div>
           
           <div className="text-right">
-             <p className="text-[9px] text-gray-400 uppercase font-black tracking-wider mb-0.5">Stock</p>
+             <p className="text-[9px] text-gray-400 uppercase font-black tracking-wider mb-0.5">Available</p>
              <p className="text-xs font-black text-gray-700">
                {nft.remaining_amount?.toString() || '1'}
              </p>

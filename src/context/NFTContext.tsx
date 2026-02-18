@@ -11,7 +11,7 @@ import { getContractByName } from "../constants/contracts/contracts";
 import { TContractType } from "../constants/contracts/addresses";
 import { useTokenContext } from "./TokenContext";
 import { useAppKitNetwork } from "@reown/appkit/react";
-import { ethers } from "ethers";
+import { waitForTransactionReceipt } from "viem/actions";
 
 
 // =========================
@@ -19,13 +19,37 @@ import { ethers } from "ethers";
 // =========================
 
 export interface NFTItem {
-    is_cancelled: boolean;
-    is_completed: boolean;
-    collectionId: bigint;
-    remaining_amount: bigint;
-    price_per_token: bigint;
-}
+  // Core state
+  itemId: bigint;
+  collectionId: bigint;
+  assetType: number;
 
+  is_exists: boolean;
+  is_cancelled: boolean;
+  is_completed: boolean;
+
+  cancelled_at: bigint;
+  completed_at: bigint;
+  created_at: bigint;
+
+  // NFT reference
+  contract_address: `0x${string}`;
+  tokenId: bigint;
+
+  // Trade data
+  amount: bigint;
+  remaining_amount: bigint;
+  price_per_token: bigint;
+
+  // Royalties
+  hasRoyalties: boolean;
+  royaltiesFee: bigint;
+  royaltiesReceiver: `0x${string}`;
+
+  // Market
+  seller: `0x${string}`;
+  currentBuyerIndex: bigint;
+}
 export interface NFTCollection {
     // ABI'den gelenler
     exists: boolean;
@@ -96,6 +120,16 @@ function nftReducer(state: NFTState, action: NFTAction): NFTState {
 
 interface NFTContextValue extends NFTState {
     refresh: (walletProvider: any) => Promise<void>;
+    buy: (
+  walletProvider: any,
+  params: {
+    collectionId: bigint;
+    itemId: bigint;
+    tokenId: bigint;
+    amount: bigint;
+  }[],
+  totalPrice:bigint,
+) => Promise<void>;
 }
 
 const NFTContext = createContext<NFTContextValue | undefined>(undefined);
@@ -110,51 +144,7 @@ export const NFTProvider = ({ children }: { children: ReactNode }) => {
     const { account } = useTokenContext();
     const [state, dispatch] = useReducer(nftReducer, initialState);
 
-    const refreshEx = useCallback(async (walletProvider: any) => {
-
-        dispatch({ type: "LOAD_START" });
-
-        try {
-            let marketContract = await getContractByName(TContractType.NFT_MARKETPLACE, Number(chainId), walletProvider);
-            const [signerAccount] = await marketContract.wallet.getAddresses();
-            let userAccount = account ? account : ethers.ZeroAddress;
-
-
-            const rawCollections = await marketContract.client.readContract({
-                address: marketContract.caller.address,
-                abi: marketContract.abi,
-                functionName: "fetchCollections",
-            }) as any[];
-
-
-            const processed: NFTCollection[] = await Promise.all(
-                rawCollections.map(async (c: any) => {
-                    const items = await marketContract.client.readContract({
-                        address: marketContract.caller.address,
-                        abi: marketContract.abi,
-                        functionName: "fetch", // 🔥 BURASI ÖNEMLİ
-                        args: [c.collectionId],
-                    }) as NFTItem[];
-
-                    const liveItems = items.filter(
-                        (i) => !i.is_cancelled && !i.is_completed
-                    );
-
-                    return {
-                        ...c,
-                        items: liveItems,
-                    };
-                })
-            );
-
-            dispatch({ type: "LOAD_SUCCESS", payload: processed });
-        } catch (err: any) {
-            dispatch({
-                type: "LOAD_ERROR",
-                payload: err?.message || "NFT load failed",
-            });
-        }
-    }, [chainId]);
+ 
 
     const refresh = useCallback(async (walletProvider: any) => {
     if (!chainId) return;
@@ -247,14 +237,66 @@ export const NFTProvider = ({ children }: { children: ReactNode }) => {
             payload: err?.message || "NFT load failed",
         });
     }
-}, [chainId]);
+    }, [chainId]);
+
+const buy = useCallback(
+  async (
+    walletProvider: any,
+    params: {
+      collectionId: bigint;
+      itemId: bigint;
+      tokenId: bigint;
+      amount: bigint;
+    }[],
+    totalPrice:bigint,
+  ) => {
+    if (!chainId) return;
+
+    try {
+      const marketContract = await getContractByName(
+        TContractType.NFT_MARKETPLACE,
+        Number(chainId),
+        walletProvider
+      );
+    const [signerAccount] = await marketContract.wallet.getAddresses();
+
+ 
+ 
+                const buyTx = await marketContract.wallet.writeContract({
+                  chain: marketContract.client.chain,
+                  address: marketContract.address as `0x${string}`,
+                  abi: marketContract.abi,
+                  functionName: "buy",
+                  args: [params, totalPrice],
+                  account: signerAccount,
+                  value:totalPrice,
+                })
+                const receiptApproval = await waitForTransactionReceipt(marketContract.wallet, {
+                  hash: buyTx,
+                });
+                console.log("receiptApproval", receiptApproval)
+
+    
+
+    
+
+      // Refresh sonrası state güncelle
+      await refresh(walletProvider);
+
+    } catch (err: any) {
+      console.error("Buy failed:", err);
+      throw err;
+    }
+  },
+  [chainId, refresh]
+);
 
     // Reactive reload
     useEffect(() => {
         if (account) {
             refresh(null);
         }
-    }, [account, chainId, refresh]);
+    }, [account, chainId, refresh,buy]);
 
     const value = useMemo(
         () => ({
@@ -262,12 +304,15 @@ export const NFTProvider = ({ children }: { children: ReactNode }) => {
             loading: state.loading,
             error: state.error,
             refresh,
+            buy,
         }),
-        [state, refresh]
+        [state, refresh,buy]
     );
 
     return <NFTContext.Provider value={value}>{children}</NFTContext.Provider>;
 };
+
+
 
 
 // =========================

@@ -39,7 +39,7 @@ const SwapTabs: React.FC<SwapTabsProps> = ({
           chainId == 88888 &&
        
          <button 
-          className={`hidden text-sm select-none font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'nfts' 
+          className={`text-sm select-none font-medium px-4 py-1.5 rounded-full flex items-center ${activeView === 'nfts' 
             ? 'bg-gradient-to-r from-[#ff1356] to-[#ff4080] text-white shadow-lg' 
             : isDarkMode 
               ? 'text-gray-300 hover:bg-gray-700/50' 
