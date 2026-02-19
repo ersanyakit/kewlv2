@@ -67,7 +67,16 @@ export async function GetSigner(walletProvider: any) {
     return await provider.getSigner();
 }
 
-export const fetchBalances = async (chainId: string | number,account: string | undefined, walletProvider: any, tokenList: TToken[],setTokenList: (tokenList: TToken[]) => void) => {
+
+const chunkArray = <T,>(array: T[], size: number): T[][] => {
+  const result: T[][] = [];
+  for (let i = 0; i < array.length; i += size) {
+    result.push(array.slice(i, i + size));
+  }
+  return result;
+};
+
+export const fetchBalancesLegacy = async (chainId: string | number,account: string | undefined, walletProvider: any, tokenList: TToken[],setTokenList: (tokenList: TToken[]) => void) => {
     
     try{
     if(!account){
@@ -127,6 +136,114 @@ export const fetchBalances = async (chainId: string | number,account: string | u
 
 }
 
+export const fetchBalances = async (
+  chainId: string | number,
+  account: string | undefined,
+  walletProvider: any,
+  tokenList: TToken[],
+  setTokenList: (tokenList: TToken[]) => void
+) => {
+  try {
+    if (!account) {
+      tokenList.forEach((tokenInfo: any, index: number) => {
+        tokenInfo.address = ethers.getAddress(tokenInfo.address);
+        const tokenAddr = new Token(tokenInfo.chainId, tokenInfo.address, tokenInfo.decimals);
+
+        tokenList[index]["balance"] = CurrencyAmount
+          .fromRawAmount(tokenAddr, "0")
+          .toSignificant();
+
+        tokenList[index]["loading"] = false;
+        tokenList[index]["favorite"] = false;
+      });
+
+      setTokenList(tokenList);
+      return;
+    }
+
+    const dexContract = await getContractByName(
+      TContractType.MULTICALL,
+      chainId,
+      walletProvider
+    );
+
+    const abiERC = [
+      "function balanceOf(address user)",
+      "function getEthBalance(address user)"
+    ];
+
+    const abiInterface = new ethers.Interface(abiERC);
+    const abiCoder = AbiCoder.defaultAbiCoder();
+
+    const CHUNK_SIZE = 50;
+
+    const chunks = chunkArray(tokenList, CHUNK_SIZE);
+
+    let updatedTokens = [...tokenList];
+
+    for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
+      const chunk = chunks[chunkIndex];
+
+      const multicallParams = chunk.map((item: any) => ({
+        target:
+          item.address === ZeroAddress
+            ? dexContract.caller.address
+            : item.address,
+        callData:
+          item.address === ZeroAddress
+            ? abiInterface.encodeFunctionData("getEthBalance", [account])
+            : abiInterface.encodeFunctionData("balanceOf", [account]),
+      }));
+
+      const multicallResult: any = await dexContract.client.readContract({
+        address: dexContract.caller.address,
+        abi: dexContract.abi,
+        functionName: "aggregate",
+        args: [multicallParams],
+        account: ethers.getAddress(account) as `0x${string}`,
+      });
+
+      if (multicallResult && multicallResult.length > 0) {
+        multicallResult[1].forEach(
+          (encodedMulticallData: any, index: number) => {
+            const globalIndex = chunkIndex * CHUNK_SIZE + index;
+            const tokenInfo = updatedTokens[globalIndex];
+
+            tokenInfo.address = ethers.getAddress(tokenInfo.address);
+
+            const tokenAddr = new Token(
+              tokenInfo.chainId,
+              tokenInfo.address,
+              tokenInfo.decimals
+            );
+
+            const [rawBalance] = abiCoder.decode(
+              ["uint256"],
+              encodedMulticallData
+            );
+
+            updatedTokens[globalIndex]["balance"] =
+              CurrencyAmount
+                .fromRawAmount(tokenAddr, rawBalance.toString())
+                .toSignificant();
+
+            updatedTokens[globalIndex]["loading"] = false;
+            updatedTokens[globalIndex]["favorite"] = rawBalance > 0n;
+          }
+        );
+      }
+    }
+
+    const sortedTokens = [...updatedTokens].sort(
+      (a, b) => parseFloat(b.balance) - parseFloat(a.balance)
+    );
+
+    setTokenList(sortedTokens);
+
+  } catch (error) {
+    console.log("error:fetchBalances", error);
+  }
+};
 
 
 
