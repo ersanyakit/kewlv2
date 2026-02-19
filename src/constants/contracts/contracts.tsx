@@ -136,6 +136,23 @@ export const fetchBalancesLegacy = async (chainId: string | number,account: stri
 
 }
 
+const readWithRetry = async (fn: () => Promise<any>, retries = 3) => {
+  try {
+    return await fn();
+  } catch (err: any) {
+    if (err?.details?.code === -32016 || err?.status === 429) {
+      if (retries > 0) {
+        await new Promise(r => setTimeout(r, 500));
+        return readWithRetry(fn, retries - 1);
+      }
+    }
+    throw err;
+  }
+};
+
+const sleep = (ms: number) =>
+  new Promise(resolve => setTimeout(resolve, ms));
+
 export const fetchBalances = async (
   chainId: string | number,
   account: string | undefined,
@@ -183,6 +200,7 @@ export const fetchBalances = async (
 
     for (let chunkIndex = 0; chunkIndex < chunks.length; chunkIndex++) {
       const chunk = chunks[chunkIndex];
+   await sleep(120); // 100-200ms ideal
 
       const multicallParams = chunk.map((item: any) => ({
         target:
@@ -195,13 +213,23 @@ export const fetchBalances = async (
             : abiInterface.encodeFunctionData("balanceOf", [account]),
       }));
 
-      const multicallResult: any = await dexContract.client.readContract({
+    /*  const multicallResult: any = await dexContract.client.readContract({
         address: dexContract.caller.address,
         abi: dexContract.abi,
         functionName: "aggregate",
         args: [multicallParams],
         account: ethers.getAddress(account) as `0x${string}`,
       });
+*/
+      const multicallResult = await readWithRetry(() =>
+  dexContract.client.readContract({
+    address: dexContract.caller.address,
+    abi: dexContract.abi,
+    functionName: 'aggregate',
+    args: [multicallParams],
+    account: ethers.getAddress(account) as `0x${string}`,
+  })
+);
 
       if (multicallResult && multicallResult.length > 0) {
         multicallResult[1].forEach(
