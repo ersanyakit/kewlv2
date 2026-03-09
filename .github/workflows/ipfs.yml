@@ -1,4 +1,4 @@
-name: Deploy React to IPFS
+name: Deploy Vite React to IPFS
 
 on:
   push:
@@ -6,33 +6,33 @@ on:
       - main
 
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout repo
+      - name: Checkout
         uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
 
       - name: Install dependencies
         run: npm install
 
-      - name: Build React app
+      - name: Build project
         run: npm run build
 
-      - name: Upload build folder to Pinata (IPFS)
+      - name: Upload dist folder to Pinata
         env:
           PINATA_API_KEY: ${{ secrets.PINATA_API_KEY }}
           PINATA_SECRET_API_KEY: ${{ secrets.PINATA_SECRET_API_KEY }}
         run: |
           files=""
           while IFS= read -r -d '' file; do
-            files="$files -F file=@$file;filename=${file#build/}"
-          done < <(find build -type f -print0)
+            files="$files -F file=@$file;filename=${file#dist/}"
+          done < <(find dist -type f -print0)
 
           eval curl -X POST "https://api.pinata.cloud/pinning/pinFileToIPFS" \
             -H "pinata_api_key: $PINATA_API_KEY" \
