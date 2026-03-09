@@ -1,0 +1,32 @@
+name: Deploy to IPFS
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Install deps
+        run: npm install
+
+      - name: Build React
+        run: npm run build
+
+      - name: Upload to IPFS via Pinata
+        run: |
+          curl -X POST "https://api.pinata.cloud/pinning/pinFileToIPFS" \
+          -H "pinata_api_key: ${{ secrets.PINATA_API_KEY }}" \
+          -H "pinata_secret_api_key: ${{ secrets.PINATA_SECRET_API_KEY }}" \
+          -F "file=@build"
