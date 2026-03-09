@@ -1,4 +1,4 @@
-name: Deploy to IPFS
+name: Deploy React to IPFS
 
 on:
   push:
@@ -6,27 +6,36 @@ on:
       - main
 
 jobs:
-  build-deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout repo
+        uses: actions/checkout@v4
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install deps
+      - name: Install dependencies
         run: npm install
 
-      - name: Build React
+      - name: Build React app
         run: npm run build
 
-      - name: Upload to IPFS via Pinata
+      - name: Upload build folder to Pinata (IPFS)
+        env:
+          PINATA_API_KEY: ${{ secrets.PINATA_API_KEY }}
+          PINATA_SECRET_API_KEY: ${{ secrets.PINATA_SECRET_API_KEY }}
         run: |
-          curl -X POST "https://api.pinata.cloud/pinning/pinFileToIPFS" \
-          -H "pinata_api_key: ${{ secrets.PINATA_API_KEY }}" \
-          -H "pinata_secret_api_key: ${{ secrets.PINATA_SECRET_API_KEY }}" \
-          -F "file=@build"
+          files=""
+          while IFS= read -r -d '' file; do
+            files="$files -F file=@$file;filename=${file#build/}"
+          done < <(find build -type f -print0)
+
+          eval curl -X POST "https://api.pinata.cloud/pinning/pinFileToIPFS" \
+            -H "pinata_api_key: $PINATA_API_KEY" \
+            -H "pinata_secret_api_key: $PINATA_SECRET_API_KEY" \
+            -F 'pinataOptions={"wrapWithDirectory":true}' \
+            $files
